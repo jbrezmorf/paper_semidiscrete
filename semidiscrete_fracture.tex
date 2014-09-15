@@ -33,7 +33,7 @@
 
 \usepackage{array}
 \usepackage{longtable}
-%\usepackage[usenames,dvipsnames]{color}   %colors
+\usepackage[usenames,dvipsnames]{color}   %colors
 %\usepackage{colortbl}   %colorful tables
 \usepackage{tabularx}
 \usepackage{graphicx} %[dvips]
@@ -77,6 +77,9 @@
 \def\d {\,{\rm d}}
 \def\Natural{\mathbf N}
 \def\norm#1{\|#1\|}
+\def\yy{{\vc y}}
+
+\newcommand{\note}[2]{{\color{blue} \textbf{ #1:} \textit{#2}}}
 %% ini_table members
 %%%%%%%%%%%%%%%%%%%% specific math macros
 
@@ -163,27 +166,91 @@ and
 for every $i\in\{1,\dots, N_{E}^{d-1}\}$, $j\in\{1,\dots,N_{E}^{d}\}$,  and $d=2,3$. That is, the $(d-1)$-dimensional elements are either between $d$-dimensional elements and
 match their sides or they poke out of $\Omega_d$. 
 
-\subsection{Advection-diffusion processes on fractures}
+
+
+
+
+
+
+
+
+\section{Introduction}
+
+\note{JS}{
+MODELLING FRACTURES AS INTERFACES - survey of works and results, lack of rigorous justification (either formal derivation or error estimates just for particular approximation scheme).
+}
+
+
+Let $\Omega$ be a bounded domain in $\Real^d$, $d\in\{2,3\}$, with Lipschitz boundary.
+We consider the boundary-value problem
+\begin{equation}
+\label{eq:global_pde}
+-\div(\tn A\nabla u) = f \mbox{ in }\Omega,\qquad
+u=0\mbox{ on }\partial\Omega
+\end{equation}
+where $\tn A$ is bounded, symmetric and uniformly positive definite in $\Omega$.
+
+The problem is assumed to be of a specific geometric structure.
+In particular, we assume that the domain $\Omega$ is decomposed into two disjoint parts by a narrow strip (called fracture), where the data may have qualitatively different values.
+
+We make the following notation of parts of $\Omega$ (see also Figure \ref{fig:omegas}):
+The domain is divided into the fracture $\Omega_f:=\Omega\cap ((-\delta/2,\delta/2)\times\Real^{d-1})$ with the cross section $\delta>0$, and the matrix $\Omega_m:=\Omega\setminus\overline\Omega_f$.
+The matrix is further decomposed into the parts $\Omega_1:=\Omega_m\cap ((-\infty,0)\times \Real^{d-1})$ and $\Omega_2:=\Omega_m\cap ((0,\infty)\times \Real^{d-1})$.
+Let us also denote $\gamma:=\Omega\cap(\{0\}\times\Real^{d-1})$, $\gamma_1:=\Omega\cap(\{-\delta/2\}\times\Real^{d-1})$, $\gamma_2:=\Omega\cap(\{\delta/2\}\times\Real^{d-1})$ the manifold lying in the center, left side and right side of the fracture, respectively.
+
+By $x$, $\vc y$ we denote the normal and the tangential coordinate of a point in $\Omega_f$.
+Accordingly, $\partial_x$, $\nabla_{\vc y}:=(0,\partial_{y_1},\ldots,\partial_{y_{d-1}})^\top$ stands for the crosswind and the tangential derivative, respectively.
+The symbol $\bar h:=\frac1\delta\int_{-\delta/2}^{\delta/2} h(x,\cdot)~dx$ will denote the integral mean of a function $h$ across the fracture opening.
+
+% Furthermore we assume that $\tn A_{|\Omega_f} = \begin{pmatrix}a_n&0\\0&\tn A_t\end{pmatrix}$ and $\tn A(x,\vc y)=\tn A(\vc y)$ for any $(x,\vc y)\in\Omega_f$.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{figures/domains}
+\label{fig:omegas}
+\caption{The domain $\Omega$ and its parts.}
+\end{figure}
+
+In this paper we shall study the relation of the above problem to the following so-called asymptotic problem.
+The asymptotic problem reads:
+\begin{subequations}
+\label{eq:asymptotic_pde}
+\begin{align}
+-\div(\tn A\nabla u_m) &= f &&\mbox{ in }\Omega_m,\\
+u_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
+-\tn A\nabla u_m\cdot\vc n_i &= q(u_m,u_f) &&\mbox{ on }\gamma_i,i=1,2,\\
+-\div(\tn A\nabla_\yy u_f) &= \bar f + \frac1\delta\sum_{i=1}^2 q(u_{m|\gamma_i},u_f) &&\mbox{ in }\gamma,\\
+u_f &= 0 &&\mbox{ on }\overline\gamma\cap\partial\Omega,
+\end{align}
+\end{subequations}
+where $q(w,z):=\frac2\delta a_n(w-z)$ and $\vc n_i$ is the unit outward normal vector to $\Omega_i$, i=1,2, satisfying $\vc n:=\vc n_1=-\vc n_2=(1,0,0)^\top$.
+
+The aim of this paper is to justify the latter problem as an approximation of the first one in case when the cross section $\delta$ is small.
+In particular, we shall prove that
+\[ \bar u - u_f \approx \delta\quad\mbox{and}\quad u_{|\Omega_m}-u_m \approx \delta^{3/2} \]
+in a suitable sense.
+
+The organization of the paper is as follows.
+In the next section we present the formal derivation of the asymptotic problem.
+The main theoretical result on the error analysis is stated and proved in section \ref{sc:error_estimate}.
+Finally, in section \ref{sc:numerics} we show numerical results which confirm the error estimates.
+
+
+
+
+
+
+\section{Advection-diffusion processes on fractures}
 \label{sc:ad_on_fractures}
 In this section, we shall derive a model for a general advection-diffusion process in a domain of mixed dimensions using
-simple approximations inspired by the paper \citet{martin_modeling_2005}. Let us consider a fracture as a strip domain 
-\[
- \Omega_f \subset [0,\delta] \times \Real^{d-1}
-\]
-for $d=2$ or $d=3$ and surrounding continuum domains
-\[
- \Omega_1 \subset (-\infty,0)\times \Real^{d-1},
- \Omega_2 \subset (\delta,\infty)\times \Real^{d-1}.
-\]
-Further, we denote by $\gamma_i$, $i=1,2$ the fracture faces common with domains $\Omega_1$ and $\Omega_2$ respectively.
-By $x$, $\vc y$ we denote normal and tangential coordinate of a point in $\Omega_f$. 
-We consider the normal vector  $\vc n=\vc n_1=-\vc n_2=(1,0,0)^\top$.
+simple approximations inspired by the paper \citet{martin_modeling_2005}.
+
 An advection-diffusion process is given by equations:
 \begin{align}
   \label{eq:fr:continuity}
-  \prtl_t w_i + \div \vc j_i &= f_i&&  \text{on } \Omega_i,\ i=1,2,f,\\
+  \prtl_t w_i + \div \vc j_i &= f_i&&  \text{in } \Omega_i,\ i=1,2,f,\\
   \label{eq:fr:flux}
-  \vc j_i &= - \tn A_i\grad u_i + \vc b_i w_i&& \text{on } \Omega_i,\ i=1,2,f,\\
+  \vc j_i &= - \tn A_i\grad u_i + \vc b_i w_i&& \text{in } \Omega_i,\ i=1,2,f,\\
   \label{eq:fr:Dirichlet}
   u_i &= u_f&& \text{on } \gamma_i,\ i=1,2,\\
   \label{eq:fr:Neumann}
@@ -193,7 +260,7 @@ where $w_i=w_i(u_i)$ is the conservative quantity and $u_i$ is the principal unk
 $\tn A_i$ is the diffusivity tensor and $\vc b_i$ is the velocity field. We assume that the tensor $\tn A_f$ is symmetric positive definite 
 with one eigenvector in the direction $\vc n$. Consequently the tensor has the form:
 \[
- A_f = \begin{pmatrix} 
+ \tn A_f = \begin{pmatrix} 
             a_n & 0  \\
             0 & \tn A_t
        \end{pmatrix}
@@ -201,14 +268,14 @@ with one eigenvector in the direction $\vc n$. Consequently the tensor has the f
 Furthermore, we assume that $\tn A_f(x, \vc y)=\tn A_f(\vc y)$ is constant in the normal direction.
 
 Our next aim is to integrate equations on the fracture $\Omega_f$ in the normal direction 
-and obtain their approximations on the surface $\gamma=\Omega_f \cap \{x=\delta/2\}$ running through the middle of the fracture. 
+and obtain their approximations on the surface $\gamma$ running through the middle of the fracture. 
 For the sake of clarity, we will not write subscript $f$ for quantities on the fracture. 
-To make the following procedure mathematicaly correct we have to assume that functions
-$\prtl_x w$, $\prtl_x \grad_{\vc y} u$, $\prtl_x \vc b_{\vc y}$ are continuous and bounded on $\Omega_f$. Here and later on 
+To make the following procedure mathematicaly correct we have to assume that the functions
+$\prtl_x w$, $\prtl_x \grad_{\vc y} u$, $\prtl_x \vc b_{\vc y}$ are continuous and bounded in $\Omega_f$. Here and later on, 
 $\vc b_x=(\vc b \cdot \vc n)\, \vc n$ is the normal part of the velocity field and $\vc b_{\vc y} = \vc b - \vc b_x$ is the tangential part.
-The same notation will be used for normal and tangential part of the field $\vc q$.
+The same notation will be used for normal and tangential part of the field $\vc j$.
 
-We integrate \eqref{eq:fr:continuity} over the fracture opening $[0,\delta]$ and use approximations to get
+We integrate \eqref{eq:fr:continuity} over the fracture opening $[-\delta/2,\delta/2]$ and use approximations to get
 \begin{equation}
     \label{eq:fracture_continuity}
    \prtl_t (\delta W) - \vc j_2 \cdot \vc n_2 - \vc j_1 \cdot \vc n_1 + \div \vc J = \delta F,
@@ -216,38 +283,38 @@ We integrate \eqref{eq:fr:continuity} over the fracture opening $[0,\delta]$ and
 where for the first term, we have used mean value theorem, first order Taylor expansion, 
 and boundedness of $\prtl_x w$ to obtain approximation:
 \[
-    \int_0^\delta w(x,\vc y) \d x=\delta w(\xi_{\vc y}, \vc y) = \delta W(\vc y) + O(\delta^2\abs{\prtl_x w}),
+    \int_{-\frac\delta2}^{\frac\delta2} w(x,\vc y) \d x=\delta w(\xi_{\vc y}, \vc y) = \delta W(\vc y) + O(\delta^2\abs{\prtl_x w}),
 \]
 where
 \[
-    W(\vc y)=w(\delta / 2,\vc y)=w(u(\delta/2,\vc y))=w(U(\vc y)).
+    W(\vc y):=w(0,\vc y)=w(u(0,\vc y))=:w(U(\vc y)).
 \]
 Next two terms in \eqref{eq:fracture_continuity} come from the exact integration 
 of the divergence of the normal flux $\vc j_x$.
 Integration of the divergence of the tangential flux $\vc j_{\vc y}$ gives the fourth term, where we introduced
 \[
-\vc J(\vc y) = \int_0^\delta \vc j_{\vc y}(x, \vc y) \d x.
+\vc J(\vc y) := \int_{-\frac\delta2}^{\frac\delta2} \vc j_{\vc y}(x, \vc y) \d x.
 \]
 In fact, this flux on $\gamma$ is scalar for the case $d=2$. Finally, we integrate the right-hand side to get 
 \[
-    \int_0^\delta f(x,\vc y) \d x = \delta F(\vc y) + O(\delta^2\abs{\prtl_x f}),\quad F(\vc y)=f(\delta/2,\vc y). 
+    \int_{-\frac\delta2}^{\frac\delta2} f(x,\vc y) \d x = \delta F(\vc y) + O(\delta^2\abs{\prtl_x f}),\quad F(\vc y):=f(0,\vc y). 
 \]
 
 
-Due to the particular form of the tensor $\tn A_f$, we can separately integrate tangential and normal
+Due to the particular form of the tensor $\tn A_f$, we can separately integrate the tangential and the normal
 part of the flux given by \eqref{eq:fr:flux}. Integrating the tangential part and using approximations
 \[
-    \int_0^\delta  \grad_{\vc y} u(x, \vc y) \d x = \delta \grad_{\vc y} u (\xi_{\vc y}, \vc y) 
+    \int_{-\frac\delta2}^{\frac\delta2}  \grad_{\vc y} u(x, \vc y) \d x = \delta \grad_{\vc y} u (\xi_{\vc y}, \vc y) 
     = \delta \grad_{\vc y} U( \vc y) + O\big( \delta^2 \abs{\prtl_x\grad_{\vc y} u} \big) 
 \]
 and
 \[
- \int_0^\delta \big(\vc b_{\vc y} w\big)(x, \vc y) \d x 
+ \int_{-\frac\delta2}^{\frac\delta2} \big(\vc b_{\vc y} w\big)(x, \vc y) \d x 
   = \delta \vc B(\vc y) W(\vc y) + O\big(\delta^2 \abs{\prtl_x(\vc b_{\vc y} w)} \big)
 \]
 where
 \[
-  \vc B(\vc y) = \vc b_{\vc y}(\delta/2, \vc y),
+  \vc B(\vc y) := \vc b_{\vc y}(0, \vc y),
 \]
 we obtain
 \begin{equation}
@@ -256,18 +323,18 @@ we obtain
 \end{equation}
 
 
-So far, we have derived equations for the state quantities $U$ and $\vc J$ on the fracture manifold $\gamma$. In order to
-get a well possed problem, we have to prescribe two conditions for boundaries $\gamma_i$, $i=1,2$. To this end, we
+So far, we have derived equations for the state quantities $U$ and $\vc J$ in the fracture manifold $\gamma$. In order to
+get a well possed problem, we have to prescribe two conditions for the boundaries $\gamma_i$, $i=1,2$. To this end, we
 perform integration of the normal flux $\vc j_x$, given by \eqref{eq:fr:flux}, separately for the left and right half of the fracture.
 Similarly as before we use approximations
 \[
- \int_0^{\delta/2} \vc j_x \d x = (\vc j_1 \cdot \vc n_1)\frac{\delta}{2} + O(\delta^2 \abs{\prtl_x \vc j_x})
+ \int_{-\delta/2}^0 \vc j_x \d x = (\vc j_1 \cdot \vc n_1)\frac{\delta}{2} + O(\delta^2 \abs{\prtl_x \vc j_x})
 \]
 and 
 \[
- \int_0^{\delta/2} \vc b_x w \d x = (\vc b_1 \cdot \vc n_1)\tilde{w}_1\frac{\delta}{2} + O(\delta^2 \abs{\prtl_x \vc b_x}\abs{w} + \delta^2\abs{\vc b_x}\abs{\prtl_x w})
+ \int_{-\delta/2}^0 \vc b_x w \d x = (\vc b_1 \cdot \vc n_1)\tilde{w}_1\frac{\delta}{2} + O(\delta^2 \abs{\prtl_x \vc b_x}\abs{w} + \delta^2\abs{\vc b_x}\abs{\prtl_x w})
 \]
-and their counter parts on the interval $(\delta/2, \delta)$ to get
+and their counterparts on the interval $(0,\delta/2)$ to get
 \begin{align}
     \label{eq:fracture_normal_1}
      \vc j_1 \cdot \vc n_1 &= -\frac{2a_n}{\delta} (U - u_1) + \vc b_1\cdot \vc n_1 \tilde{w}_1\\
@@ -292,87 +359,71 @@ between upwind ($\xi = 1$) and central difference ($\xi=\frac12$) scheme. Equati
 \eqref{eq:fracture_normal} describe the general form of the advection-diffusion process on the fracture and its communication with 
 the surrounding continuum which we shall later apply to individual processes.
 
+
+
 \section{Error analysis of asymptotic model}
+\label{sc:error_estimate}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=12cm]{figures/domains}
-\end{figure}
+% (note: $u\in H^1(\Omega_f)\Rightarrow\bar u\in H^1(\gamma)$)
 
-Fracture $\Omega_f\subset[-\delta/2,\delta/2]\times\Real^{d-1}$, $\Gamma:=(\{0\}\times\Real^{d-1})\cap\Omega_f$, $\Gamma_1:=(\{-\delta/2\}\times\Real^{d-1})\cap\Omega_f$, $\Gamma:=(\{\delta/2\}\times\Real^{d-1})\cap\Omega_f$
 
-Domain $\Omega:=\Omega_1\cup\Gamma_1\cup\Omega_f\cup\Gamma_2\cup\Omega_2$, $\Omega_m:=\Omega_1\cup\Omega_2$ all Lipschitz domains
-
-$\bar u(\vc y) := \frac1\delta\int_{-\delta/2}^{\delta/2}u(x,\vc y)\,dx$
-(note: $u\in H^1(\Omega_f)\Rightarrow\bar u\in H^1(\Gamma)$)
-
-Assumption: $\tn A_{|\Omega_f} = \begin{pmatrix}a_n&0\\0&\tn A_\tau\end{pmatrix}$, $\tn A_{|\Omega_f}=\tn A(\vc y)$
-
-\paragraph{Global model.}
-\[
--\div(\tn A\nabla u) = f \mbox{ in }\Omega,\qquad
-u=0\mbox{ on }\partial\Omega
-\]
-Weak formulation: Find $u\in H^1_0(\Omega)$ such that for every $v\in H^1_0(\Omega)$:
+The ongoin analysis will be done in the framework of weak solutions.
+We say that $u\in H^1_0(\Omega)$ is the weak solution of \eqref{eq:global_pde} if for every $v\in H^1_0(\Omega)$:
 \begin{equation}
 \label{eq:weak_global}
 \int_\Omega \tn A\nabla u\cdot\nabla v = \int_\Omega fv.
 \end{equation}
-
-\paragraph{Asymptotic model.}
-\begin{align*}
--\div(\tn A\nabla u_m) &= f &&\mbox{ in }\Omega_m,\\
-u_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
--\tn A\nabla u_m\cdot\vc n &= Q(u_m,u_f) &&\mbox{ on }\Gamma_i,i=1,2,\\
--\div_\tau(\tn A_\tau\nabla_\tau u_f) &= \bar f + \frac1\delta\sum_{i=1}^2 Q(u_{m|\Gamma_i},u_f) &&\mbox{ in }\Gamma,\\
-u_f &= 0 &&\mbox{ on }\Gamma\cap\partial\Omega,
-\end{align*}
-where $Q(w,z):=\frac2\delta a_n(w-z)$.
-
-Weak formulation: Find $(u_m,u_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\Gamma)$ such that:
+Introducing the space
+\[ H^1_{bc}(\Omega_m) := \{v\in H^1(\Omega_m);~v_{|\partial\Omega_m\cap\partial\Omega}=0\}, \]
+we analogously define the weak solution of \eqref{eq:asymptotic_pde} as the couple $(u_m,u_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$ that satisfies
 \begin{subequations}
 \label{eq:weak_asym}
 \begin{equation}
-\int_{\Omega_m}\tn A\nabla u_m\cdot\nabla v + \sum_{i=1}^2\int_\Gamma Q(u_{m|\Gamma_i},u_f)v_{|\Gamma_i} = \int_{\Omega_m} fv,
+\int_{\Omega_m}\tn A\nabla u_m\cdot\nabla v + \sum_{i=1}^2\int_\gamma q(u_{m|\gamma_i},u_f)v_{|\gamma_i} = \int_{\Omega_m} fv
 \end{equation}
+for all $v\in H^1_{bc}(\Omega_m)$ and
 \begin{equation}
-\int_{\Gamma}\tn A_\tau\nabla_\tau u_f\cdot\nabla_\tau v = \int_\Gamma\bar f v + \frac1\delta\sum_{i=1}^2\int_\Gamma Q(u_{m|\Gamma_i},u_f)v.
+\int_{\gamma}\tn A_t\nabla_\yy u_f\cdot\nabla_\yy v = \int_\gamma\bar f v + \frac1\delta\sum_{i=1}^2\int_\gamma q(u_{m|\gamma_i},u_f)v
 \end{equation}
+for all $v\in H^1_0(\gamma)$.
 \end{subequations}
 
-
+The main result of this section is the following error estimate.
 \begin{theorem}
+\label{th:error_estimate}
 Let $\tn A$ be uniformly bounded and positive definite in $\overline\Omega$, $f\in L^2(\Omega)$ and assume that the unique solution to \eqref{eq:weak_global} satisfies additionally $\partial_n^2 u\in C(\overline\Omega_f)$.
-Then there is a constant $C:=C(\Omega,\Gamma,\tn A,\norm{\partial_n^2 u}_{\infty,\Omega_f},)>0$ such that
+Then there is a constant $C:=C(\Omega,\gamma,\tn A,\norm{\partial_n^2 u}_{\infty,\Omega_f},)>0$ such that
 \begin{subequations}
 \label{eq:error_estimates_delta}
 \begin{align}
-&\norm{\nabla_\tau(\bar u- u_f)}_{2,\Gamma} \le C\delta,\\
-&\norm{\nabla(u-u_m)}_{2,\Omega_m} \le C\delta^{3/2},\\
-&\sum_{i=1}^2\norm{\bar u-u_{|\Gamma_i}+u_{m|\Gamma_i}-u_f}_{2,\Gamma} \le C\delta^2.
+&\norm{\nabla_\yy(\bar u- u_f)}_{2,\gamma} \le C\sqrt{\frac{a_n}{\underline\lambda(\tn A_t)}}\norm{\partial_n^2 u}_{\infty,\gamma}\delta,\\
+&\norm{\nabla(u-u_m)}_{2,\Omega_m} \le C\sqrt{\frac{a_n}{\underline\lambda(\tn A_{|\Omega_m})}}\norm{\partial_n^2 u}_{\infty,\gamma}\delta^{3/2},\\
+&\sum_{i=1}^2\norm{\bar u-u_{|\gamma_i}+u_{m|\gamma_i}-u_f}_{2,\gamma} \le C\norm{\partial_n^2 u}_{\infty,\gamma}\delta^2,
 \end{align}
 \end{subequations}
+where $(u_m,u_f)$ is the solution to \eqref{eq:weak_asym}.
 \end{theorem}
 
+
 \begin{proof}
-Let us define for any $k\in\Natural$ an auxiliary operator $\Pi_k:L^2(\Omega_m)\times L^2(\Gamma)\to L^2(\Omega)$:
+Let us define for any $k\in\Natural$ an auxiliary operator $\Pi_k:L^2(\Omega_m)\times L^2(\gamma)\to L^2(\Omega)$:
 \begin{multline*}
-\Pi_k(v_m,v_\Gamma)(x,\vc y)\\ :=
+\Pi_k(v_m,v_\gamma)(x,\vc y)\\ :=
 \begin{cases}
 v_m(x,\vc y) & \mbox{ in }\Omega_m,\\
-v_\Gamma(0,\vc y) & \mbox{ in }\Omega_{fk}:=\{(\tilde x,\tilde{\vc y})\in\Omega;~-\frac\delta2+\frac1k<\tilde x<\frac\delta2-\frac1k\},\\
-k(x+\frac\delta2)v_\Gamma(0,\vc y) - k(x+\frac\delta2-\frac1k)v_m(-\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega;~\tilde x<-\frac\delta2+\frac1k\},\\
--k(x-\frac\delta2)v_\Gamma(0,\vc y) + k(x-\frac\delta2+\frac1k)v_m(\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega;~\tilde x>\frac\delta2-\frac1k\}.
+v_\gamma(0,\vc y) & \mbox{ in }\Omega_{fk}:=\{(\tilde x,\tilde{\vc y})\in\Omega;~-\frac\delta2+\frac1k<\tilde x<\frac\delta2-\frac1k\},\\
+k(x+\frac\delta2)v_\gamma(0,\vc y) - k(x+\frac\delta2-\frac1k)v_m(-\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega;~\tilde x<-\frac\delta2+\frac1k\},\\
+-k(x-\frac\delta2)v_\gamma(0,\vc y) + k(x-\frac\delta2+\frac1k)v_m(\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega;~\tilde x>\frac\delta2-\frac1k\}.
 \end{cases}
 \end{multline*}
-Note that $\Pi_k$ maps $H^1(\Omega_m)\times H^{1/2}(\Gamma)$ into $H^1(\Omega)$.
+Note that $\Pi_k$ maps $H^1(\Omega_m)\times H^{1/2}(\gamma)$ into $H^1(\Omega)$.
 Hence we can test \eqref{eq:weak_global} by $v_k:=\Pi_k(u-u_m,\bar u-u_f)$, where $u$, $u_m$ and $u_f$ satisfy \eqref{eq:weak_global} and \eqref{eq:weak_asym}, respectively:
 \begin{multline}
 \label{eq:global_vk}
 \int_{\Omega_m}\tn A\nabla u\cdot\nabla(u-u_m)
-+\int_{\Omega_{fk}}\tn A_\tau\nabla_\tau u\cdot\nabla_\tau(\bar u-u_f)
++\int_{\Omega_{fk}}\tn A_t\nabla_\yy u\cdot\nabla_\yy(\bar u-u_f)
 +\int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n u \partial_n v_k\\
-+ \int_{\Omega_f\setminus\Omega_{fk}} \tn A_\tau\nabla_\tau u \cdot \Pi_k(u-u_m,\nabla_\tau(\bar u-u_f))
++ \int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy u \cdot \Pi_k(u-u_m,\nabla_\yy(\bar u-u_f))
 = \int_{\Omega_m} f (u-u_m)\\
 + \int_{\Omega_{fk}} f (\bar u-u_f)
 + \int_{\Omega_f\setminus\Omega_{fk}} f v_k.
@@ -380,63 +431,79 @@ Hence we can test \eqref{eq:weak_global} by $v_k:=\Pi_k(u-u_m,\bar u-u_f)$, wher
 Next we shall perform the limit $k\to\infty$.
 Due to continuity of integral we have:
 \begin{align}
-&\int_{\Omega_{fk}}\tn A_\tau\nabla_\tau u\cdot\nabla_\tau(\bar u-u_f) \to \int_{\Omega_f}\tn A_\tau\nabla_\tau u\cdot\nabla_\tau(\bar u-u_f)\\
-&\hspace{4cm} = \delta\int_\Gamma\tn A_\tau\nabla_\tau\bar u\cdot\nabla_\tau(\bar u-u_f),\\
-&\int_{\Omega_f\setminus\Omega_{fk}} \tn A_\tau\nabla_\tau u \cdot \Pi_k(u-u_m,\nabla_\tau(\bar u-u_f)) \to 0, \\
-&\int_{\Omega_{fk}} f (\bar u-u_f) \to \int_{\Omega_{f}} f (\bar u-u_f) = \delta\int_{\Gamma} \bar f (\bar u-u_f), \\
+&\int_{\Omega_{fk}}\tn A_t\nabla_\yy u\cdot\nabla_\yy(\bar u-u_f) \to \int_{\Omega_f}\tn A_t\nabla_\yy u\cdot\nabla_\yy(\bar u-u_f)\\
+&\hspace{4cm} = \delta\int_\gamma\tn A_t\nabla_\yy\bar u\cdot\nabla_\yy(\bar u-u_f),\\
+&\int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy u \cdot \Pi_k(u-u_m,\nabla_\yy(\bar u-u_f)) \to 0, \\
+&\int_{\Omega_{fk}} f (\bar u-u_f) \to \int_{\Omega_{f}} f (\bar u-u_f) = \delta\int_{\gamma} \bar f (\bar u-u_f), \\
 &\int_{\Omega_f\setminus\Omega_{fk}} f v_k \to 0,~k\to\infty.
 \end{align}
 The remaining term can be rewritten as follows:
 \begin{multline}
 \int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n u \partial_n v_k
-= k\int_{-\frac\delta2}^{-\frac\delta2+\frac1k}\int_\Gamma a_n\partial_n u (\bar u - u_f - u_{|\Gamma_1} + u_{m|\Gamma_1})\\
-+ k\int_{\frac\delta2-\frac1k}^{\frac\delta2}\int_\Gamma a_n\partial_n u (\bar u - u_f - u_{|\Gamma_2} + u_{m|\Gamma_2})\\
-\to \sum_{i=1}^2\int_\Gamma a_n \partial_n u_{|\Gamma_i} (\bar u - u_f - u_{|\Gamma_i} + u_{m|\Gamma_i}),~k\to\infty.
+= k\int_{-\frac\delta2}^{-\frac\delta2+\frac1k}\int_\gamma a_n\partial_n u (\bar u - u_f - u_{|\gamma_1} + u_{m|\gamma_1})\\
++ k\int_{\frac\delta2-\frac1k}^{\frac\delta2}\int_\gamma a_n\partial_n u (\bar u - u_f - u_{|\gamma_2} + u_{m|\gamma_2})\\
+\to \sum_{i=1}^2\int_\gamma a_n \partial_n u_{|\gamma_i} (\bar u - u_f - u_{|\gamma_i} + u_{m|\gamma_i}),~k\to\infty.
 \end{multline}
 Since $\partial_n u$ is smooth, Taylor's expansion yields
-\[ \partial_n u(\pm\frac\delta2,\vc y) = \frac2\delta(\bar u - u(\pm\frac\delta2,\vc y)) - \frac\delta3\partial_n^2 u(\xi(\vc y)),~\xi\in(-\frac\delta2,\frac\delta2), \]
-i.e. there exist continuous functions $g_i\in C(\overline\Gamma)$ (independent of $\delta$) such that
+\[ \partial_n u(\pm\frac\delta2,\vc y) = \frac2\delta(\bar u - u(\pm\frac\delta2,\vc y)) - \frac\delta3\partial_n^2 u(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
+i.e. there exist functions $g_i:=\partial^2_n u(\xi(\cdot))\in L^\infty(\gamma)$ such that
 \begin{equation}
 \label{eq:taylor_for_du}
-\partial_n u_{|\Gamma_i} = \frac2\delta(\bar u - u_{|\Gamma_i}) - \delta g_i,~i=1,2.
+\partial_n u_{|\gamma_i} = \frac2\delta(\bar u - u_{|\gamma_i}) - \delta g_i,~i=1,2.
 \end{equation}
 Summing up, \eqref{eq:global_vk}--\eqref{eq:taylor_for_du} yield:
 \begin{multline}
 \label{eq:sum_global_vk_limit}
 \int_{\Omega_m}\tn A\nabla u\cdot\nabla(u-u_m)
-+\delta\int_\Gamma\tn A_\tau\nabla_\tau\bar u\cdot\nabla_\tau(\bar u-u_f)\\
-+ \sum_{i=1}^2\int_\Gamma Q(\bar u,u_{|\Gamma_i}) (\bar u - u_{|\Gamma_i} + u_{m|\Gamma_i} - u_f)\\
++\delta\int_\gamma\tn A_t\nabla_\yy\bar u\cdot\nabla_\yy(\bar u-u_f)\\
++ \sum_{i=1}^2\int_\gamma q(\bar u,u_{|\gamma_i}) (\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f)\\
 = \int_{\Omega_m} f (u-u_m)
-+ \delta\int_{\Gamma} \bar f (\bar u-u_f)
-+ \delta\sum_{i=1}^2\int_\Gamma a_n g_i\, (\bar u - u_{|\Gamma_i} + u_{m|\Gamma_i} - u_f).
++ \delta\int_{\gamma} \bar f (\bar u-u_f)
++ \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f).
 \end{multline}
 
 Now we plug into \eqref{eq:weak_asym} test functions $u-u_m$, $\delta(\bar u-u_f)$, respectively, and add the resulting equations.
 We obtain:
 \begin{multline*}
-\int_{\Omega_m}\tn A\nabla u_m\cdot\nabla(u-u_m) + \delta\int_\Gamma\tn A_\tau\nabla_\tau u_f\cdot\nabla_\tau(\bar u-u_f)\\
-- \sum_{i=1}^2\int_\Gamma Q(u_{m|\Gamma_i},u_f)(\bar u - u_{|\Gamma_i}+u_{m|\Gamma_i} - u_f)
+\int_{\Omega_m}\tn A\nabla u_m\cdot\nabla(u-u_m) + \delta\int_\gamma\tn A_t\nabla_\yy u_f\cdot\nabla_\yy(\bar u-u_f)\\
+- \sum_{i=1}^2\int_\gamma q(u_{m|\gamma_i},u_f)(\bar u - u_{|\gamma_i}+u_{m|\gamma_i} - u_f)
 = \int_{\Omega_m} f(u-u_m)
-+ \delta\int_\Gamma\bar f(\bar u-u_f).
++ \delta\int_\gamma\bar f(\bar u-u_f).
 \end{multline*}
 Subtracting this from \eqref{eq:sum_global_vk_limit}, using H\"older's and Young's inequality yields:
 \begin{multline}
 \int_{\Omega_m}\tn A\nabla (u-u_m)\cdot\nabla(u-u_m)
-+\delta\int_\Gamma\tn A_\tau\nabla_\tau(\bar u-u_f)\cdot\nabla_\tau(\bar u-u_f)\\
-+ \sum_{i=1}^2\int_\Gamma \frac{2a_n}\delta |\bar u - u_{|\Gamma_i} + u_{m|\Gamma_i} - u_f|^2
-= \delta\sum_{i=1}^2\int_\Gamma a_n g_i\, (\bar u - u_{|\Gamma_i} + u_{m|\Gamma_i} - u_f)\\
-\le \left(\frac\delta2\right)^{\frac32}\sum_{i=1}^2\norm{\sqrt{a_n}g_i}_{\infty,\Gamma}\int_\Gamma\sqrt{\frac{2a_n}\delta}|\bar u - u_{|\Gamma_i} + u_{m|\Gamma_i} - u_f|\\
-\le \frac{\delta^3}2\sum_{i=1}^2\norm{\sqrt{a_n}g_i}_{\infty,\Gamma} + \frac12\sum_{i=1}^2\int_\Gamma \frac{2a_n}\delta |\bar u - u_{|\Gamma_i} + u_{m|\Gamma_i} - u_f|^2.
++\delta\int_\gamma\tn A_t\nabla_\yy(\bar u-u_f)\cdot\nabla_\yy(\bar u-u_f)\\
++ \sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|^2
+= \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f)\\
+\le \sqrt{a_n}\left(\frac\delta2\right)^{\frac32}\sum_{i=1}^2\norm{g_i}_{\infty,\gamma}\int_\gamma\sqrt{\frac{2a_n}\delta}|\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|\\
+\le a_n\frac{\delta^3}2\sum_{i=1}^2\norm{g_i}_{\infty,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|^2.
 \end{multline}
 Finally we absorb the last term in the left hand side and use uniform positive definiteness of $\tn A$:
 \begin{multline}
-\norm{\nabla (u-u_m)}_{2,\Omega_m}^2
-+\delta\norm{\nabla_\tau(\bar u-u_f)}_{2,\Gamma}^2\\
-+ \frac1\delta\sum_{i=1}^2\norm{\bar u - u_{|\Gamma_i} + u_{m|\Gamma_i} - u_f}_{2,\Gamma}^2
-\le C\delta^3,
+\underline\lambda(\tn A_{|\Omega_m})\norm{\nabla (u-u_m)}_{2,\Omega_m}^2
++\underline\lambda(\tn A_t)\delta\norm{\nabla_\yy(\bar u-u_f)}_{2,\gamma}^2\\
++ \frac{a_n}\delta\sum_{i=1}^2\norm{\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f}_{2,\gamma}^2
+\le \frac{a_n}2\left(\sum_{i=1}^2\norm{g_i}_{\infty,\gamma}^2\right)\delta^3,
 \end{multline}
 from which the estimates \eqref{eq:error_estimates_delta} follow.
 \end{proof}
+
+
+\section{Numerical experiments}
+\label{sc:numerics}
+
+\note{JS}{
+OUR STRATEGY - compare two models using 2nd order approximation in space + meshes refined proportionally to cross section.
+\\
+DESCRIBE FLOW123D - mixed-hybrid method for Darcy flow, DG for transport, input/output interface
+\\
+TEST PROBLEMS - analytical solutions, tests from JMR paper, comments to the results
+}
+
+
+
+
 
 
 
