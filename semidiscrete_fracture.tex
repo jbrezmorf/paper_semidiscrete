@@ -426,15 +426,15 @@ Subtracting this from \eqref{eq:sum_global_vk_limit}, using H\"older's and Young
 +\delta\int_\gamma\tn A_t\nabla_\yy(\bar u-u_f)\cdot\nabla_\yy(\bar u-u_f)\\
 + \sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|^2
 = \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f)\\
-\le \sqrt{a_n}\left(\frac\delta2\right)^{\frac32}\sum_{i=1}^2\norm{g_i}_{\infty,\gamma}\int_\gamma\sqrt{\frac{2a_n}\delta}|\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|\\
-\le a_n\frac{\delta^3}2\sum_{i=1}^2\norm{g_i}_{\infty,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|^2.
+\le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{a_n}|g_i|\sqrt{\frac{2a_n}\delta}|\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|\\
+\le \frac{\delta^3}4\norm{a_n}_{\infty,\gamma}\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|^2.
 \end{multline}
 Finally we absorb the last term in the left hand side and use uniform positive definiteness of $\tn A$:
 \begin{multline}
 \underline\lambda(\tn A_{|\Omega_m})\norm{\nabla (u-u_m)}_{2,\Omega_m}^2
 +\underline\lambda(\tn A_t)\delta\norm{\nabla_\yy(\bar u-u_f)}_{2,\gamma}^2\\
-+ \frac{a_n}\delta\sum_{i=1}^2\norm{\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f}_{2,\gamma}^2
-\le \frac{a_n}2\left(\sum_{i=1}^2\norm{g_i}_{\infty,\gamma}^2\right)\delta^3,
++ \frac1\delta\inf_{\Omega_f}a_n\sum_{i=1}^2\norm{\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f}_{2,\gamma}^2
+\le \frac{\norm{a_n}_{\infty,\gamma}}4\left(\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2\right)\delta^3,
 \end{multline}
 from which the estimates \eqref{eq:error_estimates_delta} follow.
 \end{proof}
