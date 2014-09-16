@@ -92,89 +92,39 @@
 %\addtolength{\voffset}{-2.5cm}
 \begin{document}
 
-\section{Quick start}
-
-Flow123D is a software for simulation of water flow, reactionary solute transport and heat transfer in a heterogeneous 
-porous and fractured medium. In particular it is suited for simulation of underground processes in a granite rock massive.
-The program is able to describe explicitly processes in 3D medium, 2D fractures, and 1D channels and exchange between 
-domains of different dimensions. The computational mesh is therefore a collection of tetrahedra, triangles and line segments.
-
-The water flow model assumes a saturated medium described by the Darcy law. For discretization, we use lumped mixed-hybrid finite element method.
-We support both steady and unsteady water flow. The water flow model can be sequentially coupled with two different models for a solute transport or with a heat transfer model.
-
-The first solute transport model can deal only with pure advection of several substances without any diffusion-dispersion term. It uses 
-explicit Euler method for time discretization and finite volume method for space discretization and operator splitting method to 
-couple with various processes described by the reaction term. The reaction term can treat any meaningful combination of the dual porosity, adsorptions, decays and linear reactions.
-Alternatively, one can use interface to the experimental SEMCHEM package for more complex geochemistry.
-
-The second solute transport model describes general advection with hydrodynamic dispersion for several substances. It uses implicit Euler method for time discretization and discontinuous Galerkin method of
-the first, second or third order for the discretization in space. Currently there is no support for reaction term, the operator splitting approach (although it is not suited for implicit time schemes) 
-is planned for the next version.
-
-The heat transfer model assumes equilibrium between temperature of the rock and the fluid phase. It uses the same numerical scheme as the second transport model.
-
-The program support output of all input and many output fields into two file formats. You can use file format of GMSH mesh generator and post-processor 
-or you can use output into widely supported VTK format. In particular we recommend Paraview software for visualization and post-processing of the VTK data.
-
-The program is implemented in C/C++ using essentially PETSC library for linear algebra. All models can run in parallel using MPI environment, however, 
-the scalability of the whole program is limited due to serial mesh and serial outputs.
-
-
-The program is distributed under GNU GPL v. 3 license and is available on the project web page:
-\verb'http://flow123d.github.io'
-
-with sources on the GitHub:
-\verb'https://github.com/flow123d/flow123d'.
-
-
-\section{Mathematical models \\of physical reality}
-\label{PhysicalModels}
-
-Flow123d provides models for Darcy flow in porous media as well as for the transport and reactions of solutes. In this section, we describe 
-mathematical formulations of these models together with physical meaning and units of all involved quantities. In the first section we present 
-basic notation and assumptions about computational domains and meshes that combine different dimensions. In the next section we
-derive approximation of thin fractures by lower dimensional interfaces for a general transport process. Latter sections describe details for models of particular
-physical processes.
-
-\subsection{Meshes of mixed dimension}
-Common and unique feature of all models in Flow123d is the support of
-domains with mixed dimension. 
-Let $\Omega_{3} \subset \Real^3$ be an open set representing continuous approximation of porous and fractured medium.
-Similarly, we consider a 2D manifold $\Omega_2\subset\overline\Omega_3$, representing 2D fractures and a 1D manifold $\Omega_1\subset \overline\Omega_2$ of 1D channels or preferential paths (see Fig \ref{fig:multi-dim}).
-We assume that $\Omega_2$ and $\Omega_1$ are polytopic (i.e. polygonal and piecewise linear, respectively).
-For every dimension $d=1,2,3$, we introduce a triangulation $\mathcal{T}_{d}$ of the open set $\Omega_d$
-that consists of finite elements $T_{d}^{i},$\ $i = 1,\dots,N_{E}^{d}$.
-The elements are simplices, i.e. lines, triangles and tetrahedra, respectively.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=10cm]{figures/ground_fractures}
-\caption{
-    \label{fig:multi-dim}
-    Scheme of a problem with domains of multiple dimensions.
-}
-\end{figure}
-
-Present numerical methods require meshes satisfying the compatibility conditions
-\begin{equation}
-        T_{d-1}^i \cap T_d \subset \mathcal{F}_d,   \qquad \text{where } \mathcal{F}_d = \bigcup_{k} \partial T_{d}^{k}
-\end{equation}
-and
-\begin{equation}
-        T_{d-1}^i \cap \mathcal{F}_d    \text{ is either $T_{d-1}^i$ or $\emptyset$}    
-\end{equation}
-for every $i\in\{1,\dots, N_{E}^{d-1}\}$, $j\in\{1,\dots,N_{E}^{d}\}$,  and $d=2,3$. That is, the $(d-1)$-dimensional elements are either between $d$-dimensional elements and
-match their sides or they poke out of $\Omega_d$. 
-
-
-
-
-
-
-
-
-
 \section{Introduction}
+\note{JB}{
+\begin{itemize}
+ \item Motivation, background (granite, impact of small scale to large scale)
+ \item 2d domain, notation (figure with boundary perpendicular to fracture)
+ \item Darcy flow, Solute transport equations, basic notation
+\end{itemize}
+}
+
+Deep subsurface deposits in plutonic rock represents one of possible solution for final storage of nuclear waste. The primary reason is 
+small hydraulic permeability of the bulk rock and thus slow migration of a possible leakage due to ground water flow.  On the other hand, 
+granitoid formations contain fractures that may form a network of preferential paths with low volumetric water flow rate but with 
+high velocity. The preferential paths pose a risk of fast transport of small amount of contaminant but in potentially dangerous concentrations.
+The large scale effect of the small scale fractures is challenging for numerical simulations since direct discretization requires highly refined
+computational mesh. One possible solution is to model fractures as lower dimensional objects and introduce their coupling with surrounding continuum.
+\note{JB}{ Overview of other papers, namely: Martin et al \cite{martin_modeling_2005} (Darcy, classical derivation, numeric), Angot et al \cite{angot_asymptotic_2009} 
+(Darcy, curved fracture, definition of trace operator for immersed fracture, finite volume scheme, convergence, our case not covered); Fumagalli and Scotti (transport, classical derivation).}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Notation}
+\note{JB}{Some notation may be postponed to next section}
 
 \note{JS}{
 MODELLING FRACTURES AS INTERFACES - survey of works and results, lack of rigorous justification (either formal derivation or error estimates just for particular approximation scheme).
@@ -240,7 +190,7 @@ Finally, in section \ref{sc:numerics} we show numerical results which confirm th
 
 
 
-\section{Advection-diffusion processes on fractures}
+\section{Continuum-fracture model for abstract advection-diffusion}
 \label{sc:ad_on_fractures}
 In this section, we shall derive a model for a general advection-diffusion process in a domain of mixed dimensions using
 simple approximations inspired by the paper \citet{martin_modeling_2005}.
