@@ -111,77 +111,77 @@ computational mesh. One possible solution is to model fractures as lower dimensi
 (Darcy, curved fracture, definition of trace operator for immersed fracture, finite volume scheme, convergence, our case not covered); Fumagalli and Scotti (transport, classical derivation).}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-\section{Notation}
-\note{JB}{Some notation may be postponed to next section}
-
 \note{JS}{
 MODELLING FRACTURES AS INTERFACES - survey of works and results, lack of rigorous justification (either formal derivation or error estimates just for particular approximation scheme).
 }
 
-
-Let $\Omega$ be a bounded domain in $\Real^d$, $d\in\{2,3\}$, with Lipschitz boundary.
-We consider the boundary-value problem
-\begin{equation}
-\label{eq:global_pde}
--\div(\tn A\nabla u) = f \mbox{ in }\Omega,\qquad
-u=0\mbox{ on }\partial\Omega
-\end{equation}
-where $\tn A$ is bounded, symmetric and uniformly positive definite in $\Omega$.
-
-The problem is assumed to be of a specific geometric structure.
-In particular, we assume that the domain $\Omega$ is decomposed into two disjoint parts by a narrow strip (called fracture), where the data may have qualitatively different values.
-
-We make the following notation of parts of $\Omega$ (see also Figure \ref{fig:omegas}):
-The domain is divided into the fracture $\Omega_f:=\Omega\cap ((-\delta/2,\delta/2)\times\Real^{d-1})$ with the cross section $\delta>0$, and the matrix $\Omega_m:=\Omega\setminus\overline\Omega_f$.
-The matrix is further decomposed into the parts $\Omega_1:=\Omega_m\cap ((-\infty,0)\times \Real^{d-1})$ and $\Omega_2:=\Omega_m\cap ((0,\infty)\times \Real^{d-1})$.
-Let us also denote $\gamma:=\Omega\cap(\{0\}\times\Real^{d-1})$, $\gamma_1:=\Omega\cap(\{-\delta/2\}\times\Real^{d-1})$, $\gamma_2:=\Omega\cap(\{\delta/2\}\times\Real^{d-1})$ the manifold lying in the center, left side and right side of the fracture, respectively.
-
-By $x$, $\vc y$ we denote the normal and the tangential coordinate of a point in $\Omega_f$.
-Accordingly, $\partial_x$, $\nabla_{\vc y}:=(0,\partial_{y_1},\ldots,\partial_{y_{d-1}})^\top$ stands for the crosswind and the tangential derivative, respectively.
-The symbol $\bar h:=\frac1\delta\int_{-\delta/2}^{\delta/2} h(x,\cdot)~dx$ will denote the integral mean of a function $h$ across the fracture opening.
-
-% Furthermore we assume that $\tn A_{|\Omega_f} = \begin{pmatrix}a_n&0\\0&\tn A_t\end{pmatrix}$ and $\tn A(x,\vc y)=\tn A(\vc y)$ for any $(x,\vc y)\in\Omega_f$.
+\note{JS}{
+Only basic notation in introduction (2d domain, Darcy, AD eq.) remaining in derivation of abstract fracture model.
+}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=12cm]{figures/domains}
+\includegraphics[width=12cm]{figures/full_model_domain}
 \label{fig:omegas}
-\caption{The domain $\Omega$ and its parts.}
+\caption{The domain of the full model (left) and the reduced geometry (right).}
 \end{figure}
 
-In this paper we shall study the relation of the above problem to the following so-called asymptotic problem.
-The asymptotic problem reads:
-\begin{subequations}
-\label{eq:asymptotic_pde}
-\begin{align}
--\div(\tn A\nabla u_m) &= f &&\mbox{ in }\Omega_m,\\
-u_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
--\tn A\nabla u_m\cdot\vc n_i &= q(u_m,u_f) &&\mbox{ on }\gamma_i,i=1,2,\\
--\div(\tn A\nabla_\yy u_f) &= \bar f + \frac1\delta\sum_{i=1}^2 q(u_{m|\gamma_i},u_f) &&\mbox{ in }\gamma,\\
-u_f &= 0 &&\mbox{ on }\overline\gamma\cap\partial\Omega,
-\end{align}
-\end{subequations}
-where $q(w,z):=\frac2\delta a_n(w-z)$ and $\vc n_i$ is the unit outward normal vector to $\Omega_i$, i=1,2, satisfying $\vc n:=\vc n_1=-\vc n_2=(1,0,0)^\top$.
 
-The aim of this paper is to justify the latter problem as an approximation of the first one in case when the cross section $\delta$ is small.
+We consider a bounded domain $\Omega \subset \Real^d$, $d=2,3$ with a Lipschitz boundary, see Figure \ref{fig:omegas} left). The domain $\Omega$ contains 
+a fracture $\Omega_f:=\Omega\cap \big(\Real^{d-1}\times(-\delta/2,\delta/2)\big)$ 
+with the aperture $\delta>0$ surrounded by the matrix domain $\Omega_m:=\Omega\setminus\overline\Omega_f$.  The fracture interacts with the matrix domain on the interfaces
+$\gamma_1:=\Omega\cap\big( \Real^{d-1}\times \{-\delta/2\}\big)$ and $\gamma_2:=\Omega\cap \big( \Real^{d-1}\times \{\delta/2\}\big)$. Further, we introduce reduced geometry (see Figure \ref{fig:omegas})
+where the fracture domain is represented by the interface $\gamma:=\Omega\cap\big(\Real^{d-1}\times\{0\}\big)$ in its center. 
+
+We are interested in a steady Darcy flow on domain $\Omega$:
+\begin{align}
+    \label{eq:darcy_flow}
+    \div \vc{q_h} = f_h \mbox{ in }\Omega, \\
+    \vc q_h = -\tn K \grad h, \\
+    h=0\mbox{ on }\partial\Omega
+\end{align}
+where $\vc q$ is the Darcy flux, $f_h$ is the source density, $\tn K$ is the hydraulic conductivity tensor, and $h$ is the piezometric head.
+Further, we consider also related solute transport equation:
+\begin{align}
+    \label{eq:solute_transport}
+    \prtl_t (\theta c) + \div(q_c) = f_c \mbox{ in }\Omega,\\
+    \vc q_c = \theta c \vc q_h - \tn D \grad c, \\
+    c=0\mbox{ on }\partial\Omega
+\end{align}
+where $\theta$ is the porosity, $c$ is the solute concentration, $q_c$ is the total solute flux, and $\tn D$ is the diffusion-dispersion tensor that in general depends on $q_h$.
+
+Both transport processes are particular cases of an abstract advection-diffusion problem which admits an equivalent formulation
+emphasizing the structure of the domain $\Omega$:
+\begin{align}
+  \label{eq:fr:continuity}
+  \prtl_t w_i + \div \vc j_i &= f_i&&  \text{in } \Omega_i,\ i=m,f,\\
+  \label{eq:fr:flux}
+  \vc j_i &= - \tn A_i\grad u_i + \vc b_i w_i&& \text{in } \Omega_i,\ i=m,f,\\
+  \label{eq:fr:Dirichlet}
+  u_i &= u_f&& \text{on } \gamma_i,\ i=1,2,\\
+  \label{eq:fr:Neumann}
+  \vc j_i \cdot \vc n &= \vc j_f \cdot \vc n&& \text{on } \gamma_i,\ i=1,2,
+\end{align}
+where $w_i=w_i(u_i)$ is the conservative quantity and $u_i$ is the principal unknown, $\vc j_i$ is the flux of $w_i$, $f_i$ is the source term,
+$\tn A_i$ is the diffusivity tensor and $\vc b_i$ is the velocity field. 
+
+In this paper we shall study the relation of the above problem to the so-called asymptotic problem on the reduced geometry.
+\note{JB}{Proposed names:
+\begin{itemize}
+ \item continuum-fracture model
+ \item reduced fracture model
+ \item averaged fracture model
+\end{itemize}
+}
+
+The aim of this paper is to justify the latter problem as an approximation of the first one in the case when the cross section $\delta$ is small.
 In particular, we shall prove that
 \[ \bar u - u_f \approx \delta\quad\mbox{and}\quad u_{|\Omega_m}-u_m \approx \delta^{3/2} \]
 in a suitable sense.
 
+
 The organization of the paper is as follows.
-In the next section we present the formal derivation of the asymptotic problem.
+In the next section we present the formal derivation of the asymptotic model.
 The main theoretical result on the error analysis is stated and proved in section \ref{sc:error_estimate}.
 Finally, in section \ref{sc:numerics} we show numerical results which confirm the error estimates.
 
@@ -190,24 +190,24 @@ Finally, in section \ref{sc:numerics} we show numerical results which confirm th
 
 
 
-\section{Continuum-fracture model for abstract advection-diffusion}
-\label{sc:ad_on_fractures}
-In this section, we shall derive a model for a general advection-diffusion process in a domain of mixed dimensions using
-simple approximations inspired by the paper \citet{martin_modeling_2005}.
 
-An advection-diffusion process is given by equations:
-\begin{align}
-  \label{eq:fr:continuity}
-  \prtl_t w_i + \div \vc j_i &= f_i&&  \text{in } \Omega_i,\ i=1,2,f,\\
-  \label{eq:fr:flux}
-  \vc j_i &= - \tn A_i\grad u_i + \vc b_i w_i&& \text{in } \Omega_i,\ i=1,2,f,\\
-  \label{eq:fr:Dirichlet}
-  u_i &= u_f&& \text{on } \gamma_i,\ i=1,2,\\
-  \label{eq:fr:Neumann}
-  \vc j_i \cdot \vc n &= \vc j_f \cdot \vc n&& \text{on } \gamma_i,\ i=1,2,
-\end{align}
-where $w_i=w_i(u_i)$ is the conservative quantity and $u_i$ is the principal unknown, $\vc j_i$ is the flux of $w_i$, $f_i$ is the source term,
-$\tn A_i$ is the diffusivity tensor and $\vc b_i$ is the velocity field. We assume that the tensor $\tn A_f$ is symmetric positive definite 
+
+
+
+
+\section{Asymptotic model for abstract advection-diffusion problem}
+\label{sc:ad_on_fractures}
+
+In this section, we shall derive a model for the abstract advection-diffusion process $(\ref{eq:fr:continuity}--\ref{eq:fr:Neumann}$
+on the reduced geometry inspired by the paper \citet{martin_modeling_2005}.
+
+
+By $x$, $\vc y$ we denote the normal and the tangential coordinate of a point in $\Omega_f$.
+Accordingly, $\partial_x$, $\nabla_{\vc y}:=(0,\partial_{y_1},\ldots,\partial_{y_{d-1}})^\top$ stands for the crosswind and the tangential derivative, respectively.
+The symbol $\bar w:=\frac1\delta\int_{-\delta/2}^{\delta/2} w(x,\cdot)~dx$ will denote the integral mean of a function $w$ across the fracture opening.
+
+
+We assume that the diffusive tensor $\tn A_f$ is symmetric positive definite 
 with one eigenvector in the direction $\vc n$. Consequently the tensor has the form:
 \[
  \tn A_f = \begin{pmatrix} 
@@ -217,10 +217,16 @@ with one eigenvector in the direction $\vc n$. Consequently the tensor has the f
 \]
 Furthermore, we assume that $\tn A_f(x, \vc y)=\tn A_f(\vc y)$ is constant in the normal direction.
 
+
+
+
+
+
+
 Our next aim is to integrate equations on the fracture $\Omega_f$ in the normal direction 
 and obtain their approximations on the surface $\gamma$ running through the middle of the fracture. 
 For the sake of clarity, we will not write subscript $f$ for quantities on the fracture. 
-To make the following procedure mathematicaly correct we have to assume that the functions
+To make the following procedure mathematically correct we have to assume that the functions
 $\prtl_x w$, $\prtl_x \grad_{\vc y} u$, $\prtl_x \vc b_{\vc y}$ are continuous and bounded in $\Omega_f$. Here and later on, 
 $\vc b_x=(\vc b \cdot \vc n)\, \vc n$ is the normal part of the velocity field and $\vc b_{\vc y} = \vc b - \vc b_x$ is the tangential part.
 The same notation will be used for normal and tangential part of the field $\vc j$.
@@ -309,9 +315,26 @@ between upwind ($\xi = 1$) and central difference ($\xi=\frac12$) scheme. Equati
 \eqref{eq:fracture_normal} describe the general form of the advection-diffusion process on the fracture and its communication with 
 the surrounding continuum which we shall later apply to individual processes.
 
+The asymptotic problem reads:
+\begin{subequations}
+\label{eq:asymptotic_pde}
+\begin{align}
+-\div(\tn A\nabla u_m) &= f &&\mbox{ in }\Omega_m,\\
+u_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
+-\tn A\nabla u_m\cdot\vc n_i &= q(u_m,u_f) &&\mbox{ on }\gamma_i,i=1,2,\\
+-\div(\tn A\nabla_\yy u_f) &= \bar f + \frac1\delta\sum_{i=1}^2 q(u_{m|\gamma_i},u_f) &&\mbox{ in }\gamma,\\
+u_f &= 0 &&\mbox{ on }\overline\gamma\cap\partial\Omega,
+\end{align}
+\end{subequations}
+where $q(w,z):=\frac2\delta a_n(w-z)$ and $\vc n_i$ is the unit outward normal vector to $\Omega_i$, i=1,2, satisfying $\vc n:=\vc n_1=-\vc n_2=(1,0,0)^\top$.
 
 
-\section{Error analysis of asymptotic model}
+
+
+\section{Darcy flow}
+\subsection{Continuum-fracture model}
+\subsection{Weak formulation}
+\subsection{Error analysis of asymptotic model}
 \label{sc:error_estimate}
 
 % (note: $u\in H^1(\Omega_f)\Rightarrow\bar u\in H^1(\gamma)$)
@@ -341,17 +364,17 @@ for all $v\in H^1_0(\gamma)$.
 The main result of this section is the following error estimate.
 \begin{theorem}
 \label{th:error_estimate}
-Let $\tn A$ be uniformly bounded and positive definite in $\overline\Omega$, $f\in L^2(\Omega)$ and assume that the unique solution to \eqref{eq:weak_global} satisfies additionally $\partial_n^2 u\in C(\overline\Omega_f)$.
-Then there is a constant $C:=C(\Omega,\gamma,\tn A,\norm{\partial_n^2 u}_{\infty,\Omega_f},)>0$ such that
+Let $\delta>0$, $\tn A$ be uniformly bounded and positive definite in $\overline\Omega$, $f\in L^2(\Omega)$ and assume that the unique solution to \eqref{eq:weak_global} satisfies additionally $\partial_n^2 u\in C(\overline\Omega_f)$.
+Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$ and $\tn A$ such that
 \begin{subequations}
 \label{eq:error_estimates_delta}
 \begin{align}
-&\norm{\nabla_\yy(\bar u- u_f)}_{2,\gamma} \le C\sqrt{\frac{a_n}{\underline\lambda(\tn A_t)}}\norm{\partial_n^2 u}_{\infty,\gamma}\delta,\\
-&\norm{\nabla(u-u_m)}_{2,\Omega_m} \le C\sqrt{\frac{a_n}{\underline\lambda(\tn A_{|\Omega_m})}}\norm{\partial_n^2 u}_{\infty,\gamma}\delta^{3/2},\\
-&\sum_{i=1}^2\norm{\bar u-u_{|\gamma_i}+u_{m|\gamma_i}-u_f}_{2,\gamma} \le C\norm{\partial_n^2 u}_{\infty,\gamma}\delta^2,
+&\norm{\nabla_\yy(\bar u- u_f)}_{2,\gamma} \le C\sqrt{\frac{\norm{a_n}_{\infty,\gamma}}{\underline\lambda(\tn A_t)}}\norm{\partial_n^2 u}_{C(\overline\Omega_f)}\delta,\\
+&\norm{\nabla(u-u_m)}_{2,\Omega_m} \le C\sqrt{\frac{\norm{a_n}_{\infty,\gamma}}{\underline\lambda(\tn A_{|\Omega_m})}}\norm{\partial_n^2 u}_{C(\overline\Omega_f)}\delta^{3/2},\\
+&\sum_{i=1}^2\norm{\bar u-u_{|\gamma_i}+u_{m|\gamma_i}-u_f}_{2,\gamma} \le C\sqrt{\frac{\norm{a_n}_{\infty,\gamma}}{\inf_{\Omega_f}a_n}}\norm{\partial_n^2 u}_{C(\overline\Omega_f)}\delta^2,
 \end{align}
 \end{subequations}
-where $(u_m,u_f)$ is the solution to \eqref{eq:weak_asym}.
+where $(u_m,u_f)$ is the solution to \eqref{eq:weak_asym} and $\underline\lambda(\cdot)$ denotes the smallest eigenvalue of a matrix.
 \end{theorem}
 
 
@@ -439,6 +462,11 @@ Finally we absorb the last term in the left hand side and use uniform positive d
 from which the estimates \eqref{eq:error_estimates_delta} follow.
 \end{proof}
 
+\section{Solute transport}
+\subsection{Continuum-fracture model}
+\subsection{Weak formulation}
+\subsection{Error analysis of asymptotic model}
+
 
 \section{Numerical experiments}
 \label{sc:numerics}
@@ -458,268 +486,7 @@ TEST PROBLEMS - analytical solutions, tests from JMR paper, comments to the resu
 
 
 
-\subsection{Darcy flow model}
-We consider simplest model for the velocity of the steady or unsteady flow in porous and fractured medium given by 
-Darcy flow:
-\begin{equation}
-    \label{eq:darcy}
-    \vc w = -\tn K \grad H \quad\text{on }\Omega_d,\ \text{for $d=1,2,3$}.
-\end{equation}
-We drop the dimension index of quantities in equations if it is the same as the dimension of the set where the equation holds.
-In \eqref{eq:darcy}, $\vc w_d$ \units{}{1}{-1} is the superficial velocity,
-$\tn K_d$ is the conductivity tensor, and $H_d$ \units{}{1}{} is the piezometric head. The velocity is related to the flux $\vc q_d$ 
-with units \units{}{4-d}{-1} through
-\[
-    \vc q_d = \delta_d \vc w_d.
-\]
-where 
-$\delta_d$ 
-\units{}{3-d}{} is a cross section coefficient, in particular $\delta_3=1$, $\delta_2$ \units{}{1}{} is the thickness of a fracture, and $\delta_1$ \units{}{2}{} is the cross-section of a channel.
-The flux $q_d$ is the volume of the liquid (water) that pass through a unit square ($d=3$),
-unit line ($d=2$), or through a point ($d=1$) per one second. 
-The conductivity tensor is given by the product \penalty-500
-$\tn K_d = k_d \tn A_d$, where 
-$k_d>0$ is the hydraulic conductivity \units{}{1}{-1} and 
-$\tn A_d$ is 
-$3\times 3$ dimensionless anisotropy tensor which has to be symmetric and positive definite. The piezometric-head $H_d$ is related to the pressure head
-$h_d$ by $H_d = h_d + z$ assuming that the gravity force acts in negative direction of the $z$-axes. 
-Combining these relations we get the Darcy law in the form:
-\begin{equation}
-    \label{eq:darcy_flux}
-    \vc q = -\delta k\tn A \grad (h+z)  \qquad\text{on }\Omega_d,\ \text{for $d=1,2,3$}.
-\end{equation}
 
-Next, we employ continuity equation for saturated porous medium and the dimensional reduction from the preceding section (with $w=u:=H$, $\vc j:=\vc w$, $\tn A:=\tn K$ and $\vc b:=\vc 0$), which yields:
-\begin{equation}
-    \label{eq:continuity}
-    \prtl_t (\delta S\, h) + \div \vc q = F \qquad \text{on }\Omega_d,\ \text{for $d=1,2,3$},
-\end{equation}
-where $S_d$ \units{}{-1}{} is the storativity and $F_d$ \units{}{3-d}{-1} is a source term. In our setting the principal unknowns of the system 
-(\ref{eq:darcy_flux}, \ref{eq:continuity}) are the pressure head $h_d$ and the flux $\vc q_d$.
-
-
-The storativity $S_d>0$ or the volumetric specific storage can be expressed as
-\begin{equation}
-  S_d = \gamma_w(\beta_r + \nu \beta_w),
-\end{equation}
-where $\gamma_w$ \units{1}{-2}{-2} is the specific weight of water, $\nu$ is the porosity $[-]$, $\beta_r$ is compressibility of the bulk material of the pores (rock)
-and $\beta_w$ is compressibility of the water both with units \units{-1}{1}{-2}. For steady problems we set $S_d=0$ for all dimensions $d=1,2,3$.
-The source term $F_d$ on the right hand side of \eqref{eq:continuity} consists of the volume density of prescribed sources 
-$f_d$ \units{}{}{-1} and flux from higher dimension. 
-Exact formula is slightly different for every dimension and will be discussed presently.
-
-On $\Omega_3$ we simply have $F_3  = f_3$ \units{}{}{-1}.
-
-On the set $\Omega_2 \cap \Omega_3$ the fracture is surrounded by one 3D surface from every side (or just one surface since we allow also 2D models on the boundary).
-On $\prtl\Omega_3 \cap \Omega_2$ we prescribe boundary condition of Robin type
-\begin{align*}
-        \vc{q}_3\cdot \vc n^{+} &= q_{32}^{+} =\sigma_{3} (h_3^{+}-h_2),\\
-        \vc{q}_3\cdot \vc n^{-} &= q_{32}^{-} =\sigma_{3} (h_3^{-}-h_2),
-\end{align*}
-where $\vc{q}_3\cdot\vc n^{+/-}$ \units{}{1}{-1} is the outflow from $\Omega_3$, $h_3^{+/-}$ is
-a trace of the pressure head on $\Omega_3$, $h_2$ is the pressure head on $\Omega_2$, and 
-$\sigma_{3}$ \units{}{}{-1} is the transition coefficient given by (see section \ref{sc:ad_on_fractures} and \cite{martin_modeling_2005})
-\[
-\label{e:sigma3_law}
-  \sigma_3 = \sigma_{32} \frac{2\tn K_2 :\vc n_2\otimes\vc n_2 }{\delta_2}.
-\]
-Here $\vc n_2$ is the unit normal to the fracture (sign doesn't matter).
-On the other hand, the sum of the interchange fluxes $q_{32}^{+/-}$ forms
-a volume source on $\Omega_2$.  Therefore $F_2$ \units{}{1}{-1} on the right hand side of \eqref{eq:continuity} is
-given by
-\begin{equation}
-   \label{source_2D}
-   F_2 = \delta_2 f_2 + (q_{32}^{+} + q_{32}^{-}).
-\end{equation}
-
-The communication between $\Omega_2$  and  $\Omega_1$ is similar.  However, in the 3D ambient space,
-an 1D channel can join multiple 2D fractures $1,\dots, n$. Therefore, we have $n$
-independent outflows from $\Omega_2$:
-\begin{equation*}
-        \vc{q}_2\cdot \vc n^{i} = q_{21}^{i} =\sigma_{2} (h_2^{i}-h_1),
-\end{equation*}
-where $\sigma_2$ \units{}{1}{-1} is the transition coefficient integrated over the width of the fracture $i$:
-\[
-\label{e:sigma2_law}
-  \sigma_2 = \sigma_{21} \frac{2\delta_2^2\tn K_1:{\vc n_1^i}\otimes{\vc n_1^i}}{\delta_1}.
-\]
-Here $\vc n_1^i$ is the unit normal to the channel that is tangential to the fracture $i$.
-Sum of the fluxes forms part of $F_1$ \units{}{2}{-1}
-\begin{equation}
-   \label{source_1D}
-   F_1 = \delta_1 f_1 + \sum_{i=1}^n q_{21}^{i}. 
-\end{equation}
-We remark that the direct communication between 3D and 1D is neglected.
-The transition coefficients 
-$\sigma_{32}$ \units{}{}{} and
-$\sigma_{21}$ \units{}{}{} are independent scaling parameters which represent the ratio of the crosswind and the tangential conductivity in the fracture.
-
-In order to obtain unique solution we have to prescribe boundary conditions. Currently we support three basic 
-types of boundary condition. 
-Consider disjoint decomposition of the boundary
-\[
-    \prtl\Omega_d = \Gamma_d^D \cap \Gamma_d^N \cap \Gamma_d^R
-\]
-into Dirichlet, Neumann, and Robin parts. We prescribe
-\begin{align}
-    h_d &= h_d^D        &&\text{ on }\Gamma_d^D,\\
-    \vc q_d \cdot \vc n &= q_d^N         &&\text{ on }\Gamma_d^N,\\
-    \vc q_d \cdot \vc n &= \sigma_d^R ( h_d - h_d^R)     &&\text{ on }\Gamma_d^R.
-\end{align}
-where 
-$h_d^D$, $h_d^R$ 
-is the given pressure head \units{}{1}{}, which alternatively can be prescribed through the piezometric head 
-$H_d^D$, $H_d^R$ 
-respectively. 
-$q_d^N$ 
-is the given surface density of the boundary outflow \units{}{4-d}{-1}, and  
-$\sigma_d^R$ 
-is the transition coefficient \units{}{3-d}{-1}.
-The problem is well posed only if there is Dirichlet or Robin boundary condition on every component of the set $\Omega_1 \cup \Omega_2 \cup \Omega_3$ and $\sigma_d >0$ for 
-$d=2,3$.
-
-For unsteady problems one has to specify initial condition in terms of initial pressure head 
-$h_d^0$ 
-or initial piezometric head 
-$H_d^0$.
-
-
-% ***************************************** SYMBOLS
-\def\abs#1{\lvert#1\rvert}
-\def\argdot{{\hspace{0.18em}\cdot\hspace{0.18em}}}
-\def\avg#1{\left\{#1\right\}_\omega}
-\def\D{{\tn D}}
-\def\div{\operatorname{div}}
-\def\Eh{\mathcal E_h}       % edges of \Th
-\def\Ehcom{\mathcal E_{h,C}}         % edges of \Th on interface with lower dimension
-\def\Ehdir{\mathcal E_{h,D}}         % Dirichlet edges of \Th
-\def\Ehint{\mathcal E_{h,I}}       % interior edges of \Th
-\def\grad{\nabla}
-\def\jmp#1{[#1]}
-\def\n{\vc n}
-\def\vc#1{\mathbf{\boldsymbol{#1}}}     % vector
-\def\R{\mathbb R}
-\def\sc#1#2{\left(#1,#2\right)}
-\def\Th{\mathcal T_h}       % triangulation
-\def\th{\vartheta}
-\def\tn#1{{\mathbb{#1}}}    % tensor
-\def\Tr{\operatorname{Tr}}
-\def\where{\,|\,}
-%***************************************************************************
-
-
-\subsection{Transport of substances}
-\label{sc:transport_model}
-
-The motion of substances dissolved in water is governed by the \emph{advection}, and the \emph{hydrodynamic dispersion}.
-In $\Omega_d$, $d\in\{1,2,3\}$, we consider the following system of mass balance equations\footnote{For $d\in\{1,2\}$ this form can be derived as in Section \ref{sc:ad_on_fractures} using $w:=\delta\th c^i$, $u:=c^i$, $\tn A:=\delta\th\tn D^i$, $\vc b:=\vc v=\frac{\vc q}{\th\delta}$.}:
-\begin{equation}
-    \label{e:ADE}
-   \partial_t ( \delta \th c^i) + \div ( \vc q c^i ) - \div (\th \delta \D^i \grad c^i ) = F_S^i + F^c_C(c^i) + F_R(c^1,\dots, c^s).
-\end{equation}
-The principal unknown is the concentration $c^i$ \units{1}{-3}{} of a substance $i\in\{1,\dots, s\}$, which means weight of the substance in unit volume of the water.
-Other quantities are:
-\begin{itemize}
-
-\item $\th$ \units{}{}{} is the porosity, i.e. fraction of space occupied by water and the total volume.
-\item The hydrodynamic dispersivity tensor $\D^i$ \units{}{2}{-1} has the form
-\begin{equation} 
-  \label{eqn:transport_disp}
-  \D^i =D_m^i \tau \tn I + \abs{\vc v}\left(\alpha_T^i \tn I + (\alpha_L^i - \alpha_T^i) \frac{\vc v \otimes \vc v}{\abs{\vc v}^2}\right),
-\end{equation}
-which represents (isotropic) molecular diffusion, and mechanical dispersion in longitudal and transversal direction to the flow.
-Here $D_m^i$ \units{}{2}{-1} is the molecular diffusion coefficient of the $i$-th substance (usual magnitude in clear water is $10^{-9}$), $\tau=\th^{1/3}$ is the tortuosity (by \cite{millington_quirk}), $\alpha_L^i$ \units{}{1}{} and $\alpha_T^i$ \units{}{1}{} is the longitudal dispersivity and the transverse dispersivity, respectively.
-Note that although we allow dispersivities to have different values for different substances, it is often assumed that they are intrinsic parameters of the porous medium.
-Finally, $\vc v$ \units{}{1}{-1} is the \emph{microscopic} water velocity, related to the Darcy flux $\vc q$ by the relation $\vc q = \th\delta\vc v$.
-The value of $D_m^i$ for specific substances can be found in literature (see e.g. \cite{cislerova_vogel}).
-For instructions on how to determine $\alpha_L^i$, $\alpha_T^i$ we refer to \cite{marsily,domenico_schwartz}.
-
-\item $F_S^i$ \units{1}{-d}{-1} represents the density of concentration sources.
-Its form is:
-\begin{equation}
- F_S^i = \delta f^i_S + \delta(c_S^i-c^i)\sigma_S. \label{eqn:transport_sources}
-\end{equation}
-Here $f_S^i$ \units{1}{-3}{-1} is the density of concentration sources, $c_S^i$ \units{1}{-3}{} is an equilibrium concentration and $\sigma_S^i$ \units{}{}{-1} is the concentration flux.
-
-\item $F^c_C(c^i)$ \units{1}{-d}{-1} is the density of concentration sources due to exchange between regions with different dimensions, see \eqref{e:FC} below.
-
-\item The reaction term $F_R(\dots)$ \units{1}{-d}{-1} is thoroughly described in the next section \ref{sec:reaction_term}.
-\end{itemize}
-
-
-
-\paragraph{Initial and boundary conditions.}
-At time $t=0$ the concentration is determined by the initial condition
-$$ c^i(0,\vc x) = c^i_0(\vc x). $$
-The physical boundary $\partial\Omega_d$ is decomposed into the parts $\Gamma_I\cup\Gamma_D\cup\Gamma_N\cup\Gamma_R$, which may change during simulation time.
-The first part $\Gamma_I$ is further divided into two segments:
-\begin{align*}
-\Gamma_I^+(t) &= \{\vc x\in \partial\Omega_d\where \vc q(t,\vc x)\cdot\vc n(\vc x)<0\},\\
-\Gamma_I^-(t) &= \{\vc x\in \partial\Omega_d\where \vc q(t,\vc x)\cdot\vc n(\vc x)\ge 0\},
-\end{align*}
-where $\vc n$ stands for the unit outward normal vector to $\partial\Omega_d$.
-We prescribe the following boundary conditions:
-On the inflow parts $\Gamma_I^+\cup\Gamma_D$, the user must provide Dirichlet boundary condition $c_D^i$ for concentrations:
-$$ c^i = c^i_D \mbox{ on }\Gamma_I^+\cup\Gamma_D. $$
-On $\Gamma_I^-$ we impose homogeneous Neumann boundary condition:
-$$ -\th\delta\D^i\nabla c^i\cdot\vc n = 0 \mbox{ on }\Gamma_I^-, $$
-on $\Gamma_N$ we impose Neumann boundary condition with user-defined concentration flux $f^i_N$:
-$$ -\th\delta\D^i\nabla c^i\cdot\vc n = f^i_N \mbox{ on }\Gamma_N, $$
-and finally on $\Gamma_R$ we impose Robin boundary condition through transition parameter $\sigma^i_R$ and reference concentration $c^i_D$:
-$$ -\th\delta\D^i\nabla c^i\cdot\vc n = \sigma^i_R(c^i-c^i_D) \mbox{ on }\Gamma_R. $$
-
-
-
-
-
-
-\paragraph{Communication between dimensions.}
-Transport of substances is considered also on interfaces of physical domains with adjacent dimensions (i.e. 3D-2D and 2D-1D, but not 3D-1D).
-Denoting $c_{d+1}$, $c_d$ the concentration of a given substance in $\Omega_{d+1}$ and $\Omega_d$, respectively, the comunication on the interface between $\Omega_{d+1}$ and $\Omega_d$ is described by the quantity
-\begin{equation}
-  \label{e:inter_dim_flux}
-  q^c_{d+1,d} = \sigma^c_{d+1,d} \frac{\delta_{d+1}^2}{\delta_d}2\th_d\D_d:\n\otimes\n ( c_{d+1} - c_d) + \begin{cases}q^l_{d+1,d} c_{d+1} & \mbox{ if }q^l_{d+1,d}\ge 0,\\q^l_{d+1,d} \frac{\th_d}{\th_{d+1}} c_d & \mbox{ if }q^l_{d+1,d}<0,\end{cases}
-\end{equation}
-where
-\begin{itemize}
-\item $q^c_{d+1,d}$ \units{1}{-d}{-1} is the density of concentration flux from $\Omega_{d+1}$ to $\Omega_d$,
-\item $\sigma^c_{d+1,d}$ \units{}{}{} is a transition parameter.
-Its value determines the mass exchange between dimensions whenever the concentrations differ.
-In general, it is recommended to leave the default value $\sigma^c=1$ or to set $\sigma^c=0$ (when exchange is due to water flux only).
-\item $q^l_{d+1,d}$ \units{}{3-d}{-1} is the water flux from $\Omega_{d+1}$ to $\Omega_d$, i.e. $q^l_{d+1,d} = \vc q_{d+1}\cdot\n_{d+1}$.
-\end{itemize}
-The communication between dimensions is incorporated as the total flux boundary condition for the problem on $\Omega_{d+1}$:
-\begin{equation}
-\label{e:FC}
--\th\delta\D\nabla c\cdot\vc n + q^w c = q^c
-\end{equation}
-and a source term in $\Omega_d$:
-\begin{equation}
-F^c_{C3} = 0,\quad
-F^c_{C2} = q^c_{32},\quad
-F^c_{C1} = q^c_{21}.
-\end{equation}
-
-
-
-\paragraph{Mass balance.}
-The advection-dispersion equation satisfies the balance of mass in the following form:
-$$ m^i(0) + \int_0^t s^i(\tau) \,d\tau - \int_0^t f^i(\tau) \,d\tau = m^i(t) $$
-for any instant $t$ in the computational time interval and any substance $i$.
-Here
-$$ m^i(t) := \sum_{d=1}^3\int_{\Omega^d}(\delta\th c^i)(t,\vc x)\,d\vc x, $$
-$$ s^i(t) := \sum_{d=1}^3\int_{\Omega^d}F_S^i(t,\vc x)\,d\vc x, $$
-$$ f^i(t) := \sum_{d=1}^3\int_{\partial\Omega^d}\left(\vc q c^i - \th\delta\D^i\nabla c^i\right)(t,\vc x)\cdot\vc n \,d\vc x $$
-is the mass \units{1}{}{}, the volume source \units{1}{}{-1} and the mass flux \units{1}{}{-1} of $i$-th substance at time $t$, respectively.
-The mass, flux and source on every geometrical region is calculated at each computational time step and the values together with the control sums are written to the file \texttt{mass\_balance.txt}.
-
-
-\paragraph{Two transport models.}
-Within the above presented model, Flow123d presents two possible approaches to solute transport.
-\begin{itemize}
-\item For modelling pure advection ($\tn D=0$) one can choose {\tt TransportOperatorSplitting} method, which represents an explicit in time finite volume solver. The solution process for one time step is faster, but the maximal time step is restricted. The resulting concentration is piecewise constant on mesh elements. This solver supports reaction term (involving simple chemical reactions, dual porosity and adsorption).
-\item The full model including dispersion is solved by {\tt SoluteTransport\_DG}, an implicit in time discontinuous Galerkin solver. It has no restriction of the computational time step and the space approximation is piecewise polynomial, currently up to order 3. Reaction term is currently not implemented.
-\end{itemize}
 
 
 
