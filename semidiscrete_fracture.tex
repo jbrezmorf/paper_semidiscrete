@@ -125,13 +125,17 @@ Only basic notation in introduction (2d domain, Darcy, AD eq.) remaining in deri
 \label{fig:omegas}
 \caption{The domain of the full model (left) and the reduced geometry (right).}
 \end{figure}
-
+\note{JB}{Technicality: Reduced geometry with $\Omega_m$ at original place better suites to derivation of the asymptotic model, but than we can not integrate $c_m-c_f$ over $\gamma$. ??}
 
 We consider a bounded domain $\Omega \subset \Real^d$, $d=2,3$ with a Lipschitz boundary, see Figure \ref{fig:omegas} left). The domain $\Omega$ contains 
-a fracture $\Omega_f:=\Omega\cap \big(\Real^{d-1}\times(-\delta/2,\delta/2)\big)$ 
-with the aperture $\delta>0$ surrounded by the matrix domain $\Omega_m:=\Omega\setminus\overline\Omega_f$.  The fracture interacts with the matrix domain on the interfaces
-$\gamma_1:=\Omega\cap\big( \Real^{d-1}\times \{-\delta/2\}\big)$ and $\gamma_2:=\Omega\cap \big( \Real^{d-1}\times \{\delta/2\}\big)$. Further, we introduce reduced geometry (see Figure \ref{fig:omegas})
-where the fracture domain is represented by the interface $\gamma:=\Omega\cap\big(\Real^{d-1}\times\{0\}\big)$ in its center. 
+a fracture $\Omega_f:=\Omega\cap \big((-\delta/2,\delta/2)\times\Real^{d-1}\big)$ 
+with the aperture $\delta>0$ surrounded by the matrix domain $\Omega_m:=\Omega\setminus\overline\Omega_f$. 
+\note{JB}{$\Omega_m$ is not simply connected, thus not domain; are there some important consequences?}
+The fracture interacts with the matrix domain on the interfaces 
+$\gamma_1:=\Omega\cap\big( \{-\delta/2\}\times \Real^{d-1}\big)$ and 
+$\gamma_2:=\Omega\cap\big( \{ \delta/2\}\times \Real^{d-1}\big)$. Normal vectors of these interfaces are denoted $\vc n_i$, $i=1,2$ with orientation out of the domain $\Omega_m$.
+Further, we introduce reduced geometry (see Figure \ref{fig:omegas})
+where the fracture domain is represented by the interface $\gamma:=\Omega\cap\big(\{0\}\times\Real^{d-1}\big)$ in its center. 
 
 We are interested in a steady Darcy flow on domain $\Omega$:
 \begin{align}
@@ -145,7 +149,7 @@ Further, we consider also related solute transport equation:
 \begin{align}
     \label{eq:solute_transport}
     \prtl_t (\theta c) + \div(q_c) = f_c \mbox{ in }\Omega,\\
-    \vc q_c = \theta c \vc q_h - \tn D \grad c, \\
+    \vc q_c = c \vc q_h - \theta \tn D \grad c, \\
     c=0\mbox{ on }\partial\Omega
 \end{align}
 where $\theta$ is the porosity, $c$ is the solute concentration, $q_c$ is the total solute flux, and $\tn D$ is the diffusion-dispersion tensor that in general depends on $q_h$.
@@ -153,13 +157,13 @@ where $\theta$ is the porosity, $c$ is the solute concentration, $q_c$ is the to
 Both transport processes are particular cases of an abstract advection-diffusion problem which admits an equivalent formulation
 emphasizing the structure of the domain $\Omega$:
 \begin{align}
-  \label{eq:fr:continuity}
+  \label{eq:full:continuity}
   \prtl_t w_i + \div \vc j_i &= f_i&&  \text{in } \Omega_i,\ i=m,f,\\
-  \label{eq:fr:flux}
+  \label{eq:full:flux}
   \vc j_i &= - \tn A_i\grad u_i + \vc b_i w_i&& \text{in } \Omega_i,\ i=m,f,\\
-  \label{eq:fr:Dirichlet}
+  \label{eq:full:Dirichlet}
   u_i &= u_f&& \text{on } \gamma_i,\ i=1,2,\\
-  \label{eq:fr:Neumann}
+  \label{eq:full:Neumann}
   \vc j_i \cdot \vc n &= \vc j_f \cdot \vc n&& \text{on } \gamma_i,\ i=1,2,
 \end{align}
 where $w_i=w_i(u_i)$ is the conservative quantity and $u_i$ is the principal unknown, $\vc j_i$ is the flux of $w_i$, $f_i$ is the source term,
@@ -187,23 +191,17 @@ Finally, in section \ref{sc:numerics} we show numerical results which confirm th
 
 
 
-
-
-
-
-
-
-
-
 \section{Asymptotic model for abstract advection-diffusion problem}
 \label{sc:ad_on_fractures}
 
-In this section, we shall derive a model for the abstract advection-diffusion process $(\ref{eq:fr:continuity}--\ref{eq:fr:Neumann}$
-on the reduced geometry inspired by the paper \citet{martin_modeling_2005}.
+In this section, we shall derive a model for the abstract advection-diffusion process $(\ref{eq:full:continuity}-\ref{eq:full:Neumann}$
+on the reduced geometry. This is done by integrating the equations $(\ref{eq:full:continuity}-\ref{eq:full:flux})$ on the fracture $\Omega_f$
+in the normal direction and obtain their approximations on the surface $\gamma$ running through the middle of the fracture.
 
-
-By $x$, $\vc y$ we denote the normal and the tangential coordinate of a point in $\Omega_f$.
-Accordingly, $\partial_x$, $\nabla_{\vc y}:=(0,\partial_{y_1},\ldots,\partial_{y_{d-1}})^\top$ stands for the crosswind and the tangential derivative, respectively.
+For the sake of simplicity, we will not write subscript $f$ for quantities on the fracture. 
+By $x$, $\vc y$, we denote the normal and the tangential coordinate of a point in $\Omega_f$.
+Accordingly, $\partial_x$, $\nabla_{\vc y}:=(0,\partial_{y_1},\ldots,\partial_{y_{d-1}})^\top$ stands for 
+the crosswind and the tangential derivative, respectively. 
 The symbol $\bar w:=\frac1\delta\int_{-\delta/2}^{\delta/2} w(x,\cdot)~dx$ will denote the integral mean of a function $w$ across the fracture opening.
 
 
@@ -216,22 +214,14 @@ with one eigenvector in the direction $\vc n$. Consequently the tensor has the f
        \end{pmatrix}
 \]
 Furthermore, we assume that $\tn A_f(x, \vc y)=\tn A_f(\vc y)$ is constant in the normal direction.
-
-
-
-
-
-
-
-Our next aim is to integrate equations on the fracture $\Omega_f$ in the normal direction 
-and obtain their approximations on the surface $\gamma$ running through the middle of the fracture. 
-For the sake of clarity, we will not write subscript $f$ for quantities on the fracture. 
-To make the following procedure mathematically correct we have to assume that the functions
-$\prtl_x w$, $\prtl_x \grad_{\vc y} u$, $\prtl_x \vc b_{\vc y}$ are continuous and bounded in $\Omega_f$. Here and later on, 
+In order to make the procedure mathematically correct, we have to assume that the functions
+$\prtl_x w$, $\prtl_x \grad_{\vc y} u$, $\prtl_x \vc b_{\vc y}$ are continuous and bounded on $\Omega_f$, moreover
+Here and later on, 
 $\vc b_x=(\vc b \cdot \vc n)\, \vc n$ is the normal part of the velocity field and $\vc b_{\vc y} = \vc b - \vc b_x$ is the tangential part.
 The same notation will be used for normal and tangential part of the field $\vc j$.
+\note{JB}{Assumption about dependence on time?}
 
-We integrate \eqref{eq:fr:continuity} over the fracture opening $[-\delta/2,\delta/2]$ and use approximations to get
+We integrate \eqref{eq:full:continuity} over the fracture opening $[-\delta/2,\delta/2]$ and use approximations to get
 \begin{equation}
     \label{eq:fracture_continuity}
    \prtl_t (\delta W) - \vc j_2 \cdot \vc n_2 - \vc j_1 \cdot \vc n_1 + \div \vc J = \delta F,
@@ -258,7 +248,7 @@ In fact, this flux on $\gamma$ is scalar for the case $d=2$. Finally, we integra
 
 
 Due to the particular form of the tensor $\tn A_f$, we can separately integrate the tangential and the normal
-part of the flux given by \eqref{eq:fr:flux}. Integrating the tangential part and using approximations
+part of the flux given by \eqref{eq:full:flux}. Integrating the tangential part and using approximations
 \[
     \int_{-\frac\delta2}^{\frac\delta2}  \grad_{\vc y} u(x, \vc y) \d x = \delta \grad_{\vc y} u (\xi_{\vc y}, \vc y) 
     = \delta \grad_{\vc y} U( \vc y) + O\big( \delta^2 \abs{\prtl_x\grad_{\vc y} u} \big) 
@@ -281,7 +271,7 @@ we obtain
 
 So far, we have derived equations for the state quantities $U$ and $\vc J$ in the fracture manifold $\gamma$. In order to
 get a well possed problem, we have to prescribe two conditions for the boundaries $\gamma_i$, $i=1,2$. To this end, we
-perform integration of the normal flux $\vc j_x$, given by \eqref{eq:fr:flux}, separately for the left and right half of the fracture.
+perform integration of the normal flux $\vc j_x$, given by \eqref{eq:full:flux}, separately for the left and right half of the fracture.
 Similarly as before we use approximations
 \[
  \int_{-\delta/2}^0 \vc j_x \d x = (\vc j_1 \cdot \vc n_1)\frac{\delta}{2} + O(\delta^2 \abs{\prtl_x \vc j_x})
@@ -311,23 +301,25 @@ combination for each flow direction:
       &+ \big[\vc b_i\cdot \vc n_i\big]^{-} \big((1-\xi) w_i + \xi W\big), \qquad i=1,2
 \end{align}
 where $\sigma_i = \frac{2a_n}{\delta}$ is the transition coefficient and the parameter $\xi\in [\frac12, 1]$ can be used to interpolate
-between upwind ($\xi = 1$) and central difference ($\xi=\frac12$) scheme. Equations \eqref{eq:fracture_continuity}, \eqref{eq:fracture_darcy}, and
-\eqref{eq:fracture_normal} describe the general form of the advection-diffusion process on the fracture and its communication with 
-the surrounding continuum which we shall later apply to individual processes.
+between upwind ($\xi = 1$) and central difference ($\xi=\frac12$) scheme. Collecting the results, we obtain a classical formulation of 
+the asymptotic model of the abstract advection-diffusion process:
 
-The asymptotic problem reads:
-\begin{subequations}
-\label{eq:asymptotic_pde}
 \begin{align}
--\div(\tn A\nabla u_m) &= f &&\mbox{ in }\Omega_m,\\
-u_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
--\tn A\nabla u_m\cdot\vc n_i &= q(u_m,u_f) &&\mbox{ on }\gamma_i,i=1,2,\\
--\div(\tn A\nabla_\yy u_f) &= \bar f + \frac1\delta\sum_{i=1}^2 q(u_{m|\gamma_i},u_f) &&\mbox{ in }\gamma,\\
-u_f &= 0 &&\mbox{ on }\overline\gamma\cap\partial\Omega,
+  \label{eq:fr:continuity}
+  \prtl_t w_m + \div \vc b_m w_m - \div \tn A_m \grad u_m &= f_m&&  \text{in } \Omega_m,\\
+  \label{eq:fr:Dirichlet}
+  u_m &= 0&& \text{on } \partial\Omega\cap\partial\Omega_m,\\
+  (- \tn A_m\grad u_m + \vc b_m w_m) \cdot \vc n_i &= q_i &&\mbox{ on }\gamma_i,i=1,2,\\ 
+  \prtl_t(\delta w_f)  + \div(\delta \vc b_f w_f ) - \div( \delta \tn A_t \grad u_f) 
+      &= f_f + \sum_{i=1}^2 q_i&&  \text{in } \Omega_m,\\
 \end{align}
-\end{subequations}
-where $q(w,z):=\frac2\delta a_n(w-z)$ and $\vc n_i$ is the unit outward normal vector to $\Omega_i$, i=1,2, satisfying $\vc n:=\vc n_1=-\vc n_2=(1,0,0)^\top$.
-
+where 
+\[
+    q_i:=\frac2\delta a_n(u_m|_{\gamma_i} - U) 
+    +  \big([b_i]^{+}\xi + [b_i]^{-}(1-\xi)\big) w_m|_{\gamma_i}
+    +  \big([b_i]^{+}(1-\xi) + [b_i]^{-}\xi\big) W,
+    \qquad b_i = \vc b_m |_{\gamma_i} \cdot \vc n_i.
+\]
 
 
 
@@ -464,8 +456,82 @@ from which the estimates \eqref{eq:error_estimates_delta} follow.
 
 \section{Solute transport}
 \subsection{Continuum-fracture model}
+\note{JB}{In this section I use $\vc b$ instead of $\vc q_h$ in \eqref{eq:solute_transport}. Definitely I need something without subscript, moreover $q$ is overloaded.
+Similar problem for RHS.}
+
+\begin{align}
+  \label{eq:fr:solute}
+  \prtl_t (\theta_m c_m) + \div(\vc b_m c_m) - \div(\theta_m \tn D_m \grad c_m) &= f_m&&  \text{in } \Omega_m,\\
+  \label{eq:fr:Dirichlet}
+  c_m &= 0&& \text{on } \partial\Omega\cap\partial\Omega_m,\\
+  (- \theta_m \tn D_m\grad c_m + \vc b_m c_m) \cdot \vc n_i &= q_i &&\mbox{ on }\gamma_i,i=1,2,\\ 
+  \prtl_t(\delta\theta c_f)  + \div(\delta \vc b_f c_f ) - \div( \delta \theta_f \tn D_t \grad c_f) 
+      &= f_f + \sum_{i=1}^2 q_i&&  \text{in } \Omega_m,\\
+\end{align}
+where 
+\[
+    q_i:=\frac2\delta \theta_f d_n(c_m|_{\gamma_i} - c_f) 
+    +  \big([b_i]^{+}\xi + [b_i]^{-}(1-\xi)\big) c_m|_{\gamma_i}
+    +  \big([b_i]^{+}(1-\xi) + [b_i]^{-}\xi\big) c_f.
+\]
+
 \subsection{Weak formulation}
+We search the solution $c_i$, $i\in \{m,f\}$ in the space 
+\[
+    V_i =C([0,T]; L^2(\Omega_i) ) \cap L^2( (0,T); W^{1,2}(\Omega_i) ).
+\]    
+satisying 
+\begin{align}
+\notag
+&\int_0^T \int_{\Omega_m} \prtl_t(\theta_m c_m)\phi_m - \vc b_m c_m \cdot \grad \phi_m + \theta_m \tn D_m : (\grad c_m \otimes \grad \phi_m) - f_m\phi_m \d \vc x+\\
+\label{eq:fr:solute_weak}
+&\int_0^T \int_{\Omega_f} \prtl_t(\delta\theta_f c_f)\phi_f - \delta \vc b_f c_f \cdot \grad \phi_f + \delta \theta_f \tn D_f : (\grad c_f \otimes \grad \phi_f) - f_f\phi_f \d \vc x+\\
+\notag
+&\sum_{i=1}^{2} \int_0^T \int_{\gamma_i} q^i (c_m - c_f) \d s = 0
+\end{align}
+
+
+\subsection{A priori estimate for fracture model}
+\note{JB}{After check should be used for the error estimate.}
+
+We test by $\phi_m=c_m$, $\phi_f=c_f$ and integrate by parts in the time term, for the first two terms in \eqref{eq:fr:solute_weak} we have:
+\[
+    \int_0^T \int_{\Omega} \prtl_t(\theta c)c - \vc b c \cdot \grad c = 
+    \left[
+        \int_{\Omega} \theta c^2
+    \right]_{t=0}^{T}
+    -\int_0^T \frac{\d}{\d t} \int_{\Omega} \theta \frac12 c^2 =     
+    \left[
+        \frac12 \int_{\Omega} \theta c^2
+    \right]_{t=0}^{T}
+\]
+Moreover the last term in \eqref{eq:fr:solute_weak} can be rewritten as
+\[
+   \sum_{i=1}^{2} \int_0^T \int_{\gamma_i} 
+   \frac{2\theta_f d_n}{\delta} (c_m - c_f)^2
+   + (b_i^+ \xi + b_i^-(1-\xi))(c_m-c_f)^2
+   + (b_i^+ + b_i^-)
+\]
+
+Then we estimate
+\def\ul{\underline}
+\begin{align*}
+  \frac12 \ul{\theta}_m\norm{c_m(T)}_{L^2(\Omega_m)}^2 + \int_0^T \ul{\theta}_m \ul{D}_m \norm{\grad c_m}_{L^2(\Omega_m)}^2 + \\
+  \frac12 \delta\ul{\theta}_f\norm{c_f(T)}_{L^2(\Omega_f)}^2 + \int_0^T \delta \ul{\theta}_f \ul{D}_f \norm{\grad c_f}_{L^2(\Omega_f)}^2+\\
+   \sum_{i=1}^{2} \int_0^T \int_{\gamma_i} \underbrace{\Big(\frac{2\theta_f d_n}{\delta} + \big(b_i^+ \xi + b_i^-(1-\xi)\big)\Big)}_{A} (c_m-c_f)^2\\
+   \le \sum_{i=1}^2 \int_0^T \int_{\gamma_i} \frac{A}{2} (c_m-c_f)^2 + \int_{\gamma_i} \frac{1}{2A}\abs{b_i^+ + b_i^-} c_f^2 \\
+   + \int_0^T \frac12\norm{f_m}^2_{L^2(\Omega_m} + \frac12\norm{c_m}^2_{L^2(\Omega_m)}\\
+   + \int_0^T \frac12\delta\norm{f_f}^2_{L^2(\Omega_f} + \frac12\delta\norm{c_f}^2_{L^2(\Omega_f)}.
+\end{align*}
+The first term can be absorbed to the left-hand side and for resulting inequality we can use Gronwall's lemma. 
+\note{JB}{Integration over $\gamma_i$ is same as integration over $\Omega_f$, this should be done somehow better.}
+\note{JB}{
+Estimate could work even for small $\delta$ at presence of term with $d_n$, than $1/A \sim \delta$ and Gronwall's function do not blow-up.}
+
+
+
 \subsection{Error analysis of asymptotic model}
+
 
 
 \section{Numerical experiments}
