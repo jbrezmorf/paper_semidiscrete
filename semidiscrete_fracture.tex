@@ -373,6 +373,7 @@ for all $(v_m,v_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$.
 \end{subequations}
 We shall also use a compact form of \eqref{eq:weak_asym}:
 \begin{multline}
+\label{eq:weak_darcy_short}
 \int_{\Omega_m}\tn K\nabla h_m\cdot\nabla v_m
 +\delta\int_{\gamma}\tn K_t\nabla_\yy h_f\cdot\nabla_\yy v_f\\
 + \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)(v_{m|\gamma_i} - v_f)
@@ -403,7 +404,7 @@ Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$, $\tn K
 &\sum_{i=1}^2\norm{\bar h-h_{|\gamma_i}+h_{m|\gamma_i}-h_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 h}_{C(\overline\Omega_f)}\delta^2,
 \end{align}
 \end{subequations}
-where $(h_m,h_f)$ is the solution to \eqref{eq:weak_asym} and $\underline\lambda(\cdot)$ denotes the smallest eigenvalue of a matrix.
+where $(h_m,h_f)$ is the solution to \eqref{eq:weak_asym}.
 \end{theorem}
 
 
@@ -419,35 +420,36 @@ k(x+\frac\delta2)v_\gamma(0,\vc y) - k(x+\frac\delta2-\frac1k)v_m(-\frac\delta2,
 \end{cases}
 \end{multline*}
 Note that $\Pi_k$ maps $H^1(\Omega_m)\times H^{1/2}(\gamma)$ into $H^1(\Omega)$.
-Hence we can test \eqref{eq:weak_global} by $v_k:=\Pi_k(h-h_m,\bar h-h_f)$, where $h$, $h_m$ and $h_f$ satisfy \eqref{eq:weak_global} and \eqref{eq:weak_asym}, respectively:
+Hence we can test \eqref{eq:weak_darcy} by $v_k:=\Pi_k(h-h_m,\bar h-h_f)$, where $h$, $h_m$ and $h_f$ satisfy \eqref{eq:weak_darcy} and \eqref{eq:weak_darcy_short}, respectively:
 \begin{multline}
 \label{eq:global_vk}
-\int_{\Omega_m}\tn A\nabla h\cdot\nabla(h-h_m)
-+\int_{\Omega_{fk}}\tn A_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)
-+\int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n h \partial_n v_k\\
-+ \int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f))
-= \int_{\Omega_m} f (h-h_m)\\
-+ \int_{\Omega_{fk}} f (\bar h-h_f)
-+ \int_{\Omega_f\setminus\Omega_{fk}} f v_k.
+\int_{\Omega_m}\tn K_m\nabla h\cdot\nabla(h-h_m)
++\int_{\Omega_{fk}}\tn K_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)
++\int_{\Omega_f\setminus\Omega_{fk}} k_n\partial_n h \partial_n v_k\\
++ \int_{\Omega_f\setminus\Omega_{fk}} \tn K_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f))
+= \int_{\Omega_m} f_h (h-h_m)\\
++ \int_{\Omega_{fk}} f_h (\bar h-h_f)
++ \int_{\Omega_f\setminus\Omega_{fk}} f_h v_k.
 \end{multline}
 Next we shall perform the limit $k\to\infty$.
 Due to continuity of integral we have:
 \begin{align}
-&\int_{\Omega_{fk}}\tn A_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f) \to \int_{\Omega_f}\tn A_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)\\
-&\hspace{4cm} = \delta\int_\gamma\tn A_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f),\\
-&\int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f)) \to 0, \\
-&\int_{\Omega_{fk}} f (\bar h-h_f) \to \int_{\Omega_{f}} f (\bar h-h_f) = \delta\int_{\gamma} \bar f (\bar h-h_f), \\
-&\int_{\Omega_f\setminus\Omega_{fk}} f v_k \to 0,~k\to\infty.
+&\int_{\Omega_{fk}}\tn K_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f) \to \int_{\Omega_f}\tn K_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)\\
+&\hspace{4cm} = \delta\int_\gamma\tn K_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f),\\
+&\int_{\Omega_f\setminus\Omega_{fk}} \tn K_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f)) \to 0, \\
+&\int_{\Omega_{fk}} f_h (\bar h-h_f) \to \int_{\Omega_{f}} f_h (\bar h-h_f) = \delta\int_{\gamma} \bar f_h (\bar h-h_f), \\
+&\int_{\Omega_f\setminus\Omega_{fk}} f_h v_k \to 0,~k\to\infty.
 \end{align}
 The remaining term can be rewritten as follows:
 \begin{multline}
-\int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n h \partial_n v_k
-= k\int_{-\frac\delta2}^{-\frac\delta2+\frac1k}\int_\gamma a_n\partial_n h (\bar h - h_f - h_{|\gamma_1} + h_{m|\gamma_1})\\
-+ k\int_{\frac\delta2-\frac1k}^{\frac\delta2}\int_\gamma a_n\partial_n h (\bar h - h_f - h_{|\gamma_2} + h_{m|\gamma_2})\\
-\to \sum_{i=1}^2\int_\gamma a_n \partial_n h_{|\gamma_i} (\bar h - h_f - h_{|\gamma_i} + h_{m|\gamma_i}),~k\to\infty.
+\int_{\Omega_f\setminus\Omega_{fk}} k_n\partial_n h \partial_n v_k
+= k\int_{-\frac\delta2}^{-\frac\delta2+\frac1k}\int_\gamma k_n\partial_n h (\bar h - h_f - h_{|\gamma_1} + h_{m|\gamma_1})\\
++ k\int_{\frac\delta2-\frac1k}^{\frac\delta2}\int_\gamma k_n\partial_n h (\bar h - h_f - h_{|\gamma_2} + h_{m|\gamma_2})\\
+\to \sum_{i=1}^2\int_\gamma k_n \partial_n h_{|\gamma_i} (\bar h - h_f - h_{|\gamma_i} + h_{m|\gamma_i}),~k\to\infty.
 \end{multline}
 Since $\partial_n h$ is smooth, Taylor's expansion yields
 \[ \partial_n h(\pm\frac\delta2,\vc y) = \frac2\delta(\bar h - h(\pm\frac\delta2,\vc y)) - \frac\delta3\partial_n^2 h(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
+\note{JS}{Isn't it sufficient to have $\partial_n h$ absolutely continuous for the expansion?}
 i.e. there exist functions $g_i:=\partial^2_n h(\xi(\cdot))\in L^\infty(\gamma)$ such that
 \begin{equation}
 \label{eq:taylor_for_du}
@@ -456,37 +458,37 @@ i.e. there exist functions $g_i:=\partial^2_n h(\xi(\cdot))\in L^\infty(\gamma)$
 Summing up, \eqref{eq:global_vk}--\eqref{eq:taylor_for_du} yield:
 \begin{multline}
 \label{eq:sum_global_vk_limit}
-\int_{\Omega_m}\tn A\nabla h\cdot\nabla(h-h_m)
-+\delta\int_\gamma\tn A_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f)\\
+\int_{\Omega_m}\tn K_m\nabla h\cdot\nabla(h-h_m)
++\delta\int_\gamma\tn K_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f)\\
 + \sum_{i=1}^2\int_\gamma q(\bar h,h_{|\gamma_i}) (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f)\\
-= \int_{\Omega_m} f (h-h_m)
-+ \delta\int_{\gamma} \bar f (\bar h-h_f)
-+ \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f).
+= \int_{\Omega_m} f_h (h-h_m)
++ \delta\int_{\gamma} \bar f_h (\bar h-h_f)
++ \delta\sum_{i=1}^2\int_\gamma k_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f).
 \end{multline}
 
-Now we plug into \eqref{eq:weak_asym} test functions $h-h_m$, $\delta(\bar h-h_f)$, respectively, and add the resulting equations.
+Now we plug into \eqref{eq:weak_darcy_short} the test functions $v_m:=h-h_m$, $v_f:=\bar h-h_f$.
 We obtain:
 \begin{multline*}
-\int_{\Omega_m}\tn A\nabla h_m\cdot\nabla(h-h_m) + \delta\int_\gamma\tn A_t\nabla_\yy h_f\cdot\nabla_\yy(\bar h-h_f)\\
+\int_{\Omega_m}\tn K_m\nabla h_m\cdot\nabla(h-h_m) + \delta\int_\gamma\tn K_t\nabla_\yy h_f\cdot\nabla_\yy(\bar h-h_f)\\
 - \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)(\bar h - h_{|\gamma_i}+h_{m|\gamma_i} - h_f)
-= \int_{\Omega_m} f(h-h_m)
-+ \delta\int_\gamma\bar f(\bar h-h_f).
+= \int_{\Omega_m} f_h(h-h_m)
++ \delta\int_\gamma\bar f_h(\bar h-h_f).
 \end{multline*}
 Subtracting this from \eqref{eq:sum_global_vk_limit}, using H\"older's and Young's inequality yields:
 \begin{multline}
-\int_{\Omega_m}\tn A\nabla (h-h_m)\cdot\nabla(h-h_m)
-+\delta\int_\gamma\tn A_t\nabla_\yy(\bar h-h_f)\cdot\nabla_\yy(\bar h-h_f)\\
-+ \sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2
-= \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f)\\
-\le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{a_n}|g_i|\sqrt{\frac{2a_n}\delta}|\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|\\
-\le \frac{\delta^3}4\norm{a_n}_{\infty,\gamma}\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2.
+\int_{\Omega_m}\tn K_m\nabla (h-h_m)\cdot\nabla(h-h_m)
++\delta\int_\gamma\tn K_t\nabla_\yy(\bar h-h_f)\cdot\nabla_\yy(\bar h-h_f)\\
++ \sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2
+= \delta\sum_{i=1}^2\int_\gamma k_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f)\\
+\le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{k_n}|g_i|\sqrt{\frac{2k_n}\delta}|\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|\\
+\le \frac{\delta^3}4\overline k_n\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2.
 \end{multline}
-Finally we absorb the last term in the left hand side and use uniform positive definiteness of $\tn A$:
+Finally we absorb the last term in the left hand side and use uniform positive definiteness of $\tn K$:
 \begin{multline}
-\underline\lambda(\tn A_{|\Omega_m})\norm{\nabla (h-h_m)}_{2,\Omega_m}^2
-+\underline\lambda(\tn A_t)\delta\norm{\nabla_\yy(\bar h-h_f)}_{2,\gamma}^2\\
-+ \frac1\delta\inf_{\Omega_f}a_n\sum_{i=1}^2\norm{\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f}_{2,\gamma}^2
-\le \frac{\norm{a_n}_{\infty,\gamma}}4\left(\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2\right)\delta^3,
+\underline K_m\norm{\nabla (h-h_m)}_{2,\Omega_m}^2
++\underline K_t\delta\norm{\nabla_\yy(\bar h-h_f)}_{2,\gamma}^2\\
++ \frac1\delta\underline k_n\sum_{i=1}^2\norm{\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f}_{2,\gamma}^2
+\le \frac{\overline k_n}4\left(\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2\right)\delta^3,
 \end{multline}
 from which the estimates \eqref{eq:error_estimates_delta} follow.
 \end{proof}
@@ -547,7 +549,7 @@ Moreover the last term in \eqref{eq:fr:solute_weak} can be rewritten as
    \sum_{i=1}^{2} \int_0^T \int_{\gamma_i} 
    \frac{2\theta_f d_n}{\delta} (c_m - c_f)^2
    + (b_i^+ \xi + b_i^-(1-\xi))(c_m-c_f)^2
-   + (b_i^+ + b_i^-)
+   + \underbrace{(b_i^+ + b_i^-)}_{=b_i}c_f(c_m-c_f)
 \]
 
 Then we estimate
@@ -556,9 +558,9 @@ Then we estimate
   \frac12 \ul{\theta}_m\norm{c_m(T)}_{L^2(\Omega_m)}^2 + \int_0^T \ul{\theta}_m \ul{D}_m \norm{\grad c_m}_{L^2(\Omega_m)}^2 + \\
   \frac12 \delta\ul{\theta}_f\norm{c_f(T)}_{L^2(\Omega_f)}^2 + \int_0^T \delta \ul{\theta}_f \ul{D}_f \norm{\grad c_f}_{L^2(\Omega_f)}^2+\\
    \sum_{i=1}^{2} \int_0^T \int_{\gamma_i} \underbrace{\Big(\frac{2\theta_f d_n}{\delta} + \big(b_i^+ \xi + b_i^-(1-\xi)\big)\Big)}_{A} (c_m-c_f)^2\\
-   \le \sum_{i=1}^2 \int_0^T \int_{\gamma_i} \frac{A}{2} (c_m-c_f)^2 + \int_{\gamma_i} \frac{1}{2A}\abs{b_i^+ + b_i^-} c_f^2 \\
-   + \int_0^T \frac12\norm{f_m}^2_{L^2(\Omega_m} + \frac12\norm{c_m}^2_{L^2(\Omega_m)}\\
-   + \int_0^T \frac12\delta\norm{f_f}^2_{L^2(\Omega_f} + \frac12\delta\norm{c_f}^2_{L^2(\Omega_f)}.
+   \le \sum_{i=1}^2 \int_0^T \int_{\gamma_i} \frac{A}{2} (c_m-c_f)^2 + \int_{\gamma_i} \frac{1}{2A}\abs{b_i}^2 c_f^2 \\
+   + \int_0^T \frac12\norm{f_m}^2_{L^2(\Omega_m} + \frac12\norm{c_m(0)}^2_{L^2(\Omega_m)}\\
+   + \int_0^T \frac12\delta\norm{f_f}^2_{L^2(\Omega_f} + \frac12\delta\norm{c_f(0)}^2_{L^2(\Omega_f)}.
 \end{align*}
 The first term can be absorbed to the left-hand side and for resulting inequality we can use Gronwall's lemma. 
 \note{JB}{Integration over $\gamma_i$ is same as integration over $\Omega_f$, this should be done somehow better.}
