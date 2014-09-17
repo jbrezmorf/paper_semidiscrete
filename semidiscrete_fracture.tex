@@ -134,12 +134,14 @@ $\gamma_1:=\Omega\cap\big( \Real^{d-1}\times \{-\delta/2\}\big)$ and $\gamma_2:=
 where the fracture domain is represented by the interface $\gamma:=\Omega\cap\big(\Real^{d-1}\times\{0\}\big)$ in its center. 
 
 We are interested in a steady Darcy flow on domain $\Omega$:
+\begin{subequations}
+\label{eq:darcy_flow}
 \begin{align}
-    \label{eq:darcy_flow}
     \div \vc{q_h} = f_h \mbox{ in }\Omega, \\
     \vc q_h = -\tn K \grad h, \\
     h=0\mbox{ on }\partial\Omega
 \end{align}
+\end{subequations}
 where $\vc q$ is the Darcy flux, $f_h$ is the source density, $\tn K$ is the hydraulic conductivity tensor, and $h$ is the piezometric head.
 Further, we consider also related solute transport equation:
 \begin{align}
@@ -332,49 +334,84 @@ where $q(w,z):=\frac2\delta a_n(w-z)$ and $\vc n_i$ is the unit outward normal v
 
 
 \section{Darcy flow}
+
+We shall apply the formal derivation of the abstract continuum-fracture model to the steady-state Darcian flow.
+
 \subsection{Continuum-fracture model}
+
+Using the notation of the preceding section, we set $u:=h$, $w:=0$, $\tn A:=\tn K$, $f:=f_h$.
+We assume that
+\[ \tn K = \begin{cases}\tn K_m & \mbox{ in }\Omega_m,\\ \tn K_f = \begin{pmatrix}k_n & 0\\0&\tn K_t\end{pmatrix} & \mbox{ in }\Omega_f,\end{cases} \]
+where $k_n(x,\yy)=k_n(\yy)$, $\tn K$ is uniformly positive definite and bounded in $\Omega$ and $f_h\in L^2(\Omega)$.
+This results in the new system
+\begin{subequations}
+\label{eq:asymptotic_darcy}
+\begin{align}
+-\div(\tn K_m\nabla h_m) &= f_h &&\mbox{ in }\Omega_m,\\
+h_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
+-\tn K_m\nabla h_m\cdot\vc n_i &= q(h_m,h_f) &&\mbox{ on }\gamma_i,i=1,2,\\
+-\delta\div(\tn K_f\nabla_\yy h_f) &= \delta\bar f_h + \sum_{i=1}^2 q(h_{m|\gamma_i},h_f) &&\mbox{ in }\gamma,\\
+h_f &= 0 &&\mbox{ on }\overline\gamma\cap\partial\Omega,
+\end{align}
+\end{subequations}
+where $q(w,z):=\frac2\delta k_n(w-z)$.
+\note{JS}{Is it clear what $h_f$ means on $\gamma_i$?}
+
+
 \subsection{Weak formulation}
-\subsection{Error analysis of asymptotic model}
-\label{sc:error_estimate}
 
-% (note: $u\in H^1(\Omega_f)\Rightarrow\bar u\in H^1(\gamma)$)
-
-
-The ongoin analysis will be done in the framework of weak solutions.
-We say that $u\in H^1_0(\Omega)$ is the weak solution of \eqref{eq:global_pde} if for every $v\in H^1_0(\Omega)$:
+The ongoing analysis will be done in the framework of weak solutions.
+We say that $h\in H^1_0(\Omega)$ is the weak solution of \eqref{eq:darcy_flow} if for every $v\in H^1_0(\Omega)$:
 \begin{equation}
-\label{eq:weak_global}
-\int_\Omega \tn A\nabla u\cdot\nabla v = \int_\Omega fv.
+\label{eq:weak_darcy}
+\int_\Omega \tn K\nabla h\cdot\nabla v = \int_\Omega f_hv.
 \end{equation}
 Introducing the space
 \[ H^1_{bc}(\Omega_m) := \{v\in H^1(\Omega_m);~v_{|\partial\Omega_m\cap\partial\Omega}=0\}, \]
-we analogously define the weak solution of \eqref{eq:asymptotic_pde} as the couple $(u_m,u_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$ that satisfies
+we analogously define the weak solution of \eqref{eq:asymptotic_darcy} as the couple $(h_m,h_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$ that satisfies
 \begin{subequations}
 \label{eq:weak_asym}
 \begin{equation}
-\int_{\Omega_m}\tn A\nabla u_m\cdot\nabla v + \sum_{i=1}^2\int_\gamma q(u_{m|\gamma_i},u_f)v_{|\gamma_i} = \int_{\Omega_m} fv
+\int_{\Omega_m}\tn K\nabla h_m\cdot\nabla v_m + \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)v_{m|\gamma_i} = \int_{\Omega_m} f_hv_m,
 \end{equation}
-for all $v\in H^1_{bc}(\Omega_m)$ and
 \begin{equation}
-\int_{\gamma}\tn A_t\nabla_\yy u_f\cdot\nabla_\yy v = \int_\gamma\bar f v + \frac1\delta\sum_{i=1}^2\int_\gamma q(u_{m|\gamma_i},u_f)v
+\delta\int_{\gamma}\tn K_t\nabla_\yy h_f\cdot\nabla_\yy v_f = \delta\int_\gamma\bar f_h v_f + \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)v_f
 \end{equation}
-for all $v\in H^1_0(\gamma)$.
+for all $(v_m,v_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$.
 \end{subequations}
+We shall also use a compact form of \eqref{eq:weak_asym}:
+\begin{multline}
+\int_{\Omega_m}\tn K\nabla h_m\cdot\nabla v_m
++\delta\int_{\gamma}\tn K_t\nabla_\yy h_f\cdot\nabla_\yy v_f\\
++ \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)(v_{m|\gamma_i} - v_f)
+ = \int_{\Omega_m} f_hv_m + \delta\int_\gamma\bar f_h v_f.
+\end{multline}
+Let us remark that under the above assumptions on $\tn K$ and $f_h$, problems \eqref{eq:weak_darcy} and \eqref{eq:weak_asym} have unique solutions.
 
+
+
+\subsection{Error analysis of asymptotic model}
+\label{sc:error_estimate}
+
+% (note: $h\in H^1(\Omega_f)\Rightarrow\bar h\in H^1(\gamma)$)
+
+
+We make the following notation:
+$\underline K_m := \inf_{\Omega_m,\lambda\in\sigma(\tn K_m(\cdot))}\lambda$, $\underline K_t := \inf_{\Omega_f,\lambda\in\sigma(\tn K_t(\cdot))}\lambda$, $\underline k_n:=\inf_{\gamma}k_n(\cdot)$, $\overline k_n:=\sup_{\gamma}k_n(\cdot)$.
 The main result of this section is the following error estimate.
 \begin{theorem}
 \label{th:error_estimate}
-Let $\delta>0$, $\tn A$ be uniformly bounded and positive definite in $\overline\Omega$, $f\in L^2(\Omega)$ and assume that the unique solution to \eqref{eq:weak_global} satisfies additionally $\partial_n^2 u\in C(\overline\Omega_f)$.
-Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$ and $\tn A$ such that
+Let $\delta>0$, and assume that the unique solution to \eqref{eq:weak_darcy} satisfies additionally $\partial_n^2 h\in C(\overline\Omega_f)$.
+Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$, $\tn K$ and $f_h$ such that
 \begin{subequations}
 \label{eq:error_estimates_delta}
 \begin{align}
-&\norm{\nabla_\yy(\bar u- u_f)}_{2,\gamma} \le C\sqrt{\frac{\norm{a_n}_{\infty,\gamma}}{\underline\lambda(\tn A_t)}}\norm{\partial_n^2 u}_{C(\overline\Omega_f)}\delta,\\
-&\norm{\nabla(u-u_m)}_{2,\Omega_m} \le C\sqrt{\frac{\norm{a_n}_{\infty,\gamma}}{\underline\lambda(\tn A_{|\Omega_m})}}\norm{\partial_n^2 u}_{C(\overline\Omega_f)}\delta^{3/2},\\
-&\sum_{i=1}^2\norm{\bar u-u_{|\gamma_i}+u_{m|\gamma_i}-u_f}_{2,\gamma} \le C\sqrt{\frac{\norm{a_n}_{\infty,\gamma}}{\inf_{\Omega_f}a_n}}\norm{\partial_n^2 u}_{C(\overline\Omega_f)}\delta^2,
+&\norm{\nabla_\yy(\bar h- h_f)}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline K_t}}\norm{\partial_n^2 h}_{C(\overline\Omega_f)}\delta,\\
+&\norm{\nabla(h-h_m)}_{2,\Omega_m} \le C\sqrt{\frac{\overline k_n}{\underline K_m}}\norm{\partial_n^2 h}_{C(\overline\Omega_f)}\delta^{3/2},\\
+&\sum_{i=1}^2\norm{\bar h-h_{|\gamma_i}+h_{m|\gamma_i}-h_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 h}_{C(\overline\Omega_f)}\delta^2,
 \end{align}
 \end{subequations}
-where $(u_m,u_f)$ is the solution to \eqref{eq:weak_asym} and $\underline\lambda(\cdot)$ denotes the smallest eigenvalue of a matrix.
+where $(h_m,h_f)$ is the solution to \eqref{eq:weak_asym} and $\underline\lambda(\cdot)$ denotes the smallest eigenvalue of a matrix.
 \end{theorem}
 
 
@@ -390,73 +427,73 @@ k(x+\frac\delta2)v_\gamma(0,\vc y) - k(x+\frac\delta2-\frac1k)v_m(-\frac\delta2,
 \end{cases}
 \end{multline*}
 Note that $\Pi_k$ maps $H^1(\Omega_m)\times H^{1/2}(\gamma)$ into $H^1(\Omega)$.
-Hence we can test \eqref{eq:weak_global} by $v_k:=\Pi_k(u-u_m,\bar u-u_f)$, where $u$, $u_m$ and $u_f$ satisfy \eqref{eq:weak_global} and \eqref{eq:weak_asym}, respectively:
+Hence we can test \eqref{eq:weak_global} by $v_k:=\Pi_k(h-h_m,\bar h-h_f)$, where $h$, $h_m$ and $h_f$ satisfy \eqref{eq:weak_global} and \eqref{eq:weak_asym}, respectively:
 \begin{multline}
 \label{eq:global_vk}
-\int_{\Omega_m}\tn A\nabla u\cdot\nabla(u-u_m)
-+\int_{\Omega_{fk}}\tn A_t\nabla_\yy u\cdot\nabla_\yy(\bar u-u_f)
-+\int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n u \partial_n v_k\\
-+ \int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy u \cdot \Pi_k(u-u_m,\nabla_\yy(\bar u-u_f))
-= \int_{\Omega_m} f (u-u_m)\\
-+ \int_{\Omega_{fk}} f (\bar u-u_f)
+\int_{\Omega_m}\tn A\nabla h\cdot\nabla(h-h_m)
++\int_{\Omega_{fk}}\tn A_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)
++\int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n h \partial_n v_k\\
++ \int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f))
+= \int_{\Omega_m} f (h-h_m)\\
++ \int_{\Omega_{fk}} f (\bar h-h_f)
 + \int_{\Omega_f\setminus\Omega_{fk}} f v_k.
 \end{multline}
 Next we shall perform the limit $k\to\infty$.
 Due to continuity of integral we have:
 \begin{align}
-&\int_{\Omega_{fk}}\tn A_t\nabla_\yy u\cdot\nabla_\yy(\bar u-u_f) \to \int_{\Omega_f}\tn A_t\nabla_\yy u\cdot\nabla_\yy(\bar u-u_f)\\
-&\hspace{4cm} = \delta\int_\gamma\tn A_t\nabla_\yy\bar u\cdot\nabla_\yy(\bar u-u_f),\\
-&\int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy u \cdot \Pi_k(u-u_m,\nabla_\yy(\bar u-u_f)) \to 0, \\
-&\int_{\Omega_{fk}} f (\bar u-u_f) \to \int_{\Omega_{f}} f (\bar u-u_f) = \delta\int_{\gamma} \bar f (\bar u-u_f), \\
+&\int_{\Omega_{fk}}\tn A_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f) \to \int_{\Omega_f}\tn A_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)\\
+&\hspace{4cm} = \delta\int_\gamma\tn A_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f),\\
+&\int_{\Omega_f\setminus\Omega_{fk}} \tn A_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f)) \to 0, \\
+&\int_{\Omega_{fk}} f (\bar h-h_f) \to \int_{\Omega_{f}} f (\bar h-h_f) = \delta\int_{\gamma} \bar f (\bar h-h_f), \\
 &\int_{\Omega_f\setminus\Omega_{fk}} f v_k \to 0,~k\to\infty.
 \end{align}
 The remaining term can be rewritten as follows:
 \begin{multline}
-\int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n u \partial_n v_k
-= k\int_{-\frac\delta2}^{-\frac\delta2+\frac1k}\int_\gamma a_n\partial_n u (\bar u - u_f - u_{|\gamma_1} + u_{m|\gamma_1})\\
-+ k\int_{\frac\delta2-\frac1k}^{\frac\delta2}\int_\gamma a_n\partial_n u (\bar u - u_f - u_{|\gamma_2} + u_{m|\gamma_2})\\
-\to \sum_{i=1}^2\int_\gamma a_n \partial_n u_{|\gamma_i} (\bar u - u_f - u_{|\gamma_i} + u_{m|\gamma_i}),~k\to\infty.
+\int_{\Omega_f\setminus\Omega_{fk}} a_n\partial_n h \partial_n v_k
+= k\int_{-\frac\delta2}^{-\frac\delta2+\frac1k}\int_\gamma a_n\partial_n h (\bar h - h_f - h_{|\gamma_1} + h_{m|\gamma_1})\\
++ k\int_{\frac\delta2-\frac1k}^{\frac\delta2}\int_\gamma a_n\partial_n h (\bar h - h_f - h_{|\gamma_2} + h_{m|\gamma_2})\\
+\to \sum_{i=1}^2\int_\gamma a_n \partial_n h_{|\gamma_i} (\bar h - h_f - h_{|\gamma_i} + h_{m|\gamma_i}),~k\to\infty.
 \end{multline}
-Since $\partial_n u$ is smooth, Taylor's expansion yields
-\[ \partial_n u(\pm\frac\delta2,\vc y) = \frac2\delta(\bar u - u(\pm\frac\delta2,\vc y)) - \frac\delta3\partial_n^2 u(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
-i.e. there exist functions $g_i:=\partial^2_n u(\xi(\cdot))\in L^\infty(\gamma)$ such that
+Since $\partial_n h$ is smooth, Taylor's expansion yields
+\[ \partial_n h(\pm\frac\delta2,\vc y) = \frac2\delta(\bar h - h(\pm\frac\delta2,\vc y)) - \frac\delta3\partial_n^2 h(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
+i.e. there exist functions $g_i:=\partial^2_n h(\xi(\cdot))\in L^\infty(\gamma)$ such that
 \begin{equation}
 \label{eq:taylor_for_du}
-\partial_n u_{|\gamma_i} = \frac2\delta(\bar u - u_{|\gamma_i}) - \delta g_i,~i=1,2.
+\partial_n h_{|\gamma_i} = \frac2\delta(\bar h - h_{|\gamma_i}) - \delta g_i,~i=1,2.
 \end{equation}
 Summing up, \eqref{eq:global_vk}--\eqref{eq:taylor_for_du} yield:
 \begin{multline}
 \label{eq:sum_global_vk_limit}
-\int_{\Omega_m}\tn A\nabla u\cdot\nabla(u-u_m)
-+\delta\int_\gamma\tn A_t\nabla_\yy\bar u\cdot\nabla_\yy(\bar u-u_f)\\
-+ \sum_{i=1}^2\int_\gamma q(\bar u,u_{|\gamma_i}) (\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f)\\
-= \int_{\Omega_m} f (u-u_m)
-+ \delta\int_{\gamma} \bar f (\bar u-u_f)
-+ \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f).
+\int_{\Omega_m}\tn A\nabla h\cdot\nabla(h-h_m)
++\delta\int_\gamma\tn A_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f)\\
++ \sum_{i=1}^2\int_\gamma q(\bar h,h_{|\gamma_i}) (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f)\\
+= \int_{\Omega_m} f (h-h_m)
++ \delta\int_{\gamma} \bar f (\bar h-h_f)
++ \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f).
 \end{multline}
 
-Now we plug into \eqref{eq:weak_asym} test functions $u-u_m$, $\delta(\bar u-u_f)$, respectively, and add the resulting equations.
+Now we plug into \eqref{eq:weak_asym} test functions $h-h_m$, $\delta(\bar h-h_f)$, respectively, and add the resulting equations.
 We obtain:
 \begin{multline*}
-\int_{\Omega_m}\tn A\nabla u_m\cdot\nabla(u-u_m) + \delta\int_\gamma\tn A_t\nabla_\yy u_f\cdot\nabla_\yy(\bar u-u_f)\\
-- \sum_{i=1}^2\int_\gamma q(u_{m|\gamma_i},u_f)(\bar u - u_{|\gamma_i}+u_{m|\gamma_i} - u_f)
-= \int_{\Omega_m} f(u-u_m)
-+ \delta\int_\gamma\bar f(\bar u-u_f).
+\int_{\Omega_m}\tn A\nabla h_m\cdot\nabla(h-h_m) + \delta\int_\gamma\tn A_t\nabla_\yy h_f\cdot\nabla_\yy(\bar h-h_f)\\
+- \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)(\bar h - h_{|\gamma_i}+h_{m|\gamma_i} - h_f)
+= \int_{\Omega_m} f(h-h_m)
++ \delta\int_\gamma\bar f(\bar h-h_f).
 \end{multline*}
 Subtracting this from \eqref{eq:sum_global_vk_limit}, using H\"older's and Young's inequality yields:
 \begin{multline}
-\int_{\Omega_m}\tn A\nabla (u-u_m)\cdot\nabla(u-u_m)
-+\delta\int_\gamma\tn A_t\nabla_\yy(\bar u-u_f)\cdot\nabla_\yy(\bar u-u_f)\\
-+ \sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|^2
-= \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f)\\
-\le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{a_n}|g_i|\sqrt{\frac{2a_n}\delta}|\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|\\
-\le \frac{\delta^3}4\norm{a_n}_{\infty,\gamma}\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f|^2.
+\int_{\Omega_m}\tn A\nabla (h-h_m)\cdot\nabla(h-h_m)
++\delta\int_\gamma\tn A_t\nabla_\yy(\bar h-h_f)\cdot\nabla_\yy(\bar h-h_f)\\
++ \sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2
+= \delta\sum_{i=1}^2\int_\gamma a_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f)\\
+\le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{a_n}|g_i|\sqrt{\frac{2a_n}\delta}|\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|\\
+\le \frac{\delta^3}4\norm{a_n}_{\infty,\gamma}\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2a_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2.
 \end{multline}
 Finally we absorb the last term in the left hand side and use uniform positive definiteness of $\tn A$:
 \begin{multline}
-\underline\lambda(\tn A_{|\Omega_m})\norm{\nabla (u-u_m)}_{2,\Omega_m}^2
-+\underline\lambda(\tn A_t)\delta\norm{\nabla_\yy(\bar u-u_f)}_{2,\gamma}^2\\
-+ \frac1\delta\inf_{\Omega_f}a_n\sum_{i=1}^2\norm{\bar u - u_{|\gamma_i} + u_{m|\gamma_i} - u_f}_{2,\gamma}^2
+\underline\lambda(\tn A_{|\Omega_m})\norm{\nabla (h-h_m)}_{2,\Omega_m}^2
++\underline\lambda(\tn A_t)\delta\norm{\nabla_\yy(\bar h-h_f)}_{2,\gamma}^2\\
++ \frac1\delta\inf_{\Omega_f}a_n\sum_{i=1}^2\norm{\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f}_{2,\gamma}^2
 \le \frac{\norm{a_n}_{\infty,\gamma}}4\left(\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2\right)\delta^3,
 \end{multline}
 from which the estimates \eqref{eq:error_estimates_delta} follow.
