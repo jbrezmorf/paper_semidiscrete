@@ -71,6 +71,7 @@
 \def\abs#1{\lvert#1\rvert}
 \def\Abs#1{\bigl\lvert#1\bigr\rvert}
 \def\div{{\rm div}}
+\def\ep{\varepsilon}
 \def\Lapl{\Delta}
 \def\grad{\nabla}
 \def\Real{{\mathbf R}}
@@ -141,17 +142,17 @@ We are interested in a steady Darcy flow on domain $\Omega$:
 \begin{subequations}
 \label{eq:darcy_flow}
 \begin{align}
-    \div \vc{q_h} = f_h \mbox{ in }\Omega, \\
-    \vc q_h = -\tn K \grad h, \\
-    h=0\mbox{ on }\partial\Omega
+    \div \vc q_p = f_p \mbox{ in }\Omega, \\
+    \vc q_p = -\tn K \grad p, \\
+    p=0\mbox{ on }\partial\Omega
 \end{align}
 \end{subequations}
-where $\vc q$ is the Darcy flux, $f_h$ is the source density, $\tn K$ is the hydraulic conductivity tensor, and $h$ is the piezometric head.
+where $\vc q_p$ is the Darcy flux, $f_p$ is the source density, $\tn K$ is the hydraulic conductivity tensor, and $p$ is the piezometric head.
 Further, we consider also related solute transport equation:
 \begin{align}
     \label{eq:solute_transport}
     \prtl_t (\theta c) + \div(q_c) = f_c \mbox{ in }\Omega,\\
-    \vc q_c = c \vc q_h - \theta \tn D \grad c, \\
+    \vc q_c = c \vc q_p - \theta \tn D \grad c, \\
     c=0\mbox{ on }\partial\Omega
 \end{align}
 where $\theta$ is the porosity, $c$ is the solute concentration, $q_c$ is the total solute flux, and $\tn D$ is the diffusion-dispersion tensor that in general depends on $q_h$.
@@ -331,163 +332,166 @@ We shall apply the formal derivation of the abstract continuum-fracture model to
 
 \subsection{Continuum-fracture model}
 
-Using the notation of the preceding section, we set $u:=h$, $w:=0$, $\tn A:=\tn K$, $f:=f_h$.
+Using the notation of the preceding section, we set $u:=p$, $w:=0$, $\tn A:=\tn K$, $f:=f_p$.
 We assume that
 \[ \tn K = \begin{cases}\tn K_m & \mbox{ in }\Omega_m,\\ \tn K_f = \begin{pmatrix}k_n & 0\\0&\tn K_t\end{pmatrix} & \mbox{ in }\Omega_f,\end{cases} \]
-where $k_n(x,\yy)=k_n(\yy)$, $\tn K$ is uniformly positive definite and bounded in $\Omega$ and $f_h\in L^2(\Omega)$.
-This results in the new system
+where $k_n(x,\yy)=k_n(\yy)$, $\tn K$ is uniformly positive definite and bounded in $\Omega$ and $f_p\in L^2(\Omega)$.
+The continuum-fracture model for the Darcy flow then reads:
 \begin{subequations}
 \label{eq:asymptotic_darcy}
 \begin{align}
--\div(\tn K_m\nabla h_m) &= f_h &&\mbox{ in }\Omega_m,\\
-h_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
--\tn K_m\nabla h_m\cdot\vc n_i &= q(h_m,h_f) &&\mbox{ on }\gamma_i,i=1,2,\\
--\delta\div(\tn K_f\nabla_\yy h_f) &= \delta\bar f_h + \sum_{i=1}^2 q(h_{m|\gamma_i},h_f) &&\mbox{ in }\gamma,\\
-h_f &= 0 &&\mbox{ on }\overline\gamma\cap\partial\Omega,
+-\div(\tn K_m\nabla p_m) &= f_p &&\mbox{ in }\Omega_m,\\
+p_m &= 0 &&\mbox{ on }\partial\Omega\cap\partial\Omega_m,\\
+-\tn K_m\nabla p_m\cdot\vc n_i &= q(p_m,p_f) &&\mbox{ on }\gamma_i,i=1,2,\\
+-\delta\div(\tn K_f\nabla_\yy p_f) &= \delta\bar f_p + \sum_{i=1}^2 q(p_{m|\gamma_i},p_f) &&\mbox{ in }\gamma,\\
+p_f &= 0 &&\mbox{ on }\overline\gamma\cap\partial\Omega,
 \end{align}
 \end{subequations}
 where $q(w,z):=\frac2\delta k_n(w-z)$.
-\note{JS}{Is it clear what $h_f$ means on $\gamma_i$?}
+The function $p_{m|\gamma_i}$ is given by $(p_{m|\gamma_i})(0,\yy):=p_m((-1)^i\frac\delta2,\yy)$.
+
 
 
 \subsection{Weak formulation}
 
 The ongoing analysis will be done in the framework of weak solutions.
-We say that $h\in H^1_0(\Omega)$ is the weak solution of \eqref{eq:darcy_flow} if for every $v\in H^1_0(\Omega)$:
+We say that $p\in H^1_0(\Omega)$ is the weak solution of \eqref{eq:darcy_flow} if for every $v\in H^1_0(\Omega)$:
 \begin{equation}
 \label{eq:weak_darcy}
-\int_\Omega \tn K\nabla h\cdot\nabla v = \int_\Omega f_hv.
+\int_\Omega \tn K\nabla p\cdot\nabla v = \int_\Omega f_p v.
 \end{equation}
 Introducing the space
 \[ H^1_{bc}(\Omega_m) := \{v\in H^1(\Omega_m);~v_{|\partial\Omega_m\cap\partial\Omega}=0\}, \]
-we analogously define the weak solution of \eqref{eq:asymptotic_darcy} as the couple $(h_m,h_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$ that satisfies
+we analogously define the weak solution of \eqref{eq:asymptotic_darcy} as the couple $(p_m,p_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$ that satisfies
 \begin{subequations}
 \label{eq:weak_asym}
 \begin{equation}
-\int_{\Omega_m}\tn K\nabla h_m\cdot\nabla v_m + \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)v_{m|\gamma_i} = \int_{\Omega_m} f_hv_m,
+\int_{\Omega_m}\tn K\nabla p_m\cdot\nabla v_m + \sum_{i=1}^2\int_\gamma q(p_{m|\gamma_i},p_f)v_{m|\gamma_i} = \int_{\Omega_m} f_p v_m,
 \end{equation}
 \begin{equation}
-\delta\int_{\gamma}\tn K_t\nabla_\yy h_f\cdot\nabla_\yy v_f = \delta\int_\gamma\bar f_h v_f + \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)v_f
+\delta\int_{\gamma}\tn K_t\nabla_\yy p_f\cdot\nabla_\yy v_f = \delta\int_\gamma\bar f_p v_f + \sum_{i=1}^2\int_\gamma q(p_{m|\gamma_i},p_f)v_f
 \end{equation}
 for all $(v_m,v_f)\in H^1_{bc}(\Omega_m)\times H^1_0(\gamma)$.
 \end{subequations}
 We shall also use a compact form of \eqref{eq:weak_asym}:
 \begin{multline}
 \label{eq:weak_darcy_short}
-\int_{\Omega_m}\tn K\nabla h_m\cdot\nabla v_m
-+\delta\int_{\gamma}\tn K_t\nabla_\yy h_f\cdot\nabla_\yy v_f\\
-+ \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)(v_{m|\gamma_i} - v_f)
- = \int_{\Omega_m} f_hv_m + \delta\int_\gamma\bar f_h v_f.
+\int_{\Omega_m}\tn K\nabla p_m\cdot\nabla v_m
++\delta\int_{\gamma}\tn K_t\nabla_\yy p_f\cdot\nabla_\yy v_f\\
++ \sum_{i=1}^2\int_\gamma q(p_{m|\gamma_i},p_f)(v_{m|\gamma_i} - v_f)
+ = \int_{\Omega_m} f_p v_m + \delta\int_\gamma\bar f_p v_f.
 \end{multline}
-Let us remark that under the above assumptions on $\tn K$ and $f_h$, problems \eqref{eq:weak_darcy} and \eqref{eq:weak_asym} have unique solutions.
+Let us remark that under the above assumptions on $\tn K$ and $f_p$, problems \eqref{eq:weak_darcy} and \eqref{eq:weak_asym} have unique solutions.
 
 
 
 \subsection{Error analysis of asymptotic model}
 \label{sc:error_estimate}
 
-% (note: $h\in H^1(\Omega_f)\Rightarrow\bar h\in H^1(\gamma)$)
+% (note: $p\in H^1(\Omega_f)\Rightarrow\bar p\in H^1(\gamma)$)
 
 
+Let $\sigma\tn A$ denote the spectrum of a matrix $\tn A$.
 We make the following notation:
-$\underline K_m := \inf_{\Omega_m,\lambda\in\sigma(\tn K_m(\cdot))}\lambda$, $\underline K_t := \inf_{\Omega_f,\lambda\in\sigma(\tn K_t(\cdot))}\lambda$, $\underline k_n:=\inf_{\gamma}k_n(\cdot)$, $\overline k_n:=\sup_{\gamma}k_n(\cdot)$.
+\[ \underline K_m := \inf_{\Omega_m}\sigma(\tn K_m(\cdot)), \quad \underline K_t := \inf_{\Omega_t}\sigma(\tn K_t(\cdot)), \]
+\[ \underline k_n := \inf_{\gamma}k_n(\cdot), \quad \overline k_n:=\sup_{\gamma}k_n(\cdot). \]
 The main result of this section is the following error estimate.
 \begin{theorem}
 \label{th:error_estimate}
-Let $\delta>0$, and assume that the unique solution to \eqref{eq:weak_darcy} satisfies additionally $\partial_n^2 h\in C(\overline\Omega_f)$.
-Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$, $\tn K$ and $f_h$ such that
+Let $\delta>0$, and assume that the unique solution to \eqref{eq:weak_darcy} satisfies additionally $\partial_n^2 p\in C(\overline\Omega_f)$.
+Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$, $\tn K$ and $f_p$ such that
 \begin{subequations}
 \label{eq:error_estimates_delta}
 \begin{align}
-&\norm{\nabla_\yy(\bar h- h_f)}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline K_t}}\norm{\partial_n^2 h}_{C(\overline\Omega_f)}\delta,\\
-&\norm{\nabla(h-h_m)}_{2,\Omega_m} \le C\sqrt{\frac{\overline k_n}{\underline K_m}}\norm{\partial_n^2 h}_{C(\overline\Omega_f)}\delta^{3/2},\\
-&\sum_{i=1}^2\norm{\bar h-h_{|\gamma_i}+h_{m|\gamma_i}-h_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 h}_{C(\overline\Omega_f)}\delta^2,
+&\norm{\nabla_\yy(\bar p- p_f)}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline K_t}}\norm{\partial_n^2 p}_{C(\overline\Omega_f)}\delta,\\
+&\norm{\nabla(p-p_m)}_{2,\Omega_m} \le C\sqrt{\frac{\overline k_n}{\underline K_m}}\norm{\partial_n^2 p}_{C(\overline\Omega_f)}\delta^{3/2},\\
+&\sum_{i=1}^2\norm{\bar p-p_{|\gamma_i}+p_{m|\gamma_i}-p_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 p}_{C(\overline\Omega_f)}\delta^2,
 \end{align}
 \end{subequations}
-where $(h_m,h_f)$ is the solution to \eqref{eq:weak_asym}.
+where $(p_m,p_f)$ is the solution to \eqref{eq:weak_asym}.
 \end{theorem}
 
 
 \begin{proof}
-Let us define for any $k\in\Natural$ an auxiliary operator $\Pi_k:L^2(\Omega_m)\times L^2(\gamma)\to L^2(\Omega)$:
+Let us define for any $\ep>0$ an auxiliary operator $\Pi_\ep:L^2(\Omega_m)\times L^2(\gamma)\to L^2(\Omega)$:
 \begin{multline*}
-\Pi_k(v_m,v_\gamma)(x,\vc y)\\ :=
+\Pi_\ep(v_m,v_\gamma)(x,\vc y)\\ :=
 \begin{cases}
 v_m(x,\vc y) & \mbox{ in }\Omega_m,\\
-v_\gamma(0,\vc y) & \mbox{ in }\Omega_{fk}:=\{(\tilde x,\tilde{\vc y})\in\Omega;~-\frac\delta2+\frac1k<\tilde x<\frac\delta2-\frac1k\},\\
-k(x+\frac\delta2)v_\gamma(0,\vc y) - k(x+\frac\delta2-\frac1k)v_m(-\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega;~\tilde x<-\frac\delta2+\frac1k\},\\
--k(x-\frac\delta2)v_\gamma(0,\vc y) + k(x-\frac\delta2+\frac1k)v_m(\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega;~\tilde x>\frac\delta2-\frac1k\}.
+v_\gamma(0,\vc y) & \mbox{ in }\Omega_{f\ep}:=\{(\tilde x,\tilde{\vc y})\in\Omega;~-\frac\delta2+\ep<\tilde x<\frac\delta2-\ep\},\\
+\frac1\ep(x+\frac\delta2)v_\gamma(0,\vc y) - \frac1\ep(x+\frac\delta2-\ep)v_m(-\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega_f;~\tilde x<-\frac\delta2+\ep\},\\
+-\frac1\ep(x-\frac\delta2)v_\gamma(0,\vc y) + \frac1\ep(x-\frac\delta2+\ep)v_m(\frac\delta2,\vc y) & \mbox{ in }\{(\tilde x,\tilde{\vc y})\in\Omega_f;~\tilde x>\frac\delta2-\ep\}.
 \end{cases}
 \end{multline*}
-Note that $\Pi_k$ maps $H^1(\Omega_m)\times H^{1/2}(\gamma)$ into $H^1(\Omega)$.
-Hence we can test \eqref{eq:weak_darcy} by $v_k:=\Pi_k(h-h_m,\bar h-h_f)$, where $h$, $h_m$ and $h_f$ satisfy \eqref{eq:weak_darcy} and \eqref{eq:weak_darcy_short}, respectively:
+Note that $\Pi_\ep$ maps $H^1(\Omega_m)\times H^{1/2}(\gamma)$ into $H^1(\Omega)$.
+Hence we can test \eqref{eq:weak_darcy} by $v_\ep:=\Pi_\ep(p-p_m,\bar p-p_f)$, where $p$, $p_m$ and $p_f$ satisfy \eqref{eq:weak_darcy} and \eqref{eq:weak_darcy_short}, respectively:
 \begin{multline}
 \label{eq:global_vk}
-\int_{\Omega_m}\tn K_m\nabla h\cdot\nabla(h-h_m)
-+\int_{\Omega_{fk}}\tn K_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)
-+\int_{\Omega_f\setminus\Omega_{fk}} k_n\partial_n h \partial_n v_k\\
-+ \int_{\Omega_f\setminus\Omega_{fk}} \tn K_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f))
-= \int_{\Omega_m} f_h (h-h_m)\\
-+ \int_{\Omega_{fk}} f_h (\bar h-h_f)
-+ \int_{\Omega_f\setminus\Omega_{fk}} f_h v_k.
+\int_{\Omega_m}\tn K_m\nabla p\cdot\nabla(p-p_m)
++\int_{\Omega_{f\ep}}\tn K_t\nabla_\yy p\cdot\nabla_\yy(\bar p-p_f)
++\int_{\Omega_f\setminus\Omega_{f\ep}} k_n\partial_x p \partial_x v_\ep\\
++ \int_{\Omega_f\setminus\Omega_{f\ep}} \tn K_t\nabla_\yy p \cdot \nabla_\yy\Pi_\ep(p-p_m,\bar p-p_f)
+= \int_{\Omega_m} f_p (p-p_m)\\
++ \int_{\Omega_{f\ep}} f_p (\bar p-p_f)
++ \int_{\Omega_f\setminus\Omega_{f\ep}} f_p v_\ep.
 \end{multline}
-Next we shall perform the limit $k\to\infty$.
+Next we shall perform the limit $\ep\to 0+$.
 Due to continuity of integral we have:
 \begin{align}
-&\int_{\Omega_{fk}}\tn K_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f) \to \int_{\Omega_f}\tn K_t\nabla_\yy h\cdot\nabla_\yy(\bar h-h_f)\\
-&\hspace{4cm} = \delta\int_\gamma\tn K_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f),\\
-&\int_{\Omega_f\setminus\Omega_{fk}} \tn K_t\nabla_\yy h \cdot \Pi_k(h-h_m,\nabla_\yy(\bar h-h_f)) \to 0, \\
-&\int_{\Omega_{fk}} f_h (\bar h-h_f) \to \int_{\Omega_{f}} f_h (\bar h-h_f) = \delta\int_{\gamma} \bar f_h (\bar h-h_f), \\
-&\int_{\Omega_f\setminus\Omega_{fk}} f_h v_k \to 0,~k\to\infty.
+&\int_{\Omega_{f\ep}}\tn K_t\nabla_\yy p\cdot\nabla_\yy(\bar p-p_f) \to \int_{\Omega_f}\tn K_t\nabla_\yy p\cdot\nabla_\yy(\bar p-p_f)\\
+&\hspace{4cm} = \delta\int_\gamma\tn K_t\nabla_\yy\bar p\cdot\nabla_\yy(\bar p-p_f),\\
+&\int_{\Omega_f\setminus\Omega_{f\ep}} \tn K_t\nabla_\yy p \cdot \nabla_\yy\Pi_\ep(p-p_m,\bar p-p_f) \to 0, \\
+&\int_{\Omega_{f\ep}} f_p (\bar p-p_f) \to \int_{\Omega_{f}} f_p (\bar p-p_f) = \delta\int_{\gamma} \bar f_p (\bar p-p_f), \\
+&\int_{\Omega_f\setminus\Omega_{f\ep}} f_p v_\ep \to 0,~\ep\to 0+.
 \end{align}
 The remaining term can be rewritten as follows:
 \begin{multline}
-\int_{\Omega_f\setminus\Omega_{fk}} k_n\partial_n h \partial_n v_k
-= k\int_{-\frac\delta2}^{-\frac\delta2+\frac1k}\int_\gamma k_n\partial_n h (\bar h - h_f - h_{|\gamma_1} + h_{m|\gamma_1})\\
-+ k\int_{\frac\delta2-\frac1k}^{\frac\delta2}\int_\gamma k_n\partial_n h (\bar h - h_f - h_{|\gamma_2} + h_{m|\gamma_2})\\
-\to \sum_{i=1}^2\int_\gamma k_n \partial_n h_{|\gamma_i} (\bar h - h_f - h_{|\gamma_i} + h_{m|\gamma_i}),~k\to\infty.
+\int_{\Omega_f\setminus\Omega_{f\ep}} k_n\partial_x p \partial_x v_\ep
+= \frac1\ep\int_{-\frac\delta2}^{-\frac\delta2+\ep}\int_\gamma k_n\partial_x p (\bar p - p_f - p_{|\gamma_1} + p_{m|\gamma_1})\\
+- \frac1\ep\int_{\frac\delta2-\ep}^{\frac\delta2}\int_\gamma k_n\partial_x p (\bar p - p_f - p_{|\gamma_2} + p_{m|\gamma_2})\\
+\to \sum_{i=1}^2(-1)^{1+i}\int_\gamma k_n \partial_x p_{|\gamma_i} (\bar p - p_f - p_{|\gamma_i} + p_{m|\gamma_i}),~\ep\to 0+.
 \end{multline}
-Since $\partial_n h$ is smooth, Taylor's expansion yields
-\[ \partial_n h(\pm\frac\delta2,\vc y) = \frac2\delta(\bar h - h(\pm\frac\delta2,\vc y)) - \frac\delta3\partial_n^2 h(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
-\note{JS}{Isn't it sufficient to have $\partial_n h$ absolutely continuous for the expansion?}
-i.e. there exist functions $g_i:=\partial^2_n h(\xi(\cdot))\in L^\infty(\gamma)$ such that
+Since $\partial_x p$ is smooth, Taylor's expansion yields
+\[ \partial_x p(\pm\frac\delta2,\vc y) = \mp\frac2\delta(\bar p - p(\pm\frac\delta2,\vc y)) \pm \frac\delta3\partial_n^2 p(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
+\note{JS}{It may be sufficient to have $\partial_n p$ absolutely continuous, but we also need smoothness of $\xi$.}
+i.e. there exist functions $g_i:=\partial^2_x p(\xi(\cdot))\in L^\infty(\gamma)$ such that
 \begin{equation}
 \label{eq:taylor_for_du}
-\partial_n h_{|\gamma_i} = \frac2\delta(\bar h - h_{|\gamma_i}) - \delta g_i,~i=1,2.
+\partial_x p_{|\gamma_i} = (-1)^{1+i}\left(\frac2\delta(\bar p - p_{|\gamma_i}) - \delta g_i\right),~i=1,2.
 \end{equation}
 Summing up, \eqref{eq:global_vk}--\eqref{eq:taylor_for_du} yield:
 \begin{multline}
 \label{eq:sum_global_vk_limit}
-\int_{\Omega_m}\tn K_m\nabla h\cdot\nabla(h-h_m)
-+\delta\int_\gamma\tn K_t\nabla_\yy\bar h\cdot\nabla_\yy(\bar h-h_f)\\
-+ \sum_{i=1}^2\int_\gamma q(\bar h,h_{|\gamma_i}) (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f)\\
-= \int_{\Omega_m} f_h (h-h_m)
-+ \delta\int_{\gamma} \bar f_h (\bar h-h_f)
-+ \delta\sum_{i=1}^2\int_\gamma k_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f).
+\int_{\Omega_m}\tn K_m\nabla p\cdot\nabla(p-p_m)
++\delta\int_\gamma\tn K_t\nabla_\yy\bar p\cdot\nabla_\yy(\bar p-p_f)\\
++ \sum_{i=1}^2\int_\gamma q(\bar p,p_{|\gamma_i}) (\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f)\\
+= \int_{\Omega_m} f_p (p-p_m)
++ \delta\int_{\gamma} \bar f_p (\bar p-p_f)
++ \delta\sum_{i=1}^2\int_\gamma k_n g_i\, (\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f).
 \end{multline}
 
-Now we plug into \eqref{eq:weak_darcy_short} the test functions $v_m:=h-h_m$, $v_f:=\bar h-h_f$.
+Now we plug into \eqref{eq:weak_darcy_short} the test functions $v_m:=p-p_m$, $v_f:=\bar p-p_f$.
 We obtain:
 \begin{multline*}
-\int_{\Omega_m}\tn K_m\nabla h_m\cdot\nabla(h-h_m) + \delta\int_\gamma\tn K_t\nabla_\yy h_f\cdot\nabla_\yy(\bar h-h_f)\\
-- \sum_{i=1}^2\int_\gamma q(h_{m|\gamma_i},h_f)(\bar h - h_{|\gamma_i}+h_{m|\gamma_i} - h_f)
-= \int_{\Omega_m} f_h(h-h_m)
-+ \delta\int_\gamma\bar f_h(\bar h-h_f).
+\int_{\Omega_m}\tn K_m\nabla p_m\cdot\nabla(p-p_m) + \delta\int_\gamma\tn K_t\nabla_\yy p_f\cdot\nabla_\yy(\bar p-p_f)\\
+- \sum_{i=1}^2\int_\gamma q(p_{m|\gamma_i},p_f)(\bar p - p_{|\gamma_i}+p_{m|\gamma_i} - p_f)
+= \int_{\Omega_m} f_p(p-p_m)
++ \delta\int_\gamma\bar f_p(\bar p-p_f).
 \end{multline*}
 Subtracting this from \eqref{eq:sum_global_vk_limit}, using H\"older's and Young's inequality yields:
 \begin{multline}
-\int_{\Omega_m}\tn K_m\nabla (h-h_m)\cdot\nabla(h-h_m)
-+\delta\int_\gamma\tn K_t\nabla_\yy(\bar h-h_f)\cdot\nabla_\yy(\bar h-h_f)\\
-+ \sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2
-= \delta\sum_{i=1}^2\int_\gamma k_n g_i\, (\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f)\\
-\le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{k_n}|g_i|\sqrt{\frac{2k_n}\delta}|\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|\\
-\le \frac{\delta^3}4\overline k_n\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f|^2.
+\int_{\Omega_m}\tn K_m\nabla (p-p_m)\cdot\nabla(p-p_m)
++\delta\int_\gamma\tn K_t\nabla_\yy(\bar p-p_f)\cdot\nabla_\yy(\bar p-p_f)\\
++ \sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f|^2
+= \delta\sum_{i=1}^2\int_\gamma k_n g_i\, (\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f)\\
+\le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{k_n}|g_i|\sqrt{\frac{2k_n}\delta}|\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f|\\
+\le \frac{\delta^3}4\overline k_n\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f|^2.
 \end{multline}
 Finally we absorb the last term in the left hand side and use uniform positive definiteness of $\tn K$:
 \begin{multline}
-\underline K_m\norm{\nabla (h-h_m)}_{2,\Omega_m}^2
-+\underline K_t\delta\norm{\nabla_\yy(\bar h-h_f)}_{2,\gamma}^2\\
-+ \frac1\delta\underline k_n\sum_{i=1}^2\norm{\bar h - h_{|\gamma_i} + h_{m|\gamma_i} - h_f}_{2,\gamma}^2
+\underline K_m\norm{\nabla (p-p_m)}_{2,\Omega_m}^2
++\underline K_t\delta\norm{\nabla_\yy(\bar p-p_f)}_{2,\gamma}^2\\
++ \frac1\delta\underline k_n\sum_{i=1}^2\norm{\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f}_{2,\gamma}^2
 \le \frac{\overline k_n}4\left(\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2\right)\delta^3,
 \end{multline}
 from which the estimates \eqref{eq:error_estimates_delta} follow.
@@ -584,17 +588,119 @@ DESCRIBE FLOW123D - mixed-hybrid method for Darcy flow, DG for transport, input/
 TEST PROBLEMS - analytical solutions, tests from JMR paper, comments to the results
 }
 
+In this section we present computational results that demonstrate the relevance of the continuum-fracture model in the discrete setting, in particular we study the dependence of the error between the full and the reduced model on the fracture cross section.
+For this reason we choose numerical methods with 2nd order accuracy in space with respect to the $L^2$ norm and a sequence of computational meshes with the norm $h\approx\delta$. Consequently we are able to observe the order $O(\delta)$ and $O(\delta^{3/2})$, respectively, of the respective error norms.
+
+In all computations we shall use the domain $\Omega:=(-1,1)\times(0,1)$ and the fracture $\Omega_f^\delta:=(-\delta/2,\delta/2)\times(0,1)$.
+
+For the Darcy flow we measure the $L^2$ error in the piezometric head in $\Omega_m^\delta:=\Omega\setminus\Omega_f^\delta$ and $\gamma$:
+\[ e_m^\delta := \norm{p^\delta - p_m^\delta}_{2,\Omega_m^\delta},\quad e_f^\delta := \norm{p^\delta - p_f^\delta}_{2,\gamma}. \]
+
+
+\subsection{Test case 1 - harmonic pressure}
+
+Data: $\tn K=\tn I$, $f_p=0$, left/right - nonhomogeneous Dirichlet b.c., top/bottom - nonhomogeneous Neumann b.c.
+Exact solution:
+\[ p(x,y) = e^x\sin y \]
+According to Theorem \ref{th:error_estimate}, the errors should behave as follows: $e_m^\delta\approx\delta^{3/2}$, $e_f^\delta\approx\delta$.
+
+\begin{tabular}{|l|ll|ll|}
+\hline
+$\delta$ & $(e_m^\delta)^2$ & EOC (matrix) & $(e_f^\delta)^2$ & EOC (fracture)\\
+\hline
+4.00e-01 & 2.4899e-03 &            & 1.9525e-03 & \\
+2.00e-01 & 2.5948e-04 & 1.6312e+00 & 2.7821e-04 & 1.4055e+00\\
+1.00e-01 & 3.1960e-05 & 1.5106e+00 & 5.2709e-05 & 1.2000e+00\\
+5.00e-02 & 3.5416e-06 & 1.5869e+00 & 1.1414e-05 & 1.1036e+00\\
+2.50e-02 & 4.3285e-07 & 1.5162e+00 & 2.6676e-06 & 1.0486e+00\\
+1.25e-02 & 5.3499e-08 & 1.5081e+00 & 6.4513e-07 & 1.0239e+00\\
+6.25e-03 & 6.6789e-09 & 1.5009e+00 & 1.5865e-07 & 1.0119e+00\\
+\hline
+Expected & & 1.5 & & 1\\
+\hline
+\end{tabular}
+
+% % The following results were wrong, in fact we get the same orders as above (1.5, 1)
+% Next, we scale the conductivity tensor $\tn K_f:=\frac1\delta\tn I$ and use the same boundary conditions. The exact solution remains the same.
+% The expected order is now $e_m^\delta\approx\delta$, $e_f^\delta\approx\delta$.
+% 
+% \begin{tabular}{|l|ll|ll|}
+% \hline
+% $\delta$ & $(e_m^\delta)^2$ & EOC (matrix) & $(e_f^\delta)^2$ & EOC (fracture)\\
+% \hline
+% 4.00e-01 & 6.8043e-03 &            & 1.6771e-02 & \\
+% 2.00e-01 & 1.6164e-03 & 1.0368e+00 & 3.9297e-03 & 1.0467e+00\\
+% 1.00e-01 & 4.0703e-04 & 9.9478e-01 & 9.6050e-04 & 1.0163e+00\\
+% 5.00e-02 & 1.0201e-04 & 9.9824e-01 & 2.3074e-04 & 1.0287e+00\\
+% 2.50e-02 & 2.5552e-05 & 9.9859e-01 & 5.7078e-05 & 1.0076e+00\\
+% 1.25e-02 & 6.3936e-06 & 9.9936e-01 & 1.4200e-05 & 1.0035e+00\\
+% 6.25e-03 & 1.5991e-06 & 9.9969e-01 & 3.5465e-06 & 1.0007e+00\\
+% \hline
+% Expected & & 1 & & 1\\
+% \hline
+% \end{tabular}
 
 
 
+\subsection{Test case 2 - nonzero source}
 
+Data: $\tn K=\tn I$, $f_p=2y-1$, left/right - nonhomogeneous Dirichlet, top/bottom - homogeneous Neumann b.c.
+Exact solution:
+\[ p(x,y) = -\frac{x}2 - \frac{y^3}3 + \frac{y^2}2 \]
+Expected order: $e_m^\delta\approx\delta^{3/2}$, $e_f^\delta\approx\delta$.
 
+\begin{tabular}{|l|ll|ll|}
+\hline
+$\delta$ & $(e_m^\delta)^2$ & EOC (matrix) & $(e_f^\delta)^2$ & EOC (fracture)\\
+\hline
+4.00e-01 & 2.7352e-03 &            & 3.2885e-05 &           \\
+2.00e-01 & 3.4103e-04 & 1.5018e+00 & 7.8094e-06 & 1.0371e+00\\
+1.00e-01 & 4.5694e-05 & 1.4499e+00 & 1.8929e-06 & 1.0223e+00\\
+5.00e-02 & 5.3165e-06 & 1.5517e+00 & 4.6537e-07 & 1.0121e+00\\
+2.50e-02 & 6.6431e-07 & 1.5003e+00 & 1.1540e-07 & 1.0059e+00\\
+1.25e-02 & 8.3023e-08 & 1.5001e+00 & 2.8731e-08 & 1.0030e+00\\
+6.25e-03 & 1.0419e-08 & 1.4971e+00 & 7.1679e-09 & 1.0015e+00\\
+\hline
+Expected & & 1.5 & & 1\\
+\hline
+\end{tabular}
 
+Transport: zero initial condition, $\theta=0.1$, right: Dirichlet b.c. $1$, time interval $(0,0.45)$
+Zero diffusion:
 
+\begin{tabular}{|l|ll|ll|}
+\hline
+$\delta$ & $(e_m^\delta)^2*0.45$ & EOC (matrix) & $(e_f^\delta)^2*0.45$ & EOC (fracture)\\
+\hline
+4.00e-01 & 3.3746e-01 &            & 2.3598e-03 &           \\ 
+2.00e-01 & 1.9794e-01 & 5.0865e-01 & 1.8645e-02 & 6.6722e-01\\  
+1.00e-01 & 8.3739e-02 & 7.7955e-01 & 1.0253e-02 & 5.8354e-01\\
+5.00e-02 & 2.2839e-02 & 1.0578e+00 & 2.9655e-03 & 8.4844e-01\\
+2.50e-02 & 3.6513e-03 & 1.3804e+00 & 7.3713e-04 & 9.6713e-01\\
+1.25e-02 & 3.9963e-04 & 1.6179e+00 & 1.7860e-04 & 1.0001e+00\\
+6.25e-03 & 3.6526e-05 & 1.7325e+00 & 4.3463e-05 & 1.0062e+00\\
+\hline
+Expected & & ? & & ?\\
+\hline
+\end{tabular}
 
+Diffusion $\tn D=0.1\tn I$:
 
-
-
+\begin{tabular}{|l|ll|ll|}
+\hline
+$\delta$ & $(e_m^\delta)^2*0.45$ & EOC (matrix) & $(e_f^\delta)^2*0.45$ & EOC (fracture)\\
+\hline
+4.00e-01 & 7.1668e-02 &            & 2.8439e-02 &            \\
+2.00e-01 & 2.4313e-02 & 1.1239e+00 & 1.9724e-02 & 7.1121e-01 \\
+1.00e-01 & 2.5986e-03 & 1.6569e+00 & 3.7972e-03 & 1.1298e+00 \\
+5.00e-02 & 1.6395e-04 & 2.0134e+00 & 6.5148e-04 & 1.2219e+00 \\
+2.50e-02 & 1.7331e-05 & 1.7132e+00 & 9.9551e-05 & 1.3395e+00 \\
+1.25e-02 & 1.5975e-06 & 1.7456e+00 & 1.2088e-05 & 1.5115e+00 \\
+6.25e-03 & 1.2553e-07 & 1.8268e+00 & 1.1732e-06 & 1.6769e+00 \\
+\hline
+Expected & & ? & & ?\\
+\hline
+\end{tabular}
 
 
 %\input{heat}
