@@ -398,14 +398,14 @@ We make the following notation:
 The main result of this section is the following error estimate.
 \begin{theorem}
 \label{th:error_estimate}
-Let $\delta>0$, and assume that the unique solution to \eqref{eq:weak_darcy} satisfies additionally $\partial_n^2 p\in C(\overline\Omega_f)$.
+Let $\delta>0$, and assume that the unique solution to \eqref{eq:weak_darcy} satisfies additionally $\partial_n^2 p\in L^\infty(\Omega_f)$.
 Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$, $\tn K$ and $f_p$ such that
 \begin{subequations}
 \label{eq:error_estimates_delta}
 \begin{align}
-&\norm{\nabla_\yy(\bar p- p_f)}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline K_t}}\norm{\partial_n^2 p}_{C(\overline\Omega_f)}\delta,\\
-&\norm{\nabla(p-p_m)}_{2,\Omega_m} \le C\sqrt{\frac{\overline k_n}{\underline K_m}}\norm{\partial_n^2 p}_{C(\overline\Omega_f)}\delta^{3/2},\\
-&\sum_{i=1}^2\norm{\bar p-p_{|\gamma_i}+p_{m|\gamma_i}-p_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 p}_{C(\overline\Omega_f)}\delta^2,
+&\norm{\nabla_\yy(\bar p- p_f)}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline K_t}}\norm{\partial_n^2 p}_{\infty,\Omega_f}\delta,\\
+&\norm{\nabla(p-p_m)}_{2,\Omega_m} \le C\sqrt{\frac{\overline k_n}{\underline K_m}}\norm{\partial_n^2 p}_{\infty,\Omega_f}\delta^{3/2},\\
+&\sum_{i=1}^2\norm{\bar p-p_{|\gamma_i}+p_{m|\gamma_i}-p_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 p}_{\infty,\Omega_f}\delta^2,
 \end{align}
 \end{subequations}
 where $(p_m,p_f)$ is the solution to \eqref{eq:weak_asym}.
@@ -451,14 +451,26 @@ The remaining term can be rewritten as follows:
 - \frac1\ep\int_{\frac\delta2-\ep}^{\frac\delta2}\int_\gamma k_n\partial_x p (\bar p - p_f - p_{|\gamma_2} + p_{m|\gamma_2})\\
 \to \sum_{i=1}^2(-1)^{1+i}\int_\gamma k_n \partial_x p_{|\gamma_i} (\bar p - p_f - p_{|\gamma_i} + p_{m|\gamma_i}),~\ep\to 0+.
 \end{multline}
-Since $\partial_x p$ is smooth, Taylor's expansion yields
-\[ \partial_x p(\pm\frac\delta2,\vc y) = \mp\frac2\delta(\bar p - p(\pm\frac\delta2,\vc y)) \pm \frac\delta3\partial_n^2 p(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
-\note{JS}{It may be sufficient to have $\partial_n p$ absolutely continuous, but we also need smoothness of $\xi$.}
-i.e. there exist functions $g_i:=\partial^2_x p(\xi(\cdot))\in L^\infty(\gamma)$ such that
+Let $\vc y\in\Real^{d-1}$ be fixed and define $P(x):=\frac1\delta\int_{-\delta/2}^{x}p(x,\vc y)~dx$.
+Using the Taylor expansion 
+\begin{multline}
+P(x) = P(-\delta/2) + (x+\frac\delta2)P'(-\delta/2) + \frac{(x+\frac\delta2)^2}{2}P''(-\delta/2)\\
++ \frac{(x+\frac\delta2)^2}2\int_{-\delta/2}^{\xi(x,\vc y)}P'''(t)~dt,~\xi(x,\vc y)\in(-\delta/2,x),
+\end{multline}
+we can show that
+\[ \bar p(\vc y) = P(\delta/2) = p(-\delta/2,\vc y) + \frac\delta2\partial_x p(-\delta/2,\vc y) + \frac\delta2\int_{-\delta/2}^{\xi(\delta/2,\vc y)}\partial_x^2 p(t,\vc y)~dt. \]
+By a similar argument we obtain:
+\[ \bar p(\vc y) = p(\delta/2,\vc y) - \frac\delta2\partial_x p(-\delta/2,\vc y) + \frac\delta2\int_{\eta(-\delta/2,\vc y)}^{\delta/2}\partial_x^2 p(t,\vc y)~dt,~\eta(x,\vc y)\in(x,\delta/2). \]
+% Since $\partial_x p$ is smooth, Taylor's expansion yields
+% \[ \partial_x p(\pm\frac\delta2,\vc y) = \mp\frac2\delta(\bar p - p(\pm\frac\delta2,\vc y)) \pm \frac\delta3\partial_n^2 p(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
+% \note{JS}{It may be sufficient to have $\partial_n p$ absolutely continuous, but we also need smoothness of $\xi$.}
+From this we can deduce that
 \begin{equation}
 \label{eq:taylor_for_du}
-\partial_x p_{|\gamma_i} = (-1)^{1+i}\left(\frac2\delta(\bar p - p_{|\gamma_i}) - \delta g_i\right),~i=1,2.
+\partial_x p_{|\gamma_i} = (-1)^{1+i}\left(\frac2\delta(\bar p - p_{|\gamma_i}) - \delta g_i\right),~i=1,2,
 \end{equation}
+where $|g_i(\vc y)|\le\norm{\partial_x^2 p(\cdot,\vc y)}_{L^\infty(-\frac\delta2,\frac\delta2)}$.
+\note{JS}{We can also estimate $|g_i|\le\delta^{-1/2}\norm{\partial_x^2p}_{2,(-\delta/2,\delta/2)}$ - then we loose some power of $\delta$, but we could assume standard elliptic regularity.}
 Summing up, \eqref{eq:global_vk}--\eqref{eq:taylor_for_du} yield:
 \begin{multline}
 \label{eq:sum_global_vk_limit}
