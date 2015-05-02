@@ -79,6 +79,8 @@
 \def\Natural{\mathbf N}
 \def\norm#1{\|#1\|}
 \def\yy{{\vc y}}
+\def\ul{\underline}
+\def\ol{\overline}
 
 \newcommand{\note}[2]{{\color{blue} \textbf{ #1:} \textit{#2}}}
 %% ini_table members
@@ -144,18 +146,23 @@ We are interested in a steady Darcy flow on domain $\Omega$:
 \begin{align}
     \div \vc q_p = f_p \mbox{ in }\Omega, \\
     \vc q_p = -\tn K \grad p, \\
-    p=0\mbox{ on }\partial\Omega
+    p=p_0\mbox{ on }\partial\Omega
 \end{align}
 \end{subequations}
-where $\vc q_p$ is the Darcy flux, $f_p$ is the source density, $\tn K$ is the hydraulic conductivity tensor, and $p$ is the piezometric head.
+where $\vc q_p$ is the Darcy flux, $f_p$ is the source density, $\tn K$ is the hydraulic conductivity tensor, $p$ is the piezometric head and $p_0$ is 
+the piezometric head on the boundary.
 Further, we consider also related solute transport equation:
+\begin{subequations}
+\label{eq:solute_transport}
 \begin{align}
-    \label{eq:solute_transport}
     \prtl_t (\theta c) + \div(q_c) = f_c \mbox{ in }\Omega,\\
     \vc q_c = c \vc q_p - \theta \tn D \grad c, \\
-    c=0\mbox{ on }\partial\Omega
+    \vc q_c \cdot \vc n= c_0 [\vc q_p \cdot \vc n]^-\mbox{ on }\partial\Omega
 \end{align}
-where $\theta$ is the porosity, $c$ is the solute concentration, $q_c$ is the total solute flux, and $\tn D$ is the diffusion-dispersion tensor that in general depends on $q_h$.
+\end{subequations}
+where $\theta$ is the porosity, $c$ is the solute concentration, $q_c$ is the total solute flux, 
+$\tn D$ is the diffusion-dispersion tensor that in general depends on $q_h$, and 
+$c_0$ is the solute concentration on the inflow part of the boundary.
 
 Both transport processes are particular cases of an abstract advection-diffusion problem which admits an equivalent formulation
 emphasizing the structure of the domain $\Omega$:
@@ -164,24 +171,25 @@ emphasizing the structure of the domain $\Omega$:
   \prtl_t w_i + \div \vc j_i &= f_i&&  \text{in } \Omega_i,\ i=m,f,\\
   \label{eq:full:flux}
   \vc j_i &= - \tn A_i\grad u_i + \vc b_i w_i&& \text{in } \Omega_i,\ i=m,f,\\
-  \label{eq:full:Dirichlet}
+  \label{eq:full:gammaDirichlet}
   u_i &= u_f&& \text{on } \gamma_i,\ i=1,2,\\
-  \label{eq:full:Neumann}
+  \label{eq:full:gammaNeumann}
   \vc j_i \cdot \vc n &= \vc j_f \cdot \vc n&& \text{on } \gamma_i,\ i=1,2,
 \end{align}
 where $w_i=w_i(u_i)$ is the conservative quantity and $u_i$ is the principal unknown, $\vc j_i$ is the flux of $w_i$, $f_i$ is the source term,
 $\tn A_i$ is the diffusivity tensor and $\vc b_i$ is the velocity field. 
+Interior equations $(\ref{eq:full:continuity}-\ref{eq:full:gammaNeumann})$ are completed by general boundary conditions
+\begin{align}
+  \label{eq:full:outerDirichlet}
+  u=u_D, \text{ on } \Gamma_D,\\
+  \label{eq:full:outerNeumann}
+  \vc j \cdot \vc n= w_N [\vc b \cdot \vc n]^- \mbox{ on }\Gamma_N\\
+\end{align}
+where $\Gamma_D$ and $\Gamma_N$ are the Dirichlet part and the Neumann part of the outer boundary $\prtl\Omega$.
 
-In this paper we shall study the relation of the above problem to the so-called asymptotic problem on the reduced geometry.
-\note{JB}{Proposed names:
-\begin{itemize}
- \item continuum-fracture model
- \item reduced fracture model
- \item averaged fracture model
-\end{itemize}
-}
 
-The aim of this paper is to justify the latter problem as an approximation of the first one in the case when the cross section $\delta$ is small.
+In this paper we shall study the relation of the above problem to the so-called continuum-fracture problem on the reduced geometry.
+Our goal is to justify the latter problem as an approximation of the first one in the case when the cross section $\delta$ is small.
 In particular, we shall prove that
 \[ \bar u - u_f \approx \delta\quad\mbox{and}\quad u_{|\Omega_m}-u_m \approx \delta^{3/2} \]
 in a suitable sense.
@@ -194,10 +202,11 @@ Finally, in section \ref{sc:numerics} we show numerical results which confirm th
 
 
 
-\section{Asymptotic model for abstract advection-diffusion problem}
+\section{Continuum-fracture model for the abstract problem}
 \label{sc:ad_on_fractures}
 
-In this section, we shall derive a model for the abstract advection-diffusion process $(\ref{eq:full:continuity}-\ref{eq:full:Neumann}$
+In this section, we shall derive a model for the continuum-fracuter model of an abstract advection-diffusion process 
+$(\ref{eq:full:continuity}-\ref{eq:full:outerNeumann})$
 on the reduced geometry. This is done by integrating the equations $(\ref{eq:full:continuity}-\ref{eq:full:flux})$ on the fracture $\Omega_f$
 in the normal direction and obtain their approximations on the surface $\gamma$ running through the middle of the fracture.
 
@@ -323,6 +332,38 @@ where
     +  \big([b_i]^{+}(1-\xi) + [b_i]^{-}\xi\big) W,
     \qquad b_i = \vc b_m |_{\gamma_i} \cdot \vc n_i.
 \]
+
+\section{Weak formulation for the abstract problem}
+First, we introduce a weak solution to the full abstract problem $(\ref{eq:full:continuity}-\ref{eq:full:outerNeumann})$.
+For the sake of simplicity, we shall consider only a linear abstract problem with $w(u)=\omega u$ with $\omega\in L^\infty((0,T)\times\Omega)$.
+To this end, we use spaces
+\[
+    H_D=\{v\in H^1(\Omega) \| v=0 on \Gamma_D\}
+\]
+and
+\[
+    V= V(\Omega) =C([0,T]; L^2(\Omega) ) \cap L^2( (0,T); H_D ).
+\]    
+A weak solution of the full model is any $u=u_0 + E[u_D]$ with $u_0\in V$ that satisfies
+\begin{equation}
+    \label{eq:solute_weak}
+    \mathcal L (u, \phi; \Omega, \vc b, \tn D, f) = \int_0^T \int_{\Omega} \prtl_t \omega u\phi - \omega u \vc b  \cdot \grad \phi 
+        + \tn A : (\grad u \otimes \grad \phi) - f\phi \d \vc x -\int_{\Gamma_N} w_N \vc b\cdot\vc n =0\\
+\end{equation}
+for any $\phi \in V$. 
+
+Next, we introduce a weak formulation for the continuum-fracture model \eqref{eq:fr:solute}.
+The pair $c_i\in V_i = V(\Omega_i)$, $i\in\{m,f\}$ is a weak solution of the continuum-fracture model
+if it satisfies:
+\begin{equation}
+    \label{eq:fr:solute_weak}
+    \sum_{i\in \{m,f\}} \mathcal L (c_i, \phi_i; \Omega_i, \theta_i, \vc b_i, \tn D_i, f_i)
+    + \sum_{j=1}^2 \int_0^T \int_{\gamma_i} q^i(c_m-c_f) =0
+\end{equation}
+for all pairs $\phi_i\in V_i$, $i\in\{m,f\}$.
+
+
+
 
 
 
@@ -510,46 +551,64 @@ from which the estimates \eqref{eq:error_estimates_delta} follow.
 \end{proof}
 
 \section{Solute transport}
+\note{JB}{Some common place where impose assumptions about data. We need $\ul{\theta}$, $\ul{D}$}
 \subsection{Continuum-fracture model}
 \note{JB}{In this section I use $\vc b$ instead of $\vc q_h$ in \eqref{eq:solute_transport}. Definitely I need something without subscript, moreover $q$ is overloaded.
 Similar problem for RHS.}
 
+\begin{subequations}
+ 
+\label{eq:fr:solute}
 \begin{align}
-  \label{eq:fr:solute}
+  \label{eq:fr:solute:main}
   \prtl_t (\theta_m c_m) + \div(\vc b_m c_m) - \div(\theta_m \tn D_m \grad c_m) &= f_m&&  \text{in } \Omega_m,\\
-  \label{eq:fr:Dirichlet}
+  \label{eq:fr:solute:bc}
   c_m &= 0&& \text{on } \partial\Omega\cap\partial\Omega_m,\\
   (- \theta_m \tn D_m\grad c_m + \vc b_m c_m) \cdot \vc n_i &= q_i &&\mbox{ on }\gamma_i,i=1,2,\\ 
   \prtl_t(\delta\theta c_f)  + \div(\delta \vc b_f c_f ) - \div( \delta \theta_f \tn D_t \grad c_f) 
       &= f_f + \sum_{i=1}^2 q_i&&  \text{in } \Omega_m,\\
 \end{align}
+\end{subequations}
+
 where 
-\[
+\begin{equation}
+    \label{eq:fr:flux12}
     q_i:=\frac2\delta \theta_f d_n(c_m|_{\gamma_i} - c_f) 
     +  \big([b_i]^{+}\xi + [b_i]^{-}(1-\xi)\big) c_m|_{\gamma_i}
     +  \big([b_i]^{+}(1-\xi) + [b_i]^{-}\xi\big) c_f.
-\]
+\end{equation}
 
 \subsection{Weak formulation}
-We search the solution $c_i$, $i\in \{m,f\}$ in the space 
+First, we introduce weak formulation for the continuum model \eqref{eq:solute_transport}.
+We say that $c$ from the space 
 \[
-    V_i =C([0,T]; L^2(\Omega_i) ) \cap L^2( (0,T); W^{1,2}(\Omega_i) ).
+    V= V(\Omega) =C([0,T]; L^2(\Omega) ) \cap L^2( (0,T); W^{1,2}(\Omega) ).
 \]    
-satisying 
-\begin{align}
-\notag
-&\int_0^T \int_{\Omega_m} \prtl_t(\theta_m c_m)\phi_m - \vc b_m c_m \cdot \grad \phi_m + \theta_m \tn D_m : (\grad c_m \otimes \grad \phi_m) - f_m\phi_m \d \vc x+\\
-\label{eq:fr:solute_weak}
-&\int_0^T \int_{\Omega_f} \prtl_t(\delta\theta_f c_f)\phi_f - \delta \vc b_f c_f \cdot \grad \phi_f + \delta \theta_f \tn D_f : (\grad c_f \otimes \grad \phi_f) - f_f\phi_f \d \vc x+\\
-\notag
-&\sum_{i=1}^{2} \int_0^T \int_{\gamma_i} q^i (c_m - c_f) \d s = 0
-\end{align}
+is weak solution of the continuum model if it satisfies
+\begin{equation}
+    \label{eq:solute_weak}
+    \mathcal L (c, \phi; \Omega, \theta, \vc b, \tn D, f) = \int_0^T \int_{\Omega} \prtl_t(\theta c)\phi - \vc b c \cdot \grad \phi 
+        + \theta \tn D : (\grad c \otimes \grad \phi) - f\phi \d \vc x =0\\
+\end{equation}
+for any $\phi \in V$. 
+
+Next, we introduce a weak formulation for the continuum-fracture model \eqref{eq:fr:solute}.
+The pair $c_i\in V_i = V(\Omega_i)$, $i\in\{m,f\}$ is a weak solution of the continuum-fracture model
+if it satisfies:
+\begin{equation}
+    \label{eq:fr:solute_weak}
+    \sum_{i\in \{m,f\}} \mathcal L (c_i, \phi_i; \Omega_i, \theta_i, \vc b_i, \tn D_i, f_i)
+    + \sum_{j=1}^2 \int_0^T \int_{\gamma_i} q^i(c_m-c_f) =0
+\end{equation}
+for all pairs $\phi_i\in V_i$, $i\in\{m,f\}$.
+
 
 
 \subsection{A priori estimate for fracture model}
-\note{JB}{After check should be used for the error estimate.}
+\def\ul{\underline}
 
-We test by $\phi_m=c_m$, $\phi_f=c_f$ and integrate by parts in the time term, for the first two terms in \eqref{eq:fr:solute_weak} we have:
+\note{JB}{After check should be used for the error estimate.}
+Testing \eqref{eq:solute_weak} by $\phi=c$ and integrating by parts, the frist two terms gives us 
 \[
     \int_0^T \int_{\Omega} \prtl_t(\theta c)c - \vc b c \cdot \grad c = 
     \left[
@@ -558,8 +617,20 @@ We test by $\phi_m=c_m$, $\phi_f=c_f$ and integrate by parts in the time term, f
     -\int_0^T \frac{\d}{\d t} \int_{\Omega} \theta \frac12 c^2 =     
     \left[
         \frac12 \int_{\Omega} \theta c^2
-    \right]_{t=0}^{T}
+    \right]_{t=0}^{T}.
+\] 
+Using also the other terms in \eqref{eq:solute_weak}, we get
+\begin{equation*}
+  \frac12 \ul{\theta}\norm{c(T)}_{L^2(\Omega)}^2 + \int_0^T \ul{\theta}\, \ul{D} \norm{\grad c}_{L^2(\Omega)}^2
+  \le \int_0^T \frac12\norm{f}^2_{L^2(\Omega} + \frac12\norm{c(0)}^2_{L^2(\Omega)}.
+\end{equation*}
+Then one can use Gronwall's lemma to get an appriory estimate:
+\[
+    \norm{c}_{L^\infty(0,T; L^2(\Omega))} + \norm{c}_{L^2(0,T; W^{1,2}(\Omega))} \le C
 \]
+
+
+
 Moreover the last term in \eqref{eq:fr:solute_weak} can be rewritten as
 \[
    \sum_{i=1}^{2} \int_0^T \int_{\gamma_i} 
@@ -569,7 +640,6 @@ Moreover the last term in \eqref{eq:fr:solute_weak} can be rewritten as
 \]
 
 Then we estimate
-\def\ul{\underline}
 \begin{align*}
   \frac12 \ul{\theta}_m\norm{c_m(T)}_{L^2(\Omega_m)}^2 + \int_0^T \ul{\theta}_m \ul{D}_m \norm{\grad c_m}_{L^2(\Omega_m)}^2 + \\
   \frac12 \delta\ul{\theta}_f\norm{c_f(T)}_{L^2(\Omega_f)}^2 + \int_0^T \delta \ul{\theta}_f \ul{D}_f \norm{\grad c_f}_{L^2(\Omega_f)}^2+\\
@@ -580,8 +650,7 @@ Then we estimate
 \end{align*}
 The first term can be absorbed to the left-hand side and for resulting inequality we can use Gronwall's lemma. 
 \note{JB}{Integration over $\gamma_i$ is same as integration over $\Omega_f$, this should be done somehow better.}
-\note{JB}{
-Estimate could work even for small $\delta$ at presence of term with $d_n$, than $1/A \sim \delta$ and Gronwall's function do not blow-up.}
+\note{JB}{Estimate could work even for small $\delta$ at presence of term with $d_n$, than $1/A \sim \delta$ and Gronwall's function do not blow-up.}
 
 
 
