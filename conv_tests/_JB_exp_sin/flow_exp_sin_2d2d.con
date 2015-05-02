@@ -1,0 +1,60 @@
+{
+  problem = {
+    TYPE = "SequentialCoupling", 
+    description = "Analytical flow 2d2d.", 
+    mesh = {
+      mesh_file = "mesh_2d2d.msh"
+    }, 
+
+    primary_equation = {
+      TYPE = "Steady_MH", 
+
+      input_fields= [
+        { region = "hornina",
+          conductivity = 1,            
+          cross_section = 1
+        },
+        { region = "puklina",
+          conductivity = 1,           
+          cross_section = 1
+        },
+        { r_set = "BOUNDARY",
+          bc_type = "dirichlet",
+          bc_pressure = {TYPE = "FieldFormula", value = "exp(x)*sin(y)"} 
+        }/*,
+        { region = ".left",
+          bc_type = "dirichlet",
+          bc_piezo_head = {TYPE = "FieldFormula", value = "exp(x-0.4/2)*sin(y)"}
+        },
+        { region = ".no_flow",
+          bc_type = "neumann",
+          bc_flux = {TYPE = "FieldFormula", value = "-exp(x+if(x>0,1,-1)*0.4/2)*cos(y)*if(y<0.5,-1,1)"}
+        },
+        { region = ".no_flow_body",
+          bc_type = "neumann",
+          bc_flux = {TYPE = "FieldFormula", value = "-2/0.4*sinh(0.4/2)*cos(y)*if(y<0.5,-1,1)"}
+        }*/
+      ],
+
+      output = {
+        output_stream = {
+          file = "flow_2d2d.pvd", 
+            format = {
+            TYPE = "vtk", 
+            variant = "ascii"
+          }
+        },
+        output_fields = [ "pressure_p0", "velocity_p0", "region_id"]
+      }, 
+      balance = {
+        balance_output="water_balance_2d2d.out"
+      },
+          
+      solver = {
+        TYPE = "Petsc", 
+        a_tol = 1e-15,
+        r_tol = 1e-15
+      } 
+    }
+  } // problem
+}

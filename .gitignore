@@ -1,0 +1,4 @@
+*.pyc
+*.backup
+*.vtk
+conv_tests/*/h_*
