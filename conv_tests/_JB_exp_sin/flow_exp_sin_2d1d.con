@@ -25,19 +25,20 @@
         },
         { region = ".right",
           bc_type = "dirichlet",
-          bc_piezo_head = {TYPE = "FieldFormula", value = "exp(x+0.4/2)*sin(y)"} 
+          bc_pressure = {TYPE = "FieldFormula", value = "exp(x+$rozevreni$/2)*sin(y)"} 
         },
         { region = ".left",
           bc_type = "dirichlet",
-          bc_piezo_head = {TYPE = "FieldFormula", value = "exp(x-0.4/2)*sin(y)"}
+          bc_pressure = {TYPE = "FieldFormula", value = "exp(x-$rozevreni$/2)*sin(y)"}
         },
         { region = ".no_flow",
-          bc_type = "neumann",
-          bc_flux = {TYPE = "FieldFormula", value = "-exp(x+if(x>0,1,-1)*0.4/2)*cos(y)*if(y<0.5,-1,1)"}
+          bc_type = "dirichlet",
+          bc_pressure = {TYPE = "FieldFormula", value = "exp(x+if(x>0,1,-1)*$rozevreni$/2)*sin(y)"}
         },
         { region = ".no_flow_body",
-          bc_type = "neumann",
-          bc_flux = {TYPE = "FieldFormula", value = "-2/0.4*sinh(0.4/2)*cos(y)*if(y<0.5,-1,1)"}
+          bc_type = "dirichlet",
+          // Average over fracture
+          bc_pressure = {TYPE = "FieldFormula", value = "2*sinh($rozevreni$/2)/$rozevreni$*sin(y)"}
         }
       ],
 

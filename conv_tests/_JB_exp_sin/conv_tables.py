@@ -28,9 +28,9 @@ def single_table(table_name, values):
         for ih in range(0, n_h):
             i_row=id+2
             i_col=2*ih + 1
-            #table[i_row][i_col+1]=\
-            #    math.log( table[i_row][i_col] / table[i_row-1][i_col] )\
-            #    / math.log( table[i_row][0] / table[i_row-1][0] )
+            table[i_row][i_col+1]=\
+                math.log( table[i_row][i_col] / table[i_row-1][i_col] )\
+                / math.log( table[i_row][0] / table[i_row-1][0] )
     return table
 
 def make_table(cases_results):
@@ -54,9 +54,11 @@ def make_table(cases_results):
     return norms_dict
 
 def write_tables(tables_dict, csv_file):
-    with open(csv_file, "wb") as f:
+    with open(csv_file, "wb") as f
         csv_out=csv.writer(f)
-        for key, table in tables_dict.iteritems():
+        items = tables_dict.items()
+        items.sort()
+        for key, table in items:
             for row in table:
                 csv_out.writerow(row)
 

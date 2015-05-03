@@ -1,17 +1,18 @@
-from paraview.simple import *
+#from paraview.simple import *
 import paraview.benchmark
 import math
-
+from paraview import servermanager
+from paraview import simple
 
 def programmable_filter(data_in, script_file, Parameters={}, CopyArrays=0):
         with open(script_file, "r") as resample_script_file:
             script=resample_script_file.read()
             script="filter_parameters="+str(Parameters)+"\n"+script
-            pf=ProgrammableFilter(Input=data_in, CopyArrays=CopyArrays, Script=script)
+            pf=servermanager.filters.ProgrammableFilter(Input=data_in, CopyArrays=CopyArrays, Script=script)
             return pf
 
 def fetch_integrate_variables(data_in):
-    iv = IntegrateVariables(data_in)
+    iv = programmable_filter(data_in, "../filter_iv.py")
     iv.UpdatePipeline()
     iv_output=paraview.servermanager.Fetch(iv)
     return (iv, iv_output)
@@ -46,7 +47,7 @@ def python_difference(data_a, array_a, data_b, array_b, result_name):
     else:
         expr=diff_expr + "*" + diff_expr
 
-    return PythonCalculator(Input=[data_a, data_b],
+    return servermanager.filters.PythonCalculator(Input=[data_a, data_b],
                             Expression=expr,
                             ArrayAssociation='Cell Data',
                             ArrayName=result_name)
@@ -55,12 +56,20 @@ def python_difference(data_a, array_a, data_b, array_b, result_name):
 def postprocess(output_pvd_2d1d, output_pvd_2d2d):
   
     servermanager.Connect()
-    
-    data_reader_1d = paraview.simple.PVDReader(FileName=output_pvd_2d1d)
-    data_reader_2d = paraview.simple.PVDReader(FileName=output_pvd_2d2d)
+
+    print "connected"
+    data_reader_1d = servermanager.sources.PVDReader(FileName=output_pvd_2d1d)
+    data_reader_2d = servermanager.sources.PVDReader(FileName=output_pvd_2d2d)
+
+
+    #iv=paraview.simple.IntegrateVariables(data_reader_2d)
   
     resampled_2d_data=programmable_filter([data_reader_1d, data_reader_2d], "./filter_resample_2d1d.py")
-    p_diff_data=python_difference(resampled_2d_data, "pressure_p0", data_reader_1d, "pressure_p0", "diff2_pressure_p0" )
+    writer=servermanager.writers.DataSetWriter(FileName="./resampled_data.vtk", Input=resampled_2d_data)
+    writer.UpdatePipeline()
+
+    p_diff_data=python_difference(resampled_2d_data, "pressure_p0",
+                                  data_reader_1d, "pressure_p0", "diff2_pressure_p0" )
     p_diff_data.UpdatePipeline()
     both_diff_data = python_difference(p_diff_data, "velocity_p0", data_reader_1d, "velocity_p0", "diff2_velocity_p0" )
     both_diff_data.UpdatePipeline()
@@ -73,9 +82,9 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
     iv_1d, iv_arrays_1d = fetch_integrate_variables(diff_data_1d)
     iv_2d, iv_arrays_2d = fetch_integrate_variables(diff_data_2d)
 
-    writer=DataSetWriter(FileName="./resampled_data_1d.vtk", Input=diff_data_1d)
+    writer=servermanager.writers.DataSetWriter(FileName="./resampled_data_1d.vtk", Input=diff_data_1d)
     writer.UpdatePipeline()
-    writer=DataSetWriter(FileName="./resampled_data_2d.vtk", Input=diff_data_2d)
+    writer=servermanager.writers.DataSetWriter(FileName="./resampled_data_2d.vtk", Input=diff_data_2d)
     writer.UpdatePipeline()
 
     norms={}
@@ -86,18 +95,18 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
     print "resampled"
     #########################################################################
     # Estimate norms of second X derivative of the pressure on the fracture
-    dx_p_data=PythonCalculator(Input=data_reader_2d,
+    dx_p_data=servermanager.filters.PythonCalculator(Input=data_reader_2d,
                             Expression="(-1)*inputs[0].CellData['velocity_p0'][:,0]",
                             ArrayAssociation='Cell Data',
                             ArrayName="dx_p")
-    grad_dx_p_data=GradientOfUnstructuredDataSet(Input=dx_p_data,
+    grad_dx_p_data=servermanager.filters.GradientOfUnstructuredDataSet(Input=dx_p_data,
                             ScalarArray=['CELLS',"dx_p"],
                             ResultArrayName="grad_dx_p")
-    ddxx_p_data=PythonCalculator(Input=grad_dx_p_data,
+    ddxx_p_data=servermanager.filters.PythonCalculator(Input=grad_dx_p_data,
                             Expression="inputs[0].CellData['grad_dx_p'][:,0]",
                             ArrayAssociation='Cell Data',
                             ArrayName="ddxx_p")
-    ddxx_p_data=PythonCalculator(Input=ddxx_p_data,
+    ddxx_p_data=servermanager.filters.PythonCalculator(Input=ddxx_p_data,
                             Expression="inputs[0].CellData['ddxx_p']*inputs[0].CellData['ddxx_p']",
                             ArrayAssociation='Cell Data',
                             ArrayName="ddxx_p_2")
@@ -105,7 +114,7 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
                              Parameters={"region_id_to_extract" : 2})
     iv_ddxx, iv_ddxx_arrays = fetch_integrate_variables(ddxx_p_on_2d_fracture)
 
-    writer=DataSetWriter(FileName="./ddxx_p.vtk", Input=ddxx_p_on_2d_fracture)
+    writer=servermanager.writers.DataSetWriter(FileName="./ddxx_p.vtk", Input=ddxx_p_on_2d_fracture)
     writer.UpdatePipeline()
 
     norms["dx_dx_p_fracture_L2"] = math.sqrt(integrate(iv_ddxx_arrays, "ddxx_p_2"))
@@ -114,11 +123,11 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
     print "ddxx"
     #########################################################################
     # Diferences on 2D against exact solution
-    coords_data = Calculator(Input=ddxx_p_data,
+    coords_data = servermanager.filters.Calculator(Input=ddxx_p_data,
                             Function="coords",
                             ResultArrayName="coords")
-    cell_coords_data = PointDatatoCellData(Input=coords_data)
-    pressure_exact  = Calculator(Input=cell_coords_data,
+    cell_coords_data = servermanager.filters.PointDatatoCellData(Input=coords_data)
+    pressure_exact  = servermanager.filters.Calculator(Input=cell_coords_data,
                             Function="exp(coords_X)*sin(coords_Y)",
                             ResultArrayName="exact_pressure",
                             AttributeMode="Cell Data")
@@ -136,7 +145,7 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
     p_diff_data.UpdatePipeline()
     all_diff_data=python_difference(p_diff_data, "ddxx_p",
                                   p_diff_data, "exact_pressure", "diff2_ddxx_p_exact" )
-    all_diff_data=PythonCalculator(Input=all_diff_data,
+    all_diff_data=servermanager.filters.PythonCalculator(Input=all_diff_data,
                             Expression="sqrt(inputs[0].CellData['diff2_ddxx_p_exact'])",
                             ArrayAssociation='Cell Data',
                             ArrayName="diff_ddxx_p_exact")
@@ -145,7 +154,7 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
 
     iv_diff, iv_diff_arrays = fetch_integrate_variables(all_diff_fracture)
 
-    writer=DataSetWriter(FileName="./exact_calculations.vtk", Input=all_diff_fracture)
+    writer=servermanager.writers.DataSetWriter(FileName="./exact_calculations.vtk", Input=all_diff_fracture)
     writer.UpdatePipeline()
 
     norms["p_diff_exact_L2"] = math.sqrt(integrate(iv_diff_arrays, "diff2_pressure_exact"))
