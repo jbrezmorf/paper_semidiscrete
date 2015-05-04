@@ -40,7 +40,7 @@ def make_table(cases_results):
     :type cases_results: list of tuples
     """
     # make list of data for every norm
-    norms_dict={}
+    norms_dict = {}
     for case, norms in cases_results:
         for key, value in norms.items():
             norms_dict.setdefault(key, [])
@@ -54,7 +54,7 @@ def make_table(cases_results):
     return norms_dict
 
 def write_tables(tables_dict, csv_file):
-    with open(csv_file, "wb") as f
+    with open(csv_file, "wb") as f:
         csv_out=csv.writer(f)
         items = tables_dict.items()
         items.sort()
