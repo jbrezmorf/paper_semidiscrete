@@ -14,8 +14,10 @@ con_2d="flow_exp_sin_2d2d.con"
 con_1d="flow_exp_sin_2d1d.con"
 home = os.path.expanduser("~")
 flow_path=home + "/workspace/flow123d/bin/flow123d"
-#gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
-gmsh_path="gmsh"
+modules_file=home + "/workspace/flow123d/build_modules"
+mpiexec=home + "/workspace/flow123d/bin/mpiexec"
+gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
+#gmsh_path="gmsh"
 
 
 def run_gmsh(geo_file):   
@@ -69,13 +71,13 @@ class pbs_pool:
             '#PBS -j oe',
             'cd ' + job['work_dir'],
             'pbsdsh hostname']
-            if 'modules' in job:
-                qsub_script.extend(
-                    ['module purge', 'module add /software/modules/current/metabase']
-                    + job['modules']
-                )
+            with open(modules_file, "r") as f:
+                modules = f.read().split("\n")
+            qsub_script.extend(['module purge', 'module add /software/modules/current/metabase'])
+            for module in modules:
+                qsub_script.append("module add " + module)
 
-            call=[ job['executable'] ] + job['arguments']
+            call=[ mpiexec, job['executable'] ] + job['arguments']
             qsub_script.append( " ".join(call) )
             return "\n".join(qsub_script)
 
@@ -101,6 +103,7 @@ class pbs_pool:
         if not job or not 'executable' in job:
             return -1
         if job.has_key('status'):
+            job['pbs_id']=0
             self.pbs_jobs.append(job)
             return 0
 
@@ -117,9 +120,13 @@ class pbs_pool:
             with open(qsub_script, "w") as f:
                 f.write( self.__make_pbs_script(job) )
 
-            n_proc = min( 16, job['n_proc'] )
+            n_proc = min( 16, int(job['n_proc']) )
+            infiniband=""
+            if n_proc>1: infiniband=":infiniband"
+            call_list=["qsub", "-q", "short", "-l", "nodes="+str(n_proc)+":x86_64:mem=4gb"+infiniband, qsub_script]
+            print call_list
             #result=subprocess.check_output(["qsub", "-l nodes=1:x86_64:walltime=" + job['wall_time'], qsub_script])
-            result=subprocess.check_output(["qsub", "-q", "short", "-l", "nodes="+n_proc+":x86_64:mem=4gb:infiniband", qsub_script])
+            result=subprocess.check_output(call_list)
             print "qsub result: ", result
             match=re.match( r'([0-9]*)\.[a-z.]*', result)            
             job['pbs_id']=match.group(1)
@@ -128,6 +135,7 @@ class pbs_pool:
         return job['pbs_id']
 
     def __check_job_status(self, job):
+        if job.has_key('status'): return (None, job['status'], None)
         job_id = job['pbs_id']
         out=subprocess.check_output(["qstat", job_id])
         status = out.split("\n")[2].split()
@@ -145,7 +153,7 @@ class pbs_pool:
             status = self.__check_job_status(job)[1]
             print job['pbs_id'], status
             if status in ['C', 'E']:
-                job['final_status']=status
+                job['status']=status
                 job.pop('pbs_id', None)
                 results.append(job)
             else:
@@ -184,7 +192,7 @@ class local_pool:
             with Chdir(job['work_dir']) as changed_dir:
                 call=[ job['executable'] ] + job['arguments']
                 result=subprocess.call( call )
-                job['final_status']=(None, result, None)
+                job['status']=(None, result, None)
                 self.pbs_jobs.append( job )
         return len(self.pbs_jobs)
 
@@ -221,10 +229,6 @@ def msh_n_elements(file_name):
                     print "Not a number:", str_el
 
 
-def num(s):
-
-
-                return next(f)
 
 
 def make_jobs_for_case(case):
@@ -249,9 +253,10 @@ def make_jobs_for_case(case):
         file_substitute("filter_resample_2d1d.py", [ ("$rozevreni$", d_frac) ])
 
         n_ele = msh_n_elements("mesh_2d2d.msh")
-        print n_ele
+        n_proc=max(1, int(round(n_ele / 30000)))        
+        print "N elements:", n_ele, "N proc:", n_proc
         job_common={ 'wall_time' : '1:50:00',
-                     'n_proc' : round(n_ele / 30000),
+                     'n_proc' : n_proc,
                      'case' : case
                      }
         job1=get_flow_job((con_1d, output_1d))
@@ -284,20 +289,23 @@ def postprocess_finished_jobs(job_pairs):
                 output_1d="output_1d/flow_2d1d.pvd"
                 output_2d="output_2d/flow_2d2d.pvd"
                 print subdir
-                try:
-                    norms=postprocess.postprocess(output_1d, output_2d)
-                except:
-                    norms={"error" : str(sys.exc_info())}
-                keys=[ "ih", "h", "id_frac", "d_frac", "subdir" ]
-                case_dict = dict(zip(keys, case))
-                norm_list.append( ( case_dict,  norms ) )
+                if not os.path.isfile("norms_raw.json"):
+                    try:
+                      norms=postprocess.postprocess(output_1d, output_2d)
+                    except:
+                        print sys.exc_info()
+                        norms={}
+                    keys=[ "ih", "h", "id_frac", "d_frac", "subdir" ]
+                    case_dict = dict(zip(keys, case))
+                    case_result = ( case_dict,  norms )
+                    with open("norms_raw.json", "wb") as f:
+                        json.dump(case_result, f)
             del job_pairs[subdir]
-    return norm_list
 
 def compute_all_cases(cases):
     # make jobs
-    #pool = pbs_pool({})
-    pool=local_pool({})
+    pool = pbs_pool({})
+    #pool=local_pool({})
 
     for case in cases:
         job_1d, job_2d = make_jobs_for_case(case)
@@ -313,30 +321,19 @@ def compute_all_cases(cases):
             for job in finished_jobs:
                 ih, h, id_frac, d_frac, subdir = job['case']
                 job_pairs.setdefault(subdir, []).append(job)
-            norm_list += postprocess_finished_jobs(job_pairs)
-            tables_dict=conv_tables.make_table(norm_list)
-            conv_tables.write_tables(tables_dict, "norm_tabs.csv")
+            postprocess_finished_jobs(job_pairs)
         else:
             time.sleep(1)
         finished_jobs = pool.get_finished_jobs()
-    return norm_list
 
 
 def main():
-    #d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
-    #h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
-    h_array=[0.01, 0.02]
-    #d_frac_array = [0.1*pow(0.5, n) for n in range(-1, 1)]
-    #h_array = [0.01*pow(0.5, n) for n in range(-1, 1)]
-    d_frac_array = [0.2, 0.025]
-    #h_array = [0.005]
+    d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
+    h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
+    #h_array=[0.00125]
+    #d_frac_array = [0.2]
 
-    norms_list = compute_all_cases( make_cases( h_array, d_frac_array ) )
-    #with open("norms_raw.json", "wb") as f:
-    #    json.dump(norms_list, f)
-
-    tables_dict=conv_tables.make_table(norms_list)
-    conv_tables.write_tables(tables_dict, "norm_tabs.csv")
+    compute_all_cases( make_cases( h_array, d_frac_array ) )
 
 
 if __name__ == "__main__":

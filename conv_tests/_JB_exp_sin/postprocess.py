@@ -34,19 +34,28 @@ def h1_norm(data_in, field_diff, diff_field_diff, base_out):
              base_out + "_L2" : l2_norm,
              base_out + "_grad_L2" : diff_l2_norm }
 
-def python_difference(data_a, array_a, data_b, array_b, result_name):
+def python_difference(data_a, array_a, data_b, array_b, result_name, component=-1):
     """
     Computes square of a difference of two arrays of two possibly different datasets.
     Result copy arrays form the first dataset.
     """
     array_a_obj=data_a.CellData.GetArray(array_a)
-    diff_expr="(inputs[0].CellData['" + array_a + "'] - inputs[1].CellData['" + array_b  + "'])"
+    if component>=0:
+        comp_expr="[:,"+str(component)+"]"
+    else:
+        comp_expr=""
 
-    if array_a_obj.GetNumberOfComponents() > 1:
+    def array_expr(i, array, comp):
+        return "inputs[" + str(i) + "].CellData['" + array + "']"+ comp
+      
+    diff_expr="(" + array_expr(0, array_a, comp_expr) + "-" + array_expr(1, array_b, comp_expr) + ")"
+
+    if component==-1 and array_a_obj.GetNumberOfComponents() > 1:
         expr="dot(" + diff_expr + ", " +diff_expr + ")"
     else:
         expr=diff_expr + "*" + diff_expr
-
+        
+    print expr
     return servermanager.filters.PythonCalculator(Input=[data_a, data_b],
                             Expression=expr,
                             ArrayAssociation='Cell Data',
@@ -77,6 +86,12 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
 
     diff_data_1d=programmable_filter( [both_diff_data], "../filter_submesh_by_dimension.py",
                              Parameters={"dimension_to_extract" : 1})
+    data_reader_1d_only=programmable_filter( [data_reader_1d], "../filter_submesh_by_dimension.py",
+                             Parameters={"dimension_to_extract" : 1})
+    
+    diff_data_1d=python_difference(diff_data_1d, "velocity_p0",
+                                   data_reader_1d_only, "velocity_p0", "diff2_velocity_Y", component=1 )
+    
     diff_data_2d=programmable_filter( [both_diff_data], "../filter_submesh_by_dimension.py",
                              Parameters={"dimension_to_extract" : 2})
     iv_1d, iv_arrays_1d = fetch_integrate_variables(diff_data_1d)
@@ -89,7 +104,7 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
 
     norms={}
 
-    norms.update( h1_norm(iv_arrays_1d, "diff2_pressure_p0", "diff2_velocity_p0", "p_12_diff_1d") )
+    norms.update( h1_norm(iv_arrays_1d, "diff2_pressure_p0", "diff2_velocity_Y", "p_12_diff_1d") )
     norms.update( h1_norm(iv_arrays_2d, "diff2_pressure_p0", "diff2_velocity_p0", "p_12_diff_2d") )
 
     print "resampled"

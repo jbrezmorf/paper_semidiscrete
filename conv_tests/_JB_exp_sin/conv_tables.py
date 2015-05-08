@@ -3,6 +3,7 @@ import sys
 import json
 import csv
 import math
+import os
 
 def single_table(table_name, values):
     """
@@ -18,7 +19,9 @@ def single_table(table_name, values):
     n_rows=n_d + 2   # first line is table name, secodn h values
     table = [[0] * n_cols for i in range(n_rows)]
     table[0][0] = table_name
+    print "rows:", n_cols, "cols:",  n_rows
     for  case, value in values:
+        #print case
         i_row = case["id_frac"] + 2
         i_col = 2*case["ih"] + 1
         table[1][i_col] = case["h"]
@@ -28,9 +31,14 @@ def single_table(table_name, values):
         for ih in range(0, n_h):
             i_row=id+2
             i_col=2*ih + 1
-            table[i_row][i_col+1]=\
-                math.log( table[i_row][i_col] / table[i_row-1][i_col] )\
-                / math.log( table[i_row][0] / table[i_row-1][0] )
+            #print table[i_row][0] , table[i_row-1][0], table[i_row][i_col] , table[i_row-1][i_col]
+            try:
+                d_ratio = table[i_row][0] / table[i_row-1][0]
+                value_ratio = table[i_row][i_col] / table[i_row-1][i_col]
+                table[i_row][i_col+1]=math.log( value_ratio )/ math.log( d_ratio )
+            except (ValueError, ZeroDivisionError):
+                pass
+    print table
     return table
 
 def make_table(cases_results):
@@ -64,9 +72,14 @@ def write_tables(tables_dict, csv_file):
 
 
 def main(): 
-    json_file = sys.argv[1]
-    with open(json_file, "r") as f:
-        tables_dict=make_table( json.load(f) )
+    norms_list = []
+    for dir_path, dir_list, file_list in os.walk("."):
+        for fname in file_list:
+            if (fname == "norms_raw.json"):
+                with open(os.path.join(dir_path, fname), "r") as f:
+                    norms_list.append( json.load(f) )
+
+    tables_dict=make_table( norms_list )
     write_tables(tables_dict, "norms_table.csv")
 
         
