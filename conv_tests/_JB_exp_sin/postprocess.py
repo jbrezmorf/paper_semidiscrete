@@ -55,7 +55,7 @@ def python_difference(data_a, array_a, data_b, array_b, result_name, component=-
     else:
         expr=diff_expr + "*" + diff_expr
         
-    print expr
+    #print expr
     return servermanager.filters.PythonCalculator(Input=[data_a, data_b],
                             Expression=expr,
                             ArrayAssociation='Cell Data',

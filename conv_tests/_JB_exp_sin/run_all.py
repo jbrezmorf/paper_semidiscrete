@@ -270,7 +270,11 @@ def make_jobs_for_case(case):
         file_substitute(con_1d, [ ("$rozevreni$", d_frac) ])
         output_1d="output_1d/flow_2d1d.pvd"
 
-        file_substitute("filter_resample_2d1d.py", [ ("$rozevreni$", d_frac) ])
+        file_substitute(
+            "filter_resample_2d1d.py", 
+            [ ("$rozevreni$", d_frac),
+              ("$average_points_x$", int(max(4, 2*d_frac/h)))
+              ])
 
         n_ele = msh_n_elements("mesh_2d2d.msh")
         n_proc=max(1, int(round(n_ele / 30000)))        
@@ -348,10 +352,10 @@ def compute_all_cases(cases):
 
 
 def main():
-    d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
+    #d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
     h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
     #h_array=[0.00125]
-    #d_frac_array = [0.2]
+    d_frac_array = [0.1]
 
     compute_all_cases( make_cases( h_array, d_frac_array ) )
 

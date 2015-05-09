@@ -15,7 +15,8 @@ import vtk
 X_SHIFT_LEFT = $rozevreni$/2
 X_SHIFT_RIGHT = $rozevreni$/2
 # number of points in every direction used to average values over rectagles corresponding to 1d elements
-AVERAGE_POINTS=4
+AVERAGE_POINTS_X=int($average_points_x$)
+AVERAGE_POINTS_Y=4
 
 
 VTK_LINE=3
@@ -72,19 +73,26 @@ def resample_to_2d_1d(pdi, pdo, geom):
     x_points=np.array((0))
     y_points=np.array((0))
     # reference grid
-    x=np.linspace(-X_SHIFT_LEFT,X_SHIFT_RIGHT,AVERAGE_POINTS)
-    y=np.linspace(0,1,AVERAGE_POINTS)
+    x=np.linspace(-X_SHIFT_LEFT, X_SHIFT_RIGHT, AVERAGE_POINTS_X)
+    y=np.linspace(0,1,AVERAGE_POINTS_Y)
     ref_x, ref_y=map(np.ravel, np.meshgrid(x,y))
     assert( np.all(array_of_1d_cells[0::3]==2) )
     p0=geom_points_y[array_of_1d_cells[1::3]]
     p1=geom_points_y[array_of_1d_cells[2::3]]
-
     x_points=np.tile(ref_x, geom_1d_id.size)
 
+    # trapezoid rule
+    def weights(N):
+        return np.array([0.5] + (N-2)*[1.0] + [0.5])
+    average_weights=np.outer( weights(AVERAGE_POINTS_X), weights(AVERAGE_POINTS_Y)).flatten()
+    #average_weights=np.tile(average_weights, geom_1d_id.size).reshape((-1,1))
+    
     yy,y0=np.meshgrid(ref_y,p0)
     yy,y1=np.meshgrid(ref_y,p1)
     y_points=(y0*yy+y1*(1-yy)).ravel()
+    #print average_weights.size, x_points.size, y_points.size
     assert(x_points.size==y_points.size)
+    assert(AVERAGE_POINTS_X*AVERAGE_POINTS_Y==average_weights.size)    
     z_points=np.zeros(len(x_points))
     points_1d=np.hstack(( x_points.reshape((-1,1)),
                           y_points.reshape((-1,1)),
@@ -132,8 +140,8 @@ def resample_to_2d_1d(pdi, pdo, geom):
         new_array=np.zeros((pdo.GetNumberOfCells(),n_components), dtype=array.dtype)
         new_array[geom_2d_id,:]=array[0:n_2d_cells,:]
         
-        array_1d=array[n_2d_cells:,:].reshape(n_1d_cells, AVERAGE_POINTS*AVERAGE_POINTS, n_components)
-        new_array[geom_1d_id,:]=np.average(array_1d, axis=1)
+        array_1d=array[n_2d_cells:,:].reshape(n_1d_cells, len(average_weights), n_components)
+        new_array[geom_1d_id,:]=np.average(array_1d, weights=average_weights, axis=1)
         new_vtk_array=ns.numpy_to_vtk(new_array, deep=1)
         new_vtk_array.SetName(vtk_array.GetName())
         cell_data.AddArray(new_vtk_array)
