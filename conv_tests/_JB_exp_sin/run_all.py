@@ -36,8 +36,8 @@ home = os.path.expanduser("~")
 flow_path=home + "/workspace/flow123d/bin/flow123d"
 modules_file=home + "/workspace/flow123d/build_modules"
 mpiexec=home + "/workspace/flow123d/bin/mpiexec"
-#gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
-gmsh_path="gmsh"
+gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
+#gmsh_path="gmsh"
 
 
 def run_gmsh(geo_file):   
@@ -328,8 +328,8 @@ def postprocess_finished_jobs(job_pairs):
 
 def compute_all_cases(cases):
     # make jobs
-    #pool = pbs_pool({})
-    pool=local_pool({})
+    pool = pbs_pool({})
+    #pool=local_pool({})
 
     for case in cases:
         job_1d, job_2d = make_jobs_for_case(case)
@@ -353,9 +353,9 @@ def compute_all_cases(cases):
 
 def main():
     d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
-    #h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
-    h_array=[0.005]
-    #d_frac_array = [0.1,0.05]
+    h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
+    #h_array=[0.00125]
+    #d_frac_array = [0.1]
 
     compute_all_cases( make_cases( h_array, d_frac_array ) )
 

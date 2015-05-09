@@ -55,7 +55,7 @@ def python_difference(data_a, array_a, data_b, array_b, result_name, component=-
     else:
         expr=diff_expr + "*" + diff_expr
         
-    print expr
+    #print expr
     return servermanager.filters.PythonCalculator(Input=[data_a, data_b],
                             Expression=expr,
                             ArrayAssociation='Cell Data',
@@ -72,8 +72,9 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
 
 
     #iv=paraview.simple.IntegrateVariables(data_reader_2d)
-  
-    resampled_2d_data=programmable_filter([data_reader_1d, data_reader_2d], "./filter_resample_2d1d.py")
+
+    point_data= servermanager.filters.CellDatatoPointData(Input=data_reader_2d)
+    resampled_2d_data=programmable_filter([data_reader_1d, point_data], "./filter_resample_2d1d.py")
     writer=servermanager.writers.DataSetWriter(FileName="./resampled_data.vtk", Input=resampled_2d_data)
     writer.UpdatePipeline()
 

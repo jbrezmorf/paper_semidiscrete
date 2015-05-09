@@ -4,53 +4,64 @@ import json
 import csv
 import math
 import os
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.path as mpath
-import numpy
+
+try:
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+    import matplotlib.path as mpath
+    import numpy
+
+    HAVE_MATPLOTLIB=False
+    def make_table_plot( title, table, n_h, n_d):
+        if not HAVE_MATPLOTLIB: return
+      
+        colors = plt.cm.Dark2(numpy.linspace(0, 1, 12))
+        #colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'red', 'blue', 'gray']
+        plt.hold(False)
+        legend_plot_list=[]
+        legend_label_list=[]
+        for _ih in range(0,n_h):
+            x_vals=[]
+            y_vals=[]
+            i_col = 2*_ih + 1
+            for _id in range(0,n_d):
+                i_row = _id + 2
+                x_vals+=[ table[i_row][0] ]
+                y_vals+=[ table[i_row][i_col] ]
+                
+            plot=plt.loglog(x_vals, y_vals, 'o-', color=colors[_ih])
+            legend_label_list += [ str(table[1][i_col]) ]
+            legend_plot_list += [ plot[0] ]        
+            plt.hold(True)
+        
+        Path = mpath.Path
+        path_data = [
+            (Path.MOVETO, (0, 1)),
+            (Path.LINETO, (1, 1)),
+            (Path.LINETO, (0,0.5)),
+            (Path.CLOSEPOLY, (0, 1)),
+            ]
+        codes, verts = zip(*path_data)
+        path = mpath.Path(verts, codes)
+        x, y = zip(*path.vertices)
+        plt.plot(x, y, 'go-')
+        
+        plt.title(title)
+        plt.xlabel('fracture span')
+        plt.ylabel('norm of error')
+        plt.legend(legend_plot_list, legend_label_list)
+        plt.grid(True)
+        pp = PdfPages(title+".pdf")
+        plt.savefig(pp, format='pdf')
+        pp.close()
+        plt.hold(False)
+
+except ImportError:
+    def make_table_plot(title, table, n_h, n_d):
+        pass
+    HAVE_MATPLOTLIB=True
 
 
-def make_table_plot( title, table, n_h, n_d):
-    colors = plt.cm.Dark2(numpy.linspace(0, 1, 12))
-    #colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'red', 'blue', 'gray']
-    plt.hold(False)
-    legend_plot_list=[]
-    legend_label_list=[]
-    for _ih in range(0,n_h):
-        x_vals=[]
-        y_vals=[]
-        i_col = 2*_ih + 1
-        for _id in range(0,n_d):
-            i_row = _id + 2
-            x_vals+=[ table[i_row][0] ]
-            y_vals+=[ table[i_row][i_col] ]
-            
-        plot=plt.loglog(x_vals, y_vals, 'o-', color=colors[_ih])
-        legend_label_list += [ str(table[1][i_col]) ]
-        legend_plot_list += [ plot[0] ]        
-        plt.hold(True)
-    
-    Path = mpath.Path
-    path_data = [
-        (Path.MOVETO, (0, 1)),
-        (Path.LINETO, (1, 1)),
-        (Path.LINETO, (0,0.5)),
-        (Path.CLOSEPOLY, (0, 1)),
-        ]
-    codes, verts = zip(*path_data)
-    path = mpath.Path(verts, codes)
-    x, y = zip(*path.vertices)
-    plt.plot(x, y, 'go-')
-    
-    plt.title(title)
-    plt.xlabel('fracture span')
-    plt.ylabel('norm of error')
-    plt.legend(legend_plot_list, legend_label_list)
-    plt.grid(True)
-    pp = PdfPages(title+".pdf")
-    plt.savefig(pp, format='pdf')
-    pp.close()
-    plt.hold(False)
 
 def single_table(table_name, values):
     """
