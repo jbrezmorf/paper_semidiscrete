@@ -4,6 +4,53 @@ import json
 import csv
 import math
 import os
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.path as mpath
+import numpy
+
+
+def make_table_plot( title, table, n_h, n_d):
+    colors = plt.cm.Dark2(numpy.linspace(0, 1, 12))
+    #colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'red', 'blue', 'gray']
+    plt.hold(False)
+    legend_plot_list=[]
+    legend_label_list=[]
+    for _ih in range(0,n_h):
+        x_vals=[]
+        y_vals=[]
+        i_col = 2*_ih + 1
+        for _id in range(0,n_d):
+            i_row = _id + 2
+            x_vals+=[ table[i_row][0] ]
+            y_vals+=[ table[i_row][i_col] ]
+            
+        plot=plt.loglog(x_vals, y_vals, 'o-', color=colors[_ih])
+        legend_label_list += [ str(table[1][i_col]) ]
+        legend_plot_list += [ plot[0] ]        
+        plt.hold(True)
+    
+    Path = mpath.Path
+    path_data = [
+        (Path.MOVETO, (0, 1)),
+        (Path.LINETO, (1, 1)),
+        (Path.LINETO, (0,0.5)),
+        (Path.CLOSEPOLY, (0, 1)),
+        ]
+    codes, verts = zip(*path_data)
+    path = mpath.Path(verts, codes)
+    x, y = zip(*path.vertices)
+    plt.plot(x, y, 'go-')
+    
+    plt.title(title)
+    plt.xlabel('fracture span')
+    plt.ylabel('norm of error')
+    plt.legend(legend_plot_list, legend_label_list)
+    plt.grid(True)
+    pp = PdfPages(title+".pdf")
+    plt.savefig(pp, format='pdf')
+    pp.close()
+    plt.hold(False)
 
 def single_table(table_name, values):
     """
@@ -27,6 +74,8 @@ def single_table(table_name, values):
         table[1][i_col] = case["h"]
         table[i_row][0] = case["d_frac"]
         table[i_row][i_col] = value
+    
+    # conv order estimate between lines
     for id in range(1, n_d):
         for ih in range(0, n_h):
             i_row=id+2
@@ -38,7 +87,12 @@ def single_table(table_name, values):
                 table[i_row][i_col+1]=math.log( value_ratio )/ math.log( d_ratio )
             except (ValueError, ZeroDivisionError):
                 pass
-    print table
+    
+    # conv order estimate statistic
+    
+    # make plot of the table columns (no conv order estimates)
+    make_table_plot(table_name, table, n_h, n_d)
+    #print table
     return table
 
 def make_table(cases_results):
@@ -69,17 +123,33 @@ def write_tables(tables_dict, csv_file):
         for key, table in items:
             for row in table:
                 csv_out.writerow(row)
+            csv_out.writerow([])    
 
 
-def main(): 
+def colect_norms(all_norms):
     norms_list = []
     for dir_path, dir_list, file_list in os.walk("."):
         for fname in file_list:
             if (fname == "norms_raw.json"):
                 with open(os.path.join(dir_path, fname), "r") as f:
                     norms_list.append( json.load(f) )
+    with open(all_norms, "w") as f:
+        json.dump(norms_list, f)
+
+
+
+  
+def main():
+    all_norms_file='norms_all.json'
+    if not os.path.isfile(all_norms_file):
+        colect_norms(all_norms_file)
+
+    with open(all_norms_file, "r") as f:
+        norms_list = json.load(f)
 
     tables_dict=make_table( norms_list )
+    #for key, table in tables_dict.iteritems():
+    #    make_graph(key, table)
     write_tables(tables_dict, "norms_table.csv")
 
         

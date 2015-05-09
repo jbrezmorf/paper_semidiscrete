@@ -1,3 +1,23 @@
+"""
+Logic of the scripts is as follows.
+
+1) make 'cases' list from d_frac_array and h_array (see make_cases)
+2) for every case make its work directory and substitute into template files:
+   'filter_resample_12d.py',
+   'mesh_2d2d.geo', 'mesh_2d1d.geo'
+   con_2d, con_1d
+   Files are created only if they doesn't exist.
+   (see make_jobs_for_case)
+3) If output PVD file doesn't exist the job execution is added to the pool.
+4) When some case have both jobs completed, and the file 'norms_raw.json'
+   does'nt exist the postprocess script is run to compute norms.
+   Since pvpython is unstable, one have to restart this step few times. BAD.
+5) After you have created all 'norm_raw.py' , possibly restarting 'run_all.py' few times.
+ You can call conv_tables.py (can use python), to
+ 1) colect norms from subdirectories into norms_all.json (if it doesn't exist)
+ 2) make tables and plots
+"""
+
 import subprocess
 import os
 from multiprocessing import Pool
