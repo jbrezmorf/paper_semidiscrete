@@ -2,3 +2,5 @@
 *.backup
 *.vtk
 conv_tests/*/h_*
+conv_tests/*/.idea
+conv_tests/*/*.pdf
