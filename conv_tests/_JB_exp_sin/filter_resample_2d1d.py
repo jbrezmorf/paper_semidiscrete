@@ -72,20 +72,36 @@ def resample_to_2d_1d(pdi, pdo, geom):
     geom_points_y=ns.vtk_to_numpy(geom.GetPoints().GetData())[:,1]
     x_points=np.array((0))
     y_points=np.array((0))
+
+    # trapezoid rule
+    """
+    def weights(N):
+        return np.array([0.5] + (N-2)*[1.0] + [0.5])
+    average_weights=np.outer( weights(AVERAGE_POINTS_X), weights(AVERAGE_POINTS_Y)).flatten()
     # reference grid
     x=np.linspace(-X_SHIFT_LEFT, X_SHIFT_RIGHT, AVERAGE_POINTS_X)
     y=np.linspace(0,1,AVERAGE_POINTS_Y)
+    """
+    
+    # midpoint rule in Y direction (avoid problems at boundary)
+    def weights(N):
+        return np.array([0.5] + (N-2)*[1.0] + [0.5])
+    average_weights=np.outer( np.ones(AVERAGE_POINTS_Y), weights(AVERAGE_POINTS_X) ).flatten()
+    # reference grid
+    x=np.linspace(-X_SHIFT_LEFT, X_SHIFT_RIGHT, AVERAGE_POINTS_X)
+    N=float(AVERAGE_POINTS_Y)
+    y=np.linspace(1/(2*N),1-1/(2*N),N)
+    print "weights: ", average_weights
+    print "y: ", y
+    
     ref_x, ref_y=map(np.ravel, np.meshgrid(x,y))
+    print "y: ", ref_y
+    print "x: ", ref_x
     assert( np.all(array_of_1d_cells[0::3]==2) )
     p0=geom_points_y[array_of_1d_cells[1::3]]
     p1=geom_points_y[array_of_1d_cells[2::3]]
     x_points=np.tile(ref_x, geom_1d_id.size)
 
-    # trapezoid rule
-    def weights(N):
-        return np.array([0.5] + (N-2)*[1.0] + [0.5])
-    average_weights=np.outer( weights(AVERAGE_POINTS_X), weights(AVERAGE_POINTS_Y)).flatten()
-    #average_weights=np.tile(average_weights, geom_1d_id.size).reshape((-1,1))
     
     yy,y0=np.meshgrid(ref_y,p0)
     yy,y1=np.meshgrid(ref_y,p1)
