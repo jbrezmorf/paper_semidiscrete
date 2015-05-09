@@ -15,7 +15,7 @@ run-all:
 		pvpython ./run_all.py 2>err; \
 		echo "..Ended"; \
 		if [ -f err ]; then \
-			if ! cat err | tail -n 1 | grep "core dumped"; \
+			if ! cat err | tail -n 2 | grep "Aborting"; \
 			then \
 				cat err; \
 				RUN=0; \
