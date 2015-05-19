@@ -4,6 +4,7 @@ import postprocess
 import sys
 import json
 
+
 """
 File collecting various at least slightly general functions and
 classes for convergence tests. All test specific and environment specific
@@ -63,7 +64,9 @@ def run_gmsh(geo_file):
         mesh_file=geo_file+".msh"
 
     if not up_to_date(mesh_file, geo_file):
-        print 'gmsh:', geo_file
+        print 'gmsh:', ConvergenceTestSetting.gmsh_path
+        print 'geo: ', geo_file
+        assert( os.path.isfile(ConvergenceTestSetting.gmsh_path) )
         subprocess.call([ConvergenceTestSetting.gmsh_path, geo_file, "-2", "-o", mesh_file])
     return mesh_file
 
@@ -90,6 +93,7 @@ def file_substitute(file_in, subst_list, file_out=""):
 def get_flow_job(case):
     (out_dir,  basename)=os.path.split(case.file_output)
     job= {'executable' : ConvergenceTestSetting.flow_path,
+          'modules_file' : ConvergenceTestSetting.modules_file,
           'arguments' : ["-s", case.file_con, "-o", out_dir ],
           'work_dir' : os.getcwd()
          }
@@ -157,8 +161,9 @@ def pool_cases(cases):
                          'case' : case
                          }
             job=get_flow_job(case)
-            job.update(job_common)
+            job.update(job_common)            
             ConvergenceTestSetting.pool.start_job(job)
+            print job['case'].workdir
 
 
 
