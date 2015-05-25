@@ -1,6 +1,7 @@
 import subprocess
 import os
 import time
+import re
 
 
 class Chdir:
@@ -94,7 +95,7 @@ class pbs_pool:
             n_proc = min( 16, int(job['n_proc']) )
             infiniband=""
             if n_proc>1: infiniband=":infiniband"
-            call_list=["qsub", "-q", "short", "-l", "nodes="+str(n_proc)+":x86_64:mem=4gb"+infiniband, qsub_script]
+            call_list=["qsub", "-q", "short", "-l", "nodes="+str(n_proc)+":x86_64:mem=5300mb"+infiniband, qsub_script]
             print call_list
             #result=subprocess.check_output(["qsub", "-l nodes=1:x86_64:walltime=" + job['wall_time'], qsub_script])
             result=subprocess.check_output(call_list)
@@ -122,7 +123,7 @@ class pbs_pool:
         new_jobs=[]
         for job in self.pbs_jobs:
             status = self.__check_job_status(job)[1]
-            print job['pbs_id'], status
+            #print job['pbs_id'], status
             if status in ['C', 'E']:
                 job['status']=status
                 job.pop('pbs_id', None)
