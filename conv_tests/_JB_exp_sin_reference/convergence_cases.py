@@ -150,8 +150,8 @@ def pool_cases(cases):
             case.file_mesh = run_gmsh(file_geo)
             file_con_template=os.path.join("..", ConvergenceTestSetting.con_base + "_" + case.prefix + ".con")
             case.file_con = file_substitute(file_con_template, [ ("$rozevreni$", case.d_frac) ])
-            case.file_output = os.path.join(case.workdir, "output_" + case.prefix, "flow.pvd")
-            case.file_output_vtk = os.path.join(case.workdir, "output_" + case.prefix, "flow", "flow-000000.vtu")
+            case.file_output = os.path.join(case.workdir, "output_" + case.prefix, "flow_"+case.prefix+".pvd")
+            case.file_output_vtk = os.path.join(case.workdir, "output_" + case.prefix, "flow_"+case.prefix, "flow_"+case.prefix+"-000000.vtu")
 
             file_resample = os.path.join("..", "filter_resample_2d1d.py")
             file_substitute(
@@ -196,6 +196,7 @@ def postprocess_finished(case):
 
     print case.workdir	
     with Chdir(case.workdir) as dir:
+        print "postprocess in ", case.workdir
         norms=[]
         #try:
         if 1:
@@ -224,6 +225,7 @@ def postprocess_finished(case):
                 # is 2d2d case
                 if not up_to_date(file_norms, case.file_output_vtk):
                     norms=postprocess.dxdx_2d2d(case.file_output)
+                    norms.update(postprocess.exact_2d2d(case.file_output))
 
 
         #except:
