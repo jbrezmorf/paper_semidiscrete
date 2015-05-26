@@ -85,6 +85,10 @@ def resample_2d1d(output_2d):
 """
 
 def error_2d1d(output_2d1d, reference_2d2d):
+    """
+    output_2d1d - computed data on 2d1d model (cell data for pressure and velocity)
+    reference_2d2d - computed_2d2d data (cell data for pressure and velocity)
+    """
     with ServerManager():
         return _error_2d1d(output_2d1d, reference_2d2d)
 
@@ -157,6 +161,9 @@ def _dxdx_2d2d(output_2d2d):
                             ArrayName="ddxx_p_2")
     ddxx_p_on_2d_fracture = programmable_filter([ddxx_p_data], "../filter_submesh_by_region.py",
                              Parameters={"region_id_to_extract" : 2})
+    writer=servermanager.writers.DataSetWriter(FileName="./ddxx_p_fracture.vtk", Input=ddxx_p_on_2d_fracture)
+    writer.UpdatePipeline()
+
     p_squared=servermanager.filters.PythonCalculator(Input=ddxx_p_data,
                             Expression="inputs[0].CellData['pressure_p0']*inputs[0].CellData['pressure_p0']",
                             ArrayAssociation='Cell Data',
@@ -174,17 +181,17 @@ def _dxdx_2d2d(output_2d2d):
     return norms
 
 
-
-def postprocess(output_pvd_2d1d, output_pvd_2d2d):
+def exact_2d2d(output_2d2d):
     with ServerManager():
-        norms={}
-        norms.update(_error_2d1d(output_pvd_2d1d, output_pvd_2d2d))
-        norms.update(_dxdx_2d2d())
+        return _exact_2d2d(output_2d2d)
+
+def _exact_2d2d(output_2d2d):
 
         #########################################################################
         # Diferences on 2D against exact solution
-        """
-        coords_data = servermanager.filters.Calculator(Input=ddxx_p_data,
+        data_reader_2d = servermanager.sources.LegacyVTKReader(FileNames=["./ddxx_p.vtk"])
+       
+        coords_data = servermanager.filters.Calculator(Input=data_reader_2d,
                                 Function="coords",
                                 ResultArrayName="coords")
         cell_coords_data = servermanager.filters.PointDatatoCellData(Input=coords_data)
@@ -193,17 +200,15 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
                                 ResultArrayName="exact_pressure",
                                 AttributeMode="Cell Data")
 
-        ddxx_pressure_exact  = Calculator(Input=pressure_exact,
-                                Function="exp(coord_X)*sin(coord_Y)",
-                                ResultArrayName="exact_grad_pressure",
-                                AttributeMode="Cell Data")
-
-
+        #ddxx_pressure_exact  = Calculator(Input=pressure_exact,
+        #                        Function="exp(coord_X)*sin(coord_Y)",
+        #                        ResultArrayName="exact_grad_pressure",
+        #                        AttributeMode="Cell Data")
 
 
         p_diff_data=python_difference(pressure_exact, "pressure_p0",
                                       pressure_exact, "exact_pressure", "diff2_pressure_exact" )
-        p_diff_data.UpdatePipeline()
+        #p_diff_data.UpdatePipeline()
         all_diff_data=python_difference(p_diff_data, "ddxx_p",
                                       p_diff_data, "exact_pressure", "diff2_ddxx_p_exact" )
         all_diff_data=servermanager.filters.PythonCalculator(Input=all_diff_data,
@@ -218,13 +223,31 @@ def postprocess(output_pvd_2d1d, output_pvd_2d2d):
         writer=servermanager.writers.DataSetWriter(FileName="./exact_calculations.vtk", Input=all_diff_fracture)
         writer.UpdatePipeline()
 
+        norms={}
         norms["p_diff_exact_L2"] = math.sqrt(integrate(iv_diff_arrays, "diff2_pressure_exact"))
         norms["dx_dx_p_diff_exact_L2"]=math.sqrt(integrate(iv_diff_arrays, "diff2_ddxx_p_exact"))
         norms["dx_dx_p_diff_exact_Linf"]=inf_norm(all_diff_fracture, "diff_ddxx_p_exact")
-
-        print "exact"
-        """
+            
         return norms
+
+def exact_2d1d(output_2d1d, reference_2d2d):
+    """
+    output_2d1d - computed data on 2d1d model (cell data for pressure and velocity)
+    reference_2d2d - resampled_2d2d data (cell data for pressure and velocity),
+                     ass computed by error_2d1d
+    """
+    with ServerManager():
+        return _exact_2d1d(output_2d1d, reference_2d2d)
+
+def _exact_2d1d(output_2d1d, reference_2d2d):
+        #possible comparison of resampled_2d2d and computed_2d1d against exact values
+
+
+def postprocess(output_pvd_2d1d, output_pvd_2d2d):
+    with ServerManager():
+        norms={}
+        norms.update(_error_2d1d(output_pvd_2d1d, output_pvd_2d2d))
+        norms.update(_dxdx_2d2d())
 
 
 

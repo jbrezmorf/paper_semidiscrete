@@ -36,7 +36,7 @@ from convergence_cases import *
 from convergence_cases import ConvergenceTestSetting as cts
 
 # setting
-cts.con_base="flow_jmr1" # full name: con_base + "_" + prefix +".con"
+cts.con_base="flow_exp_sin" # full name: con_base + "_" + prefix +".con"
 home = os.path.expanduser("~")
 cts.flow_path=home + "/workspace/flow123d/bin/flow123d"
 cts.modules_file=home + "/workspace/flow123d/build_modules"
@@ -46,9 +46,9 @@ cts.gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
 
 #cts.d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
 #cts.h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
-cts.h1d_array=[0.04, 0.02]#, 0.01, 0.005, 0.0025]
-cts.h2d_array=[ 0.05, 0.02]#, 0.01] #, 0.002]
-cts.d_frac_array = [0.1, 0.25, 0.05]#, 0.025, 0.01, 0.005, 0.0025]
+cts.h1d_array=[0.02]#, 0.01, 0.005, 0.0025, 0.00125]
+cts.h2d_array=[ 0.05, 0.02, 0.01, 0.005, 0.001]#, 0.0005]
+cts.d_frac_array = [0.2]#, 0.1, 0.05, 0.025, 0.01, 0.005, 0.0025]
 
 cts.pool = pbs_pool({'mpiexec' : cts.mpiexec })
 #cts.pool = local_pool({})
@@ -100,6 +100,8 @@ def main():
         cases_1d_tmp = make_h_cases("2d1d", cases_common, cts.h1d_array)
         for c in  cases_1d_tmp:
             c.reference_case = reference_cases[-1]
+            print "Case:\n",c
+            print "Ref:\n", c.reference_case
         cases_1d += cases_1d_tmp
 
     for cc in [reference_cases, cases_1d, cases_2d]:
