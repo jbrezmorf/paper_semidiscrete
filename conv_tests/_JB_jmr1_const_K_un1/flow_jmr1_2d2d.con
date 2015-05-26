@@ -20,8 +20,7 @@
           cross_section = 1
         },
         { region = "puklina",
-          conductivity = 100,
-          cross_section = $rozevreni$
+          conductivity = 100
         },
         { region = ".right",
           bc_type = "dirichlet",
