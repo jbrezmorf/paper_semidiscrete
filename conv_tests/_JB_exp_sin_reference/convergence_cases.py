@@ -207,18 +207,20 @@ def postprocess_finished(case):
                         not up_to_date(file_norms, reference_case.file_output_vtk) or \
                         not up_to_date(file_norms, ref_file_norms):
                     norms=postprocess.error_2d1d(case.file_output, reference_case.file_output)
+                    norms.update(postprocess.exact_2d1d(case.file_output, "2d1d_"))
+                    norms.update(postprocess.exact_2d1d("./resampled_data.vtk", "2d2d_"))
                     with open(ref_file_norms, "r") as f:
                         ref_norms=json.load(f)
                         dxdx_Linf=ref_norms[1]["dx_dx_p_fracture_Linf"]
                         dxdx_L2=ref_norms[1]["dx_dx_p_fracture_L2"]
                         p_2d2d_L2=ref_norms[1]["p_L2"]
                     norms.update({
-                        'p_1d_H1_over_dxx_Linf' : norms['p_12_diff_1d_H1'] / dxdx_Linf,
-                        'p_2d_H1_over_dxx_Linf' : norms['p_12_diff_2d_H1'] / dxdx_Linf,
-                        'p_1d_H1_over_dxx_L2' : norms['p_12_diff_1d_H1'] / dxdx_L2,
-                        'p_2d_H1_over_dxx_L2' : norms['p_12_diff_2d_H1'] / dxdx_L2,
-                        'p_1d_L2_over_L2' : norms['p_12_diff_1d_L2'] / p_2d2d_L2,
-                        'p_2d_L2_over_L2' : norms['p_12_diff_2d_L2'] / p_2d2d_L2
+                        'p_H1_1d_over_dxx_Linf' : norms['p_12_diff_H1_1d'] / dxdx_Linf,
+                        'p_H1_2d_over_dxx_Linf' : norms['p_12_diff_H1_2d'] / dxdx_Linf,
+                        'p_H1_1d_over_dxx_L2' : norms['p_12_diff_H1_1d'] / dxdx_L2,
+                        'p_H1_2d_over_dxx_L2' : norms['p_12_diff_H1_2d'] / dxdx_L2,
+                        'p_L2_1d_over_L2' : norms['p_12_diff_L2_1d'] / p_2d2d_L2,
+                        'p_L2_2d_over_L2' : norms['p_12_diff_L2_2d'] / p_2d2d_L2
                     })
 
             else:

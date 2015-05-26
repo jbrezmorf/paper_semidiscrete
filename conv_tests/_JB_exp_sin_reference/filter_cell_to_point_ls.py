@@ -7,12 +7,13 @@ import numpy as np
 from scipy.sparse import csr_matrix
 import paraview.numpy_support as ns
 
+ls_damp = filter_parameters["damp"]
 
 def lsq(A, b, x0, btol=1e-6):
     r0 = b - A * x0
     atol=btol*np.linalg.norm(r0)
     scaled_btol = btol*np.linalg.norm(b)/np.linalg.norm(r0)
-    result=lsqr(A, r0, damp=10, iter_lim=100, show=True, atol=atol, btol=scaled_btol)
+    result=lsqr(A, r0, damp=ls_damp, iter_lim=100, show=True, atol=atol, btol=scaled_btol)
     return (x0 + result[0])
 
 
