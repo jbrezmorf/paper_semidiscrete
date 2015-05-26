@@ -41,17 +41,17 @@ home = os.path.expanduser("~")
 cts.flow_path=home + "/workspace/flow123d/bin/flow123d"
 cts.modules_file=home + "/workspace/flow123d/build_modules"
 cts.mpiexec=home + "/workspace/flow123d/bin/mpiexec"
-#gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
-cts.gmsh_path="gmsh"
+cts.gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
+#cts.gmsh_path="gmsh"
 
 #cts.d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
 #cts.h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
-cts.h1d_array=[0.04, 0.02, 0.01, 0.005]
-cts.h2d_array=[0.01, 0.005, 0.002]
-cts.d_frac_array = [0.4, 0.2, 0.1, 0.05, 0.025]
+cts.h1d_array=[0.04, 0.02, 0.01, 0.005, 0.0025]
+cts.h2d_array=[0.1, 0.05, 0.02, 0.01, 0.005] #, 0.002]
+cts.d_frac_array = [0.4, 0.2, 0.1, 0.05, 0.025, 0.01, 0.005, 0.0025, 0.001]
 
-#cts.pool = pbs_pool({'mpiexec' : cts.mpiexec })
-cts.pool = local_pool({})
+cts.pool = pbs_pool({'mpiexec' : cts.mpiexec })
+#cts.pool = local_pool({})
 
 
 #################################################################
@@ -73,8 +73,8 @@ def make_h_cases(prefix, case_common, h_array):
     # make cases
     case_list=[]
     for ih, h in enumerate(h_array):
-        if h > case_common.d_frac:
-            continue
+        #if h > case_common.d_frac:
+        #    continue
         case=copy.copy(case_common)
 
         case.prefix = prefix
@@ -103,15 +103,15 @@ def main():
         cases_1d += cases_1d_tmp
 
     for cc in [reference_cases, cases_1d, cases_2d]:
-        pool_cases(cc)
-
+        pool_cases(cc)    
+    
     # wait for completition of cases
     norm_list=[]
     finished_cases=[]
     while (cts.pool.pbs_jobs or finished_cases):
-        print cts.pool.pbs_jobs
-        print finished_cases
-        time.sleep(1)
+        #print cts.pool.pbs_jobs
+        #print finished_cases
+        time.sleep(5)        
 
         finished_jobs = cts.pool.get_finished_jobs()
         for job in finished_jobs:
@@ -121,6 +121,8 @@ def main():
         for case in finished_cases:
             if not postprocess_finished(case):
                 new_cases.append(case)
+        for job in cts.pool.pbs_jobs:
+            print job['case'].workdir
         finished_cases=new_cases
 
     # make tebles

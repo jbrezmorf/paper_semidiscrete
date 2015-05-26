@@ -1,0 +1,74 @@
+Job Id: 8710064.arien.ics.muni.cz
+    Job_Name = flow123d
+    Job_Owner = jan_brezina@META
+    job_state = Q
+    queue = q_2h
+    server = arien.ics.muni.cz
+    Checkpoint = u
+    ctime = Thu May 21 07:27:05 2015
+    Error_Path = tarkil.cesnet.cz:/auto/praha1/jan_brezina/clanek/conv_tests/_
+	JB_jmr1_const_K_unstruct/2d2d_h_0.002_d_0.01/flow123d.e8710064
+    Hold_Types = n
+    Join_Path = oe
+    Keep_Files = n
+    Mail_Points = a
+    mtime = Thu May 21 09:24:01 2015
+    Output_Path = tarkil.cesnet.cz:/auto/praha1/jan_brezina/clanek/conv_tests/
+	_JB_jmr1_const_K_unstruct/2d2d_h_0.002_d_0.01/flow123d.o8710064
+    Priority = 0
+    qtime = Thu May 21 07:27:05 2015
+    planned_start = Thu May 21 17:15:09 2015
+    planned_nodes = gram1.zcu.cz, gram10.zcu.cz, gram3.zcu.cz, gram4.zcu.cz,
+	 gram8.zcu.cz, minos36-1.zcu.cz, minos18-1.zcu.cz, minos20-1.zcu.cz,
+	 minos21-1.zcu.cz, minos31-1.zcu.cz, minos10-1.zcu.cz,
+	 minos17-1.zcu.cz, minos29-1.zcu.cz, gram9.zcu.cz, gram5.zcu.cz,
+	 gram6.zcu.cz
+    waiting_for_jobs = 8696449.arien.ics.muni.cz, 8696474.arien.ics.muni.cz,
+	 8696497.arien.ics.muni.cz
+    Rerunable = True
+    Resource_List.mem = 400mb
+    Resource_List.nodect = 16
+    Resource_List.nodes = 16:x86_64:mem=6000mb:infiniband
+    Resource_List.place = infiniband
+    Resource_List.processed_nodes = 16:ppn=1:mem=6144000KB:vmem=137438953472KB
+	:scratch_type=any:scratch_volume=400mb:x86_64:infiniband
+    Resource_List.scratch = 400mb
+    Resource_List.vmem = 131072gb
+    Resource_List.walltime = 02:00:00
+    Shell_Path_List = /bin/bash
+    Variable_List = PBS_O_QUEUE=short,
+	PBS_O_HOME=/storage/praha1/home/jan_brezina,PBS_O_LANG=en_US.UTF-8,
+	PBS_O_LOGNAME=jan_brezina,
+	PBS_O_PATH=/software/openmpi-1.6.5/gcc/bin:/afs/ics.muni.cz/software/
+	gcc-4.8.1/bin:/software/ofed-1.5.4/bin:/software/ofed-1.5.4/sbin:/soft
+	ware/gcc-4.7.0/bin:/software/python-2.7.6/gcc/bin:/afs/ics.muni.cz/sof
+	tware/cmake-2.8/cmake-2.8.11.2/bin/:/storage/praha1/home/jan_brezina/l
+	ocal/ParaView-4.3.1-Linux-64bit/bin:/storage/praha1/home/jan_brezina/b
+	in:/storage/praha1/home/jan_brezina/local/ParaView-4.3.1-Linux-64bit/b
+	in:/storage/praha1/home/jan_brezina/bin:/usr/local/bin:/usr/bin:/bin:/
+	usr/local/games:/usr/games:/software/meta-utils/internal/:/software/me
+	ta-utils/public/,PBS_O_MAIL=/var/mail/jan_brezina,
+	PBS_O_SHELL=/bin/bash,PBS_O_HOST=tarkil.cesnet.cz,
+	PBS_SERVER=arien.ics.muni.cz,
+	PBS_O_WORKDIR=/auto/praha1/jan_brezina/clanek/conv_tests/_JB_jmr1_con
+	st_K_unstruct/2d2d_h_0.002_d_0.01
+    comment = Not Running: Job has received an allocation of nodes,
+	 waiting for running jobs to end.
+    etime = Thu May 21 07:27:05 2015
+    submit_args = -q short -l nodes=16:x86_64:mem=6000mb:infiniband flow123d.q
+	sub
+    Walltime.Remaining = 7200
+    fault_tolerant = False
+    resc_req_total.mem = 98304000kb
+    resc_req_total.nodect = 16
+    resc_req_total.place = infiniband
+    resc_req_total.procs = 16
+    resc_req_total.scratch = 400mb
+    resc_req_total.scratch_volume = 6553600kb
+    resc_req_total.vmem = 2199023255552kb
+    resc_req_total.walltime = 02:00:00
+    lb_jobid = https://metalb.ics.muni.cz:9000/8710064.arien.ics.muni.cz
+    lb_seqno = CLIENT=000000:SERVER=0000000015:SCHED=000000:SMOM=000000:MOM=00
+	0000
+    krb_princ = jan_brezina@META
+

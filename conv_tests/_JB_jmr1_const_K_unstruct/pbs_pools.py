@@ -1,6 +1,7 @@
 import subprocess
 import os
 import time
+import re
 
 
 class Chdir:
@@ -91,10 +92,11 @@ class pbs_pool:
             with open(qsub_script, "w") as f:
                 f.write( self.__make_pbs_script(job) )
 
-            n_proc = min( 16, int(job['n_proc']) )
+            n_proc = min( 24, int(job['n_proc']) )
+            mem_limit = min( 16000, int(job['memory'])) 
             infiniband=""
             if n_proc>1: infiniband=":infiniband"
-            call_list=["qsub", "-q", "short", "-l", "nodes="+str(n_proc)+":x86_64:mem=4gb"+infiniband, qsub_script]
+            call_list=["qsub", "-q", "short", "-l", "nodes="+str(n_proc)+":x86_64:mem=" + str(mem_limit) + "mb"+infiniband, qsub_script]
             print call_list
             #result=subprocess.check_output(["qsub", "-l nodes=1:x86_64:walltime=" + job['wall_time'], qsub_script])
             result=subprocess.check_output(call_list)
@@ -110,7 +112,7 @@ class pbs_pool:
         job_id = job['pbs_id']
         out=subprocess.check_output(["qstat", job_id])
         status = out.split("\n")[2].split()
-        print "job status: ", status
+        print "job status: ", status, job['case'].workdir
         # return time_use, status Q/R/C/E, queue
         return (status[3], status[4], status[5])
 
@@ -122,7 +124,7 @@ class pbs_pool:
         new_jobs=[]
         for job in self.pbs_jobs:
             status = self.__check_job_status(job)[1]
-            print job['pbs_id'], status
+            #print job['pbs_id'], status
             if status in ['C', 'E']:
                 job['status']=status
                 job.pop('pbs_id', None)

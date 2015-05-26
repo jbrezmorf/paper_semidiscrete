@@ -2,12 +2,12 @@ DefineConstant[ d = { $d$ , Name "Gmsh/Parameters/d"}];
 DefineConstant[ h = { $h$ , Name "Gmsh/Parameters/h"}];
 DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
 
-Point(1) = {-1+d/2, 0, 0, h1d};
-Point(2) = {-1+d/2, 1, 0, h1d};
+Point(1) = {-1+d/2, 0, 0, h};
+Point(2) = {-1+d/2, 1, 0, h};
 Point(3) = {0, 0, 0, h};
 Point(4) = {0, 1, 0, h};
-Point(5) = {+1-d/2, 0, 0, h1d};
-Point(6) = {+1-d/2, 1, 0, h1d};
+Point(5) = {+1-d/2, 0, 0, h};
+Point(6) = {+1-d/2, 1, 0, h};
 
 Line(7) = {1, 2};
 Line(8) = {2, 4};

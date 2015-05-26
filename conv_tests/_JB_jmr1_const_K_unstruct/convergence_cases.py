@@ -4,6 +4,7 @@ import postprocess
 import sys
 import json
 
+
 """
 File collecting various at least slightly general functions and
 classes for convergence tests. All test specific and environment specific
@@ -63,7 +64,9 @@ def run_gmsh(geo_file):
         mesh_file=geo_file+".msh"
 
     if not up_to_date(mesh_file, geo_file):
-        print 'gmsh:', geo_file
+        print 'gmsh:', ConvergenceTestSetting.gmsh_path
+        print 'geo: ', geo_file
+        assert( os.path.isfile(ConvergenceTestSetting.gmsh_path) )
         subprocess.call([ConvergenceTestSetting.gmsh_path, geo_file, "-2", "-o", mesh_file])
     return mesh_file
 
@@ -90,6 +93,7 @@ def file_substitute(file_in, subst_list, file_out=""):
 def get_flow_job(case):
     (out_dir,  basename)=os.path.split(case.file_output)
     job= {'executable' : ConvergenceTestSetting.flow_path,
+          'modules_file' : ConvergenceTestSetting.modules_file,
           'arguments' : ["-s", case.file_con, "-o", out_dir ],
           'work_dir' : os.getcwd()
          }
@@ -135,7 +139,13 @@ def pool_cases(cases):
         assert(isinstance(case, Bunch))
         with Chdir(case.workdir):
             file_geo_template = os.path.join("..", "mesh_" + case.prefix + ".geo")
-            file_geo = file_substitute(file_geo_template, [ ("$d$", case.d_frac), ("$h$", case.h)])
+            h1d=case.h/4
+            file_geo = file_substitute(
+              file_geo_template, 
+              [ ("$d$", case.d_frac), 
+                ("$h$", case.h),
+                ("$h1d$", h1d)
+                ])
             case.file_mesh = run_gmsh(file_geo)
             file_con_template=os.path.join("..", ConvergenceTestSetting.con_base + "_" + case.prefix + ".con")
             case.file_con = file_substitute(file_con_template, [ ("$rozevreni$", case.d_frac) ])
@@ -150,15 +160,24 @@ def pool_cases(cases):
                   ])
 
             n_ele = msh_n_elements(case.file_mesh)
-            n_proc=max(1, int(round(n_ele / 30000)))
+            n_proc=max(1, int(round(n_ele / 100000)))
             print "N elements:", n_ele, "N proc:", n_proc
+            
+            mem_limit=4000
+            if n_ele> 1e6 : mem_limit = 8000
+            if n_ele> 4e6 : mem_limit = 16000
+            if n_ele>10e6 : 
+                print "Mesh too big: ", n_ele
+                sys.exit()
             job_common={ 'wall_time' : '1:50:00',
                          'n_proc' : n_proc,
+                         'memory' : mem_limit,
                          'case' : case
                          }
             job=get_flow_job(case)
-            job.update(job_common)
+            job.update(job_common)            
             ConvergenceTestSetting.pool.start_job(job)
+            print job['case'].workdir
 
 
 

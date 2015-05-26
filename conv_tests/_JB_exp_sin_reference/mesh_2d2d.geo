@@ -1,30 +1,38 @@
-//DefineConstant[ d = { $d$ , Name "Gmsh/Parameters/d"}];
-//DefineConstant[ h = { $h$ , Name "Gmsh/Parameters/h"}];
-//DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
-DefineConstant[ d = { 0.1 , Name "Gmsh/Parameters/d"}];
-DefineConstant[ h = { 0.05 , Name "Gmsh/Parameters/h"}];
-DefineConstant[ h1d = { 0.01 , Name "Gmsh/Parameters/h1d"}];
-
+DefineConstant[ d = { $d$ , Name "Gmsh/Parameters/d"}];
+DefineConstant[ h = { $h$ , Name "Gmsh/Parameters/h"}];
+DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
 
 Point(1) = {-1, 0, 0, h};
 Point(2) = {-1, 1, 0, h};
-Line(1) = {1, 2};
+Point(3) = {-d/2, 0, 0, h1d};
+Point(4) = {-d/2, 1, 0, h1d};
+Point(7) = {+d/2, 0, 0, h1d};
+Point(8) = {+d/2, 1, 0, h1d};
+Point(5) = {+1, 0, 0, h};
+Point(6) = {+1, 1, 0, h};
 
-alpha=Exp( 1/3 * Log( h/h1d) );
-h_2=h1d*alpha;
-h_1=h_2*alpha;
+Line(7) = {1, 2};
+Line(8) = {2, 4};
+Line(9) = {4, 3};
+Line(10) = {3, 1};
+Line Loop(11) = {8, 9, 10, 7};
+Plane Surface(12) = {11};
+Line(13) = {8, 6};
+Line(14) = {6, 5};
+Line(15) = {5, 7};
+Line(18) = {7, 8};
+Line Loop(16) = {13, 14, 15, 18};
+Plane Surface(17) = {16};
+Line(20) = {3, 7};
+Line(21) = {8, 4};
+Line Loop(22) = {20, 18, 21, 9};
+Plane Surface(23) = {22};
 
-a_0=4.0/7.0;
-a_1=2.0/7.0;
-a_2=1.0/7.0;
 
-Extrude{ (2-d)/2, 0, 0 }{ Line{1}; Layers{ {(2-d)/2 * a_0/h, (2-d)/2 * a_1/h_1, (2-d)/2 * a_2/h_2}, {a_0, a_0+a_1, 1}}; }
-Extrude{ d, 0, 0 }{ Line{2}; Layers{d/h1d}; }
-Extrude{ (2-d)/2, 0, 0 }{ Line{6}; Layers{ {(2-d)/2 * a_2/h_2, (2-d)/2 * a_1/h_1, (2-d)/2 * a_0/h }, {a_2, a_2+a_1, 1}}; }
+Physical Surface("hornina") = { 12, 17};
+Physical Surface("puklina") = { 23 };
+Physical Line(".right") = { 14 };
+Physical Line(".left") = { 7 };
+Physical Line(".no_flow") = { 8, 10, 13, 15 };
+Physical Line(".no_flow_body") = { 20, 21 };
 
-Physical Surface("hornina") = { 5, 13};
-Physical Surface("puklina") = { 9 };
-Physical Line(".right") = { 10 };
-Physical Line(".left") = { 1 };
-Physical Line(".no_flow") = { 3, 4, 11, 12 };
-Physical Line(".no_flow_body") = { 7, 8 };
