@@ -16,7 +16,7 @@ X_SHIFT_LEFT = $rozevreni$/2
 X_SHIFT_RIGHT = $rozevreni$/2
 # number of points in every direction used to average values over rectagles corresponding to 1d elements
 AVERAGE_POINTS_X=int($average_points_x$)
-AVERAGE_POINTS_Y=4
+AVERAGE_POINTS_Y=1
 
 
 VTK_LINE=3
@@ -26,7 +26,7 @@ VTK_TRIANGLE=5
 """
 In geom assumes a 2D mesh in XY plane with compatible 1D fracture on Y axis.
 """
-def resample_to_2d_1d(pdi, pdo, geom):
+def resample_to_2d_1d(pdi, pdi_frac, pdo, geom):
 
     # 
     geom_types=ns.vtk_to_numpy(geom.GetCellTypesArray())    
@@ -83,20 +83,24 @@ def resample_to_2d_1d(pdi, pdo, geom):
     y=np.linspace(0,1,AVERAGE_POINTS_Y)
     """
     
-    # midpoint rule in Y direction (avoid problems at boundary)
     def weights(N):
+        # trapezoidal weights
         return np.array([0.5] + (N-2)*[1.0] + [0.5])
-    average_weights=np.outer( np.ones(AVERAGE_POINTS_Y), weights(AVERAGE_POINTS_X) ).flatten()
+ 
+    # midpoint rule in both directions (avoid problems at boundary)
+    average_weights=np.outer( np.ones(AVERAGE_POINTS_Y), np.ones(AVERAGE_POINTS_X) ).flatten()
     # reference grid
-    x=np.linspace(-X_SHIFT_LEFT, X_SHIFT_RIGHT, AVERAGE_POINTS_X)
+    N=float(AVERAGE_POINTS_X)
+    dx=(X_SHIFT_RIGHT + X_SHIFT_LEFT)/N
+    x=np.linspace(-X_SHIFT_LEFT+dx/2, X_SHIFT_RIGHT-dx/2,N)
     N=float(AVERAGE_POINTS_Y)
     y=np.linspace(1/(2*N),1-1/(2*N),N)
-    print "weights: ", average_weights
-    print "y: ", y
+    #print "weights: ", average_weights
+    #print "y: ", y
     
     ref_x, ref_y=map(np.ravel, np.meshgrid(x,y))
-    print "y: ", ref_y
-    print "x: ", ref_x
+    #print "y: ", ref_y
+    #print "x: ", ref_x
     assert( np.all(array_of_1d_cells[0::3]==2) )
     p0=geom_points_y[array_of_1d_cells[1::3]]
     p1=geom_points_y[array_of_1d_cells[2::3]]
@@ -116,14 +120,29 @@ def resample_to_2d_1d(pdi, pdo, geom):
                           ))    
     #print points_1d
     
-    
-    all_points=append(barycenters_2d, points_1d)
-    all_points.shape=(-1,3)
+    barycenters_2d.shape=(-1,3)
+    points_1d.shape=(-1,3)
+    #all_points=append(barycenters_2d, points_1d)
+    #all_points.shape=(-1,3)
     
     # make a dataset
 
+    # probe on fracture dataset
+    points_f=vtk.vtkPoints()
+    points_f.SetData(ns.numpy_to_vtk(points_1d, deep=1))
+    point_set_f=vtk.vtkUnstructuredGrid()
+    point_set_f.SetPoints(points_f)
+    
+    probe_f=vtk.vtkProbeFilter()
+    probe_f.SetSourceData(pdi_frac)
+    probe_f.SetInputData(point_set_f)
+    probe_f.Update()
+    out_f=probe_f.GetOutput()
+    probe_data_f=out_f.GetPointData()
+    
+    # probe on continuum dataset
     points=vtk.vtkPoints()
-    points.SetData(ns.numpy_to_vtk(all_points, deep=1))
+    points.SetData(ns.numpy_to_vtk(barycenters_2d, deep=1))
     point_set=vtk.vtkUnstructuredGrid()
     point_set.SetPoints(points)
     
@@ -133,6 +152,7 @@ def resample_to_2d_1d(pdi, pdo, geom):
     probe.Update()
     out=probe.GetOutput()
     probe_data=out.GetPointData()
+      
     
     # reconstruct element arrays 
     pdo.DeepCopy(geometry)
@@ -143,28 +163,38 @@ def resample_to_2d_1d(pdi, pdo, geom):
     for i_array in range(point_data.GetNumberOfArrays()):
         point_data.RemoveArray(i_array)
     
+    assert(probe_data.GetNumberOfArrays() == probe_data_f.GetNumberOfArrays() )
     for i_array in range(probe_data.GetNumberOfArrays()):
-        
         vtk_array=probe_data.GetArray(i_array)
-        #print i_array, vtk_array.GetName()
+        array=ns.vtk_to_numpy(vtk_array)
         n_components=vtk_array.GetNumberOfComponents()
         n_tuples=vtk_array.GetNumberOfTuples()
-        array=ns.vtk_to_numpy(vtk_array)
-        array.shape=(n_tuples,n_components)
-        #print array
+        assert(n_tuples == n_2d_cells)
+        array.shape=(n_tuples,n_components)        
+
+        vtk_array_f=probe_data_f.GetArray(i_array)
+        array_f=ns.vtk_to_numpy(vtk_array_f)
+        n_components_f=vtk_array_f.GetNumberOfComponents()
+        n_tuples_f=vtk_array_f.GetNumberOfTuples()        
+        assert(n_components == n_components_f)
+        assert( n_1d_cells*len(average_weights) == n_tuples_f)
+        assert( array.dtype == array_f.dtype)
+        array_f.shape=(n_1d_cells, len(average_weights), n_components)
+        #print vtk_array.GetName()
+        #print array_f.shape
+        #print array_f
         
         new_array=np.zeros((pdo.GetNumberOfCells(),n_components), dtype=array.dtype)
-        new_array[geom_2d_id,:]=array[0:n_2d_cells,:]
+        new_array[geom_2d_id,:]=array
+        new_array[geom_1d_id,:]=np.average(array_f, weights=average_weights, axis=1)
         
-        array_1d=array[n_2d_cells:,:].reshape(n_1d_cells, len(average_weights), n_components)
-        new_array[geom_1d_id,:]=np.average(array_1d, weights=average_weights, axis=1)
         new_vtk_array=ns.numpy_to_vtk(new_array, deep=1)
         new_vtk_array.SetName(vtk_array.GetName())
         cell_data.AddArray(new_vtk_array)
     
-    ids=ns.numpy_to_vtk(np.arange(n_2d_cells+n_1d_cells), deep=1)
-    ids.SetName('ids')
-    cell_data.AddArray(ids)
+    #ids=ns.numpy_to_vtk(np.arange(n_2d_cells+n_1d_cells), deep=1)
+    #ids.SetName('ids')
+    #cell_data.AddArray(ids)
     '''
     
     
@@ -184,12 +214,19 @@ def resample_to_2d_1d(pdi, pdo, geom):
     
 ################################################
 # The filter with appropriate predicate.
+pdo =self.GetOutput()
 
+n_connections=self.GetNumberOfInputConnections(0)
 geometry=self.GetInputDataObject(0,0)
 #print "Geometry(1d2d):", geometry
 data=self.GetInputDataObject(0,1)
 #print "Data(2d2d):", data
 
-pdo =self.GetOutput()
-#pdo.DeepCopy(geometry)
-resample_to_2d_1d(data, pdo, geometry)
+if (n_connections == 3):
+    data_fracture=self.GetInputDataObject(0,2)
+    #pdo.DeepCopy(geometry)
+    resample_to_2d_1d(data, data_fracture, pdo, geometry)
+else:
+    assert(n_connections == 2)
+    #pdo.DeepCopy(geometry)
+    resample_to_2d_1d(data, data, pdo, geometry)

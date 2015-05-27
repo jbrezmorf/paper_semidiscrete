@@ -3,19 +3,14 @@
     TYPE = "SequentialCoupling", 
     description = "Martin, Jaffre, Roberts: test 1, constant K on fracture.", 
     mesh = {
-      mesh_file = "mesh_2d2d.msh",
-      sets = [
-          {name = "matrix",
-           region_labels = [ "hornina"]
-          }
-      ]
+      mesh_file = "mesh_2d2d.msh"
     }, 
 
     primary_equation = {
       TYPE = "Steady_MH", 
 
       input_fields= [
-        { r_set = "matrix",
+        { region = "hornina",
           conductivity = 1,            
           cross_section = 1
         },

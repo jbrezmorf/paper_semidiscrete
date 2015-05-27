@@ -92,9 +92,17 @@ def _error_2d1d(output_2d1d, reference_2d2d):
     data_reader_1d = servermanager.sources.PVDReader(FileName=output_2d1d)
     data_reader_2d = servermanager.sources.PVDReader(FileName=reference_2d2d)
 
-    #iv=paraview.simple.IntegrateVariables(data_reader_2d)
+    data_2d_2d=programmable_filter( [data_reader_2d], "../filter_submesh_by_region.py",
+                             Parameters={"region_id_to_extract" : 1})
+    point_data_2d_2d=servermanager.filters.CellDatatoPointData(Input=data_2d_2d)
+    data_2d_1d=programmable_filter( [data_reader_2d], "../filter_submesh_by_region.py",
+                             Parameters={"region_id_to_extract" : 2})
+    point_data_2d_1d=servermanager.filters.CellDatatoPointData(Input=data_2d_1d)
+    writer=servermanager.writers.DataSetWriter(FileName="./point_data_2d_1d.vtk", Input=point_data_2d_1d)
+    writer.UpdatePipeline()
+    
 
-    resampled_2d_data=programmable_filter([data_reader_1d, data_reader_2d], "./filter_resample_2d1d.py")
+    resampled_2d_data=programmable_filter([data_reader_1d, point_data_2d_2d, point_data_2d_1d], "./filter_resample_2d1d.py")
     writer=servermanager.writers.DataSetWriter(FileName="./resampled_data.vtk", Input=resampled_2d_data)
     writer.UpdatePipeline()
 

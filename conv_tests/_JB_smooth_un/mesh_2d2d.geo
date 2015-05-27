@@ -4,7 +4,7 @@ DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
 
 xtop = 0.1*(1-d/2);
 ytop = 0.1*(1-d/2);
-hxtop = Exp( Log(h*h1d)/2 ); 
+hxtop = 0.001;  //Exp( Log(h*h1d)/2 ); 
 
  
 Point(1) = {-1, 0, 0, h};
