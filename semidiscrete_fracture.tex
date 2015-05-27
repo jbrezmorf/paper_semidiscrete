@@ -439,14 +439,14 @@ We make the following notation:
 The main result of this section is the following error estimate.
 \begin{theorem}
 \label{th:error_estimate}
-Let $\delta>0$, and assume that the unique solution to \eqref{eq:weak_darcy} satisfies additionally $\partial_n^2 p\in L^\infty(\Omega_f)$.
+Let $\delta>0$, and assume that the unique solution to \eqref{eq:weak_darcy} satisfies additionally $\partial_n^2 p\in L^q(\Omega_f)$, $q\in[2,\infty]$.
 Then there is a constant $C:=C(\Omega,\gamma)>0$ independent of $\delta$, $\tn K$ and $f_p$ such that
 \begin{subequations}
 \label{eq:error_estimates_delta}
 \begin{align}
-&\norm{\nabla_\yy(\bar p- p_f)}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline K_t}}\norm{\partial_n^2 p}_{\infty,\Omega_f}\delta,\\
-&\norm{\nabla(p-p_m)}_{2,\Omega_m} \le C\sqrt{\frac{\overline k_n}{\underline K_m}}\norm{\partial_n^2 p}_{\infty,\Omega_f}\delta^{3/2},\\
-&\sum_{i=1}^2\norm{\bar p-p_{|\gamma_i}+p_{m|\gamma_i}-p_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 p}_{\infty,\Omega_f}\delta^2,
+&\norm{\nabla_\yy(\bar p- p_f)}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline K_t}}\norm{\partial_n^2 p}_{q,\Omega_f}\delta^{1-\frac1q},\\
+&\norm{\nabla(p-p_m)}_{2,\Omega_m} \le C\sqrt{\frac{\overline k_n}{\underline K_m}}\norm{\partial_n^2 p}_{q,\Omega_f}\delta^{\frac32-\frac1q},\\
+&\sum_{i=1}^2\norm{\bar p-p_{|\gamma_i}+p_{m|\gamma_i}-p_f}_{2,\gamma} \le C\sqrt{\frac{\overline k_n}{\underline k_n}}\norm{\partial_n^2 p}_{q,\Omega_f}\delta^{2-\frac1q},
 \end{align}
 \end{subequations}
 where $(p_m,p_f)$ is the solution to \eqref{eq:weak_asym}.
@@ -502,16 +502,14 @@ we can show that
 \[ \bar p(\vc y) = P(\delta/2) = p(-\delta/2,\vc y) + \frac\delta2\partial_x p(-\delta/2,\vc y) + \frac\delta2\int_{-\delta/2}^{\xi(\delta/2,\vc y)}\partial_x^2 p(t,\vc y)~dt. \]
 By a similar argument we obtain:
 \[ \bar p(\vc y) = p(\delta/2,\vc y) - \frac\delta2\partial_x p(-\delta/2,\vc y) + \frac\delta2\int_{\eta(-\delta/2,\vc y)}^{\delta/2}\partial_x^2 p(t,\vc y)~dt,~\eta(x,\vc y)\in(x,\delta/2). \]
-% Since $\partial_x p$ is smooth, Taylor's expansion yields
-% \[ \partial_x p(\pm\frac\delta2,\vc y) = \mp\frac2\delta(\bar p - p(\pm\frac\delta2,\vc y)) \pm \frac\delta3\partial_n^2 p(\xi(\vc y)),~\xi(\yy)\in(-\frac\delta2,\frac\delta2), \]
-% \note{JS}{It may be sufficient to have $\partial_n p$ absolutely continuous, but we also need smoothness of $\xi$.}
 From this we can deduce that
 \begin{equation}
 \label{eq:taylor_for_du}
 \partial_x p_{|\gamma_i} = (-1)^{1+i}\left(\frac2\delta(\bar p - p_{|\gamma_i}) - \delta g_i\right),~i=1,2,
 \end{equation}
-where $|g_i(\vc y)|\le\norm{\partial_x^2 p(\cdot,\vc y)}_{L^\infty(-\frac\delta2,\frac\delta2)}$.
-\note{JS}{We can also estimate $|g_i|\le\delta^{-1/2}\norm{\partial_x^2p}_{2,(-\delta/2,\delta/2)}$ - then we loose some power of $\delta$, but we could assume standard elliptic regularity.}
+where
+\[ |g_i(\vc y)| \le \frac1\delta\int_{-\delta/2}^{\delta/2} |\partial_x^2 p(\cdot,\vc y)| \le \delta^{-\frac1q}\norm{\partial_x^2 p(\cdot,\vc y)}_{q,(-\frac\delta2,\frac\delta2)}. \]
+% \note{JS}{We can also estimate $|g_i|\le\delta^{-1/2}\norm{\partial_x^2p}_{2,(-\delta/2,\delta/2)}$ - then we loose some power of $\delta$, but we could assume standard elliptic regularity.}
 Summing up, \eqref{eq:global_vk}--\eqref{eq:taylor_for_du} yield:
 \begin{multline}
 \label{eq:sum_global_vk_limit}
@@ -538,14 +536,15 @@ Subtracting this from \eqref{eq:sum_global_vk_limit}, using H\"older's and Young
 + \sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f|^2
 = \delta\sum_{i=1}^2\int_\gamma k_n g_i\, (\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f)\\
 \le \frac{\delta^{\frac32}}{\sqrt2}\sum_{i=1}^2\int_\gamma \sqrt{k_n}|g_i|\sqrt{\frac{2k_n}\delta}|\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f|\\
-\le \frac{\delta^3}4\overline k_n\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f|^2.
+\le \frac{\delta^3}4\overline k_n|\gamma|^{\frac{q-2}q}\sum_{i=1}^2\norm{g_i}_{q,\gamma}^2 + \frac12\sum_{i=1}^2\int_\gamma \frac{2k_n}\delta |\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f|^2.
 \end{multline}
 Finally we absorb the last term in the left hand side and use uniform positive definiteness of $\tn K$:
 \begin{multline}
 \underline K_m\norm{\nabla (p-p_m)}_{2,\Omega_m}^2
 +\underline K_t\delta\norm{\nabla_\yy(\bar p-p_f)}_{2,\gamma}^2\\
 + \frac1\delta\underline k_n\sum_{i=1}^2\norm{\bar p - p_{|\gamma_i} + p_{m|\gamma_i} - p_f}_{2,\gamma}^2
-\le \frac{\overline k_n}4\left(\sum_{i=1}^2\norm{g_i}_{2,\gamma}^2\right)\delta^3,
+\le \frac{\overline k_n}4|\gamma|^{\frac{q-2}q}\left(\sum_{i=1}^2\norm{g_i}_{q,\gamma}^2\right)\delta^3\\
+\le \frac{\overline k_n}2|\gamma|^{\frac{q-2}q}\norm{\partial_x^2 p}_{q,\Omega_f}^2\delta^{3-\frac2q},
 \end{multline}
 from which the estimates \eqref{eq:error_estimates_delta} follow.
 \end{proof}
