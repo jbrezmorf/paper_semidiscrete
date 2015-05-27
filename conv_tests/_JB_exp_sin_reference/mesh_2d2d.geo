@@ -1,15 +1,15 @@
 DefineConstant[ d = { $d$ , Name "Gmsh/Parameters/d"}];
 DefineConstant[ h = { $h$ , Name "Gmsh/Parameters/h"}];
-DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
+//DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
 
 Point(1) = {-1, 0, 0, h};
 Point(2) = {-1, 1, 0, h};
-Point(3) = {-d/2, 0, 0, h1d};
-Point(4) = {-d/2, 1, 0, h1d};
-Point(7) = {+d/2, 0, 0, h1d};
-Point(8) = {+d/2, 1, 0, h1d};
-Point(5) = {+1, 0, 0, h};
-Point(6) = {+1, 1, 0, h};
+Point(3) = {-d/2, 0, 0, h/3};
+Point(4) = {-d/2, 1, 0, h/3};
+Point(7) = {+d/2, 0, 0, h/3};
+Point(8) = {+d/2, 1, 0, h/3};
+Point(5) = {+1, 0, 0, h/10};
+Point(6) = {+1, 1, 0, h/10};
 
 Line(7) = {1, 2};
 Line(8) = {2, 4};

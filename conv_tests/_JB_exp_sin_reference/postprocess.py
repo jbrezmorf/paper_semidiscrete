@@ -93,12 +93,13 @@ def error_2d1d(output_2d1d, reference_2d2d):
         return _error_2d1d(output_2d1d, reference_2d2d)
 
 def _error_2d1d(output_2d1d, reference_2d2d):
+    print "err_2d1d"
     data_reader_1d = servermanager.sources.PVDReader(FileName=output_2d1d)
     data_reader_2d = servermanager.sources.PVDReader(FileName=reference_2d2d)
 
     #iv=paraview.simple.IntegrateVariables(data_reader_2d)
-
-    resampled_2d_data=programmable_filter([data_reader_1d, data_reader_2d], "./filter_resample_2d1d.py")
+    point_data_2d = servermanager.filters.CellDatatoPointData(Input=data_reader_2d)
+    resampled_2d_data=programmable_filter([data_reader_1d, point_data_2d], "./filter_resample_2d1d.py")
     writer=servermanager.writers.DataSetWriter(FileName="./resampled_data.vtk", Input=resampled_2d_data)
     writer.UpdatePipeline()
 
@@ -156,16 +157,17 @@ def _dxdx_2d2d(output_2d2d):
                             ArrayAssociation='Cell Data',
                             ArrayName="p_squared")
 
-    ddxx_p_on_2d_fracture = programmable_filter([data_reader_2d], "../filter_submesh_by_region.py",
-                             Parameters={"region_id_to_extract" : 2})
 
-    dx_p_data=servermanager.filters.PythonCalculator(Input=ddxx_p_on_2d_fracture,
-                            Expression="(-1)*inputs[0].CellData['velocity_p0'][:,0]/100",
+    dx_p_data=servermanager.filters.PythonCalculator(Input=data_reader_2d,
+                            Expression="(-1)*inputs[0].CellData['velocity_p0'][:,0]",
                             ArrayAssociation='Cell Data',
                             ArrayName="dx_p")
     grad_dx_p_data=servermanager.filters.GradientOfUnstructuredDataSet(Input=dx_p_data,
                             ScalarArray=['CELLS',"dx_p"],
                             ResultArrayName="grad_dx_p")
+
+    ddxx_p_on_2d_fracture = programmable_filter([grad_dx_p_data], "../filter_submesh_by_region.py",
+                             Parameters={"region_id_to_extract" : 2})
 
     # LSRQ - fails to be robust, needs correct setting of dump parameter and even then do not lead to 
     #        beter results when the field varies rapidly on small area, then local oscialtions are not
@@ -177,7 +179,7 @@ def _dxdx_2d2d(output_2d2d):
     #                                      OutputTensorType=0
     #                                      )
     
-    ddxx_p_data=servermanager.filters.PythonCalculator(Input=grad_dx_p_data,
+    ddxx_p_data=servermanager.filters.PythonCalculator(Input=ddxx_p_on_2d_fracture,
                             Expression="inputs[0].CellData['grad_dx_p'][:,0]",
                             ArrayAssociation='Cell Data',
                             ArrayName="ddxx_p")
@@ -185,11 +187,15 @@ def _dxdx_2d2d(output_2d2d):
                             Expression="inputs[0].CellData['ddxx_p']*inputs[0].CellData['ddxx_p']",
                             ArrayAssociation='Cell Data',
                             ArrayName="ddxx_p_2")
-    iv_ddxx, iv_ddxx_arrays = fetch_integrate_variables(ddxx_p_data)
-    iv_p_L2, iv_p_L2_arrays = fetch_integrate_variables(p_squared)
-
+    print "writer"
     writer=servermanager.writers.DataSetWriter(FileName="./ddxx_p.vtk", Input=ddxx_p_data)
     writer.UpdatePipeline()
+
+    print "fetch dxx"
+    iv_ddxx, iv_ddxx_arrays = fetch_integrate_variables(ddxx_p_data)
+    print "fetch p_sq"
+    iv_p_L2, iv_p_L2_arrays = fetch_integrate_variables(p_squared)
+
 
     norms={}
     norms["dx_dx_p_fracture_L2"] = math.sqrt(integrate(iv_ddxx_arrays, "ddxx_p_2"))
@@ -203,11 +209,34 @@ def exact_2d2d(output_2d2d):
         return _exact_2d2d(output_2d2d)
 
 def _exact_2d2d(output_2d2d):
-
+        print "exact_2d2d"
         #########################################################################
         # Diferences on 2D against exact solution
-        data_reader_2d = servermanager.sources.LegacyVTKReader(FileNames=["./ddxx_p.vtk"])
+        dxdx_reader_1d = servermanager.sources.LegacyVTKReader(FileNames=["./ddxx_p.vtk"])
+        coords_data_1d = servermanager.filters.Calculator(Input=dxdx_reader_1d,
+                                Function="coords",
+                                ResultArrayName="coords")
+        cell_coords_data_1d = servermanager.filters.PointDatatoCellData(Input=coords_data_1d)
+        ddxx_pressure_exact  = servermanager.filters.Calculator(Input=cell_coords_data_1d,
+                                Function="exp(coords_X)*sin(coords_Y)",
+                                ResultArrayName="dxdx_p_exact",
+                                AttributeMode="Cell Data")
+
+        #p_diff_data.UpdatePipeline()
+        dxdx_p_diff_data=python_difference(ddxx_pressure_exact, "ddxx_p",
+                                           ddxx_pressure_exact, "dxdx_p_exact", "diff2_ddxx_p_exact" )
+        all_diff_data=servermanager.filters.PythonCalculator(Input=dxdx_p_diff_data,
+                                Expression="sqrt(inputs[0].CellData['diff2_ddxx_p_exact'])",
+                                ArrayAssociation='Cell Data',
+                                ArrayName="abs_diff_ddxx_p_exact")
+        #all_diff_fracture = programmable_filter([all_diff_data], "../filter_submesh_by_region.py",
+        #                         Parameters={"region_id_to_extract" : 2})
+        iv_diff, iv_diff_arrays = fetch_integrate_variables(all_diff_data)
+        writer=servermanager.writers.DataSetWriter(FileName="./exact_dxdx_1d.vtk", Input=all_diff_data)
+        writer.UpdatePipeline()
        
+        
+        data_reader_2d = servermanager.sources.PVDReader(FileName=output_2d2d)
         coords_data = servermanager.filters.Calculator(Input=data_reader_2d,
                                 Function="coords",
                                 ResultArrayName="coords")
@@ -220,62 +249,49 @@ def _exact_2d2d(output_2d2d):
                                 Function="-exp(coords_X)*sin(coords_Y)*iHat - exp(coords_X)*cos(coords_Y)*jHat",
                                 ResultArrayName="exact_velocity",
                                 AttributeMode="Cell Data")
-
-        #ddxx_pressure_exact  = Calculator(Input=pressure_exact,
-        #                        Function="exp(coord_X)*sin(coord_Y)",
-        #                        ResultArrayName="exact_grad_pressure",
-        #                        AttributeMode="Cell Data")
-
-
         p_diff_data=python_difference(velocity_exact, "pressure_p0",
                                       velocity_exact, "exact_pressure", "diff2_pressure_exact" )
         v_diff_data=python_difference(p_diff_data, "velocity_p0",
                                       p_diff_data, "exact_velocity", "diff2_velocity_exact" )
-        #p_diff_data.UpdatePipeline()
-        dxdx_p_diff_data=python_difference(v_diff_data, "ddxx_p",
-                                           v_diff_data, "exact_pressure", "diff2_ddxx_p_exact" )
-        all_diff_data=servermanager.filters.PythonCalculator(Input=dxdx_p_diff_data,
-                                Expression="sqrt(inputs[0].CellData['diff2_ddxx_p_exact'])",
-                                ArrayAssociation='Cell Data',
-                                ArrayName="abs_diff_ddxx_p_exact")
-        all_diff_fracture = programmable_filter([all_diff_data], "../filter_submesh_by_region.py",
-                                 Parameters={"region_id_to_extract" : 2})
+        iv_diff_2d, iv_diff_arrays_2d = fetch_integrate_variables(v_diff_data)
 
-        iv_diff, iv_diff_arrays = fetch_integrate_variables(all_diff_fracture)
 
-        writer=servermanager.writers.DataSetWriter(FileName="./exact_calculations.vtk", Input=all_diff_data)
+        writer=servermanager.writers.DataSetWriter(FileName="./exact_calculations_2d.vtk", Input=v_diff_data)
         writer.UpdatePipeline()
 
         norms={}
-        norms["p_diff_exact_L2"] = math.sqrt(integrate(iv_diff_arrays, "diff2_pressure_exact"))
-        norms["v_diff_exact_L2"] = math.sqrt(integrate(iv_diff_arrays, "diff2_velocity_exact"))
+        norms["p_diff_exact_L2_2d"] = math.sqrt(integrate(iv_diff_arrays_2d, "diff2_pressure_exact"))
+        norms["v_diff_exact_L2_2d"] = math.sqrt(integrate(iv_diff_arrays_2d, "diff2_velocity_exact"))
         norms["dx_dx_p_diff_exact_L2"]=math.sqrt(integrate(iv_diff_arrays, "diff2_ddxx_p_exact"))
-        norms["dx_dx_p_diff_exact_Linf"]=inf_norm(all_diff_fracture, "abs_diff_ddxx_p_exact")
+        norms["dx_dx_p_diff_exact_Linf"]=inf_norm(all_diff_data, "abs_diff_ddxx_p_exact")
             
         return norms
 
-def exact_2d1d(output_2d1d, prefix):
+def exact_2d1d(output_2d1d, prefix, delta):
     """
     output_2d1d - computed data on 2d1d model (cell data for pressure and velocity)
     reference_2d2d - resampled_2d2d data (cell data for pressure and velocity),
                      as computed by error_2d1d
     """
     with ServerManager():
-        return _exact_2d1d(output_2d1d, prefix)
+        return _exact_2d1d(output_2d1d, prefix, delta)
 
-def _exact_diffs_on_domain(dataset, prefix, domain):
+def _exact_diffs_on_domain(dataset, prefix, domain, p_formula, v_formula):
         pressure_exact  = servermanager.filters.Calculator(Input=dataset,
-                                Function="exp(coords_X)*sin(coords_Y)",
+                                Function=p_formula,
                                 ResultArrayName="exact_pressure",
                                 AttributeMode="Cell Data")
         velocity_exact  = servermanager.filters.Calculator(Input=pressure_exact,
-                                Function="-exp(coords_X)*sin(coords_Y)*iHat - exp(coords_X)*cos(coords_Y)*jHat",
+                                Function=v_formula,
                                 ResultArrayName="exact_velocity",
                                 AttributeMode="Cell Data")
         p_diff_data=python_difference(velocity_exact, "pressure_p0",
                                       velocity_exact, "exact_pressure", "diff2_pressure_exact" )
         v_diff_data=python_difference(p_diff_data, "velocity_p0",
-                                      p_diff_data, "exact_velocity", "diff2_velocity_exact" )       
+                                      p_diff_data, "exact_velocity", "diff2_velocity_exact" )
+        writer=servermanager.writers.DataSetWriter(FileName="./"+prefix+domain+"exact_calculations_2d1d.vtk", Input=v_diff_data)
+        writer.UpdatePipeline()
+        
         iv_diff, iv_diff_arrays = fetch_integrate_variables(v_diff_data)
 
         return {
@@ -283,7 +299,8 @@ def _exact_diffs_on_domain(dataset, prefix, domain):
           prefix + "v_diff_exact_L2"+ domain : math.sqrt(integrate(iv_diff_arrays, "diff2_velocity_exact"))
         }  
 
-def _exact_2d1d(output_2d1d, prefix):
+def _exact_2d1d(output_2d1d, prefix, delta):
+        print "exact_2d1d"
         #possible comparison of resampled_2d2d and computed_2d1d against exact values
         if (output_2d1d[-4:] == ".vtk"):
             resampled_2d2d = servermanager.sources.LegacyVTKReader(FileNames=[output_2d1d])
@@ -298,9 +315,16 @@ def _exact_2d1d(output_2d1d, prefix):
                                  Parameters={"region_id_to_extract" : 1})
         data_1d = programmable_filter([cell_coords_data], "../filter_submesh_by_region.py",
                                  Parameters={"region_id_to_extract" : 2})
+        data_1d_vel_y = servermanager.filters.Calculator(Input=data_1d,
+                                Function="velocity_p0_Y*jHat",
+                                ResultArrayName="velocity_p0")
         norms={}
-        norms.update( _exact_diffs_on_domain(data_2d, prefix, "_2d") )
-        norms.update( _exact_diffs_on_domain(data_1d, prefix, "_1d") )
+        norms.update( _exact_diffs_on_domain(data_2d, prefix, "_2d", 
+                                             p_formula="exp(coords_X+coords_X/abs(coords_X)*"+str(delta/2)+")*sin(coords_Y)", 
+                                             v_formula="-exp(coords_X+coords_X/abs(coords_X)*"+str(delta/2)+")*sin(coords_Y)*iHat - exp(coords_X+coords_X/abs(coords_X)*"+str(delta/2)+")*cos(coords_Y)*jHat") )
+        norms.update( _exact_diffs_on_domain(data_1d, prefix, "_1d", 
+                                             p_formula="2*sinh(" + str(delta/2) + ")*sin(coords_Y)/"+str(delta), 
+                                             v_formula="-2*sinh("+ str(delta/2) + ")*cos(coords_Y)*jHat/"+str(delta) ) )
         return norms
         
         

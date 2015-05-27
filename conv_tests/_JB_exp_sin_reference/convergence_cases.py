@@ -67,7 +67,7 @@ def run_gmsh(geo_file):
         print 'gmsh:', ConvergenceTestSetting.gmsh_path
         print 'geo: ', geo_file
         assert( os.path.isfile(ConvergenceTestSetting.gmsh_path) )
-        subprocess.call([ConvergenceTestSetting.gmsh_path, geo_file, "-2", "-o", mesh_file])
+        subprocess.call([ConvergenceTestSetting.gmsh_path, geo_file, "-2", "-algo", "front2d", "-o", mesh_file])
     return mesh_file
 
 
@@ -153,6 +153,16 @@ def pool_cases(cases):
             case.file_output = os.path.join(case.workdir, "output_" + case.prefix, "flow_"+case.prefix+".pvd")
             case.file_output_vtk = os.path.join(case.workdir, "output_" + case.prefix, "flow_"+case.prefix, "flow_"+case.prefix+"-000000.vtu")
 
+            if hasattr(case, 'reference_case'):
+                file_resample = os.path.join("..", "filter_resample_2d1d.py")
+                n_avg_pt=int(max(9, 3*int(8*case.d_frac/case.reference_case.h)))
+                file_substitute(
+                    file_resample,
+                    [ ("$rozevreni$", case.d_frac),
+                      ("$average_points_x$", n_avg_pt )
+                      ])
+                print "avg pt: ", n_avg_pt, case.workdir   
+
             file_resample = os.path.join("..", "filter_resample_2d1d.py")
             file_substitute(
                 file_resample,
@@ -207,8 +217,8 @@ def postprocess_finished(case):
                         not up_to_date(file_norms, reference_case.file_output_vtk) or \
                         not up_to_date(file_norms, ref_file_norms):
                     norms=postprocess.error_2d1d(case.file_output, reference_case.file_output)
-                    norms.update(postprocess.exact_2d1d(case.file_output, "2d1d_"))
-                    norms.update(postprocess.exact_2d1d("./resampled_data.vtk", "2d2d_"))
+                    norms.update(postprocess.exact_2d1d(case.file_output, "2d1d_", case.d_frac))
+                    norms.update(postprocess.exact_2d1d("./resampled_data.vtk", "2d2d_", case.d_frac))
                     with open(ref_file_norms, "r") as f:
                         ref_norms=json.load(f)
                         dxdx_Linf=ref_norms[1]["dx_dx_p_fracture_Linf"]
