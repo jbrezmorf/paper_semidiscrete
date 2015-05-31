@@ -1,0 +1,15 @@
+31.5. ---------------
+BAD:
+* error of resampled ref. solution too big  to observe convergence (1e-4 on matrix, 1e-5 on fracture)
+* too slow convergence of velocity with h
+* some anomaly at d=0.05 for all norms of |2d1d - 2d2d| strongly presented on matrix domain, slightly also on fracture domain
+  |2d1d -exact| pretty smooth, |2d2d - exact| slight jump on fracture domain
+
+GOOD:
+* have good approximation of dxdx_p up to d=0.05, below this point
+  the mesh size about the smae vale h=0.05 prevents good approximation and
+  error on the Linf norm starts to grow
+
+* have O(d^{3/2}) convergence of |p_2d1d - p_2d2d|_H1 on fracture (better then theory)
+* possibly have O(d^2) convergence of |p_2d1d - p_exact|_H1 on matrix ( too slow convergence of the velocity with h)
+

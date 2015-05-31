@@ -287,7 +287,7 @@ def _exact_diffs_on_domain(dataset, prefix, domain, p_formula, v_formula):
                                 AttributeMode="Cell Data")
         p_diff_data=python_difference(velocity_exact, "pressure_p0",
                                       velocity_exact, "exact_pressure", "diff2_pressure_exact" )
-        v_diff_data=python_difference(p_diff_data, "velocity_p0",
+        v_diff_data=python_difference(p_diff_data, "vel_p0",
                                       p_diff_data, "exact_velocity", "diff2_velocity_exact" )
         writer=servermanager.writers.DataSetWriter(FileName="./"+prefix+domain+"exact_calculations_2d1d.vtk", Input=v_diff_data)
         writer.UpdatePipeline()
@@ -313,16 +313,21 @@ def _exact_2d1d(output_2d1d, prefix, delta):
         cell_coords_data = servermanager.filters.PointDatatoCellData(Input=coords_data)
         data_2d = programmable_filter([cell_coords_data], "../filter_submesh_by_region.py",
                                  Parameters={"region_id_to_extract" : 1})
+        data_2d_vel = servermanager.filters.Calculator(Input=data_2d,
+                                AttributeMode="Cell Data",
+                                Function="velocity_p0",
+                                ResultArrayName="vel_p0")
         data_1d = programmable_filter([cell_coords_data], "../filter_submesh_by_region.py",
                                  Parameters={"region_id_to_extract" : 2})
         data_1d_vel_y = servermanager.filters.Calculator(Input=data_1d,
+                                AttributeMode="Cell Data",
                                 Function="velocity_p0_Y*jHat",
-                                ResultArrayName="velocity_p0")
+                                ResultArrayName="vel_p0")
         norms={}
-        norms.update( _exact_diffs_on_domain(data_2d, prefix, "_2d", 
+        norms.update( _exact_diffs_on_domain(data_2d_vel, prefix, "_2d", 
                                              p_formula="exp(coords_X+coords_X/abs(coords_X)*"+str(delta/2)+")*sin(coords_Y)", 
                                              v_formula="-exp(coords_X+coords_X/abs(coords_X)*"+str(delta/2)+")*sin(coords_Y)*iHat - exp(coords_X+coords_X/abs(coords_X)*"+str(delta/2)+")*cos(coords_Y)*jHat") )
-        norms.update( _exact_diffs_on_domain(data_1d, prefix, "_1d", 
+        norms.update( _exact_diffs_on_domain(data_1d_vel_y, prefix, "_1d", 
                                              p_formula="2*sinh(" + str(delta/2) + ")*sin(coords_Y)/"+str(delta), 
                                              v_formula="-2*sinh("+ str(delta/2) + ")*cos(coords_Y)*jHat/"+str(delta) ) )
         return norms

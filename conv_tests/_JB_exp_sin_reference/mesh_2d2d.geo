@@ -4,12 +4,12 @@ DefineConstant[ h = { $h$ , Name "Gmsh/Parameters/h"}];
 
 Point(1) = {-1, 0, 0, h};
 Point(2) = {-1, 1, 0, h};
-Point(3) = {-d/2, 0, 0, h/3};
-Point(4) = {-d/2, 1, 0, h/3};
-Point(7) = {+d/2, 0, 0, h/3};
-Point(8) = {+d/2, 1, 0, h/3};
-Point(5) = {+1, 0, 0, h/10};
-Point(6) = {+1, 1, 0, h/10};
+Point(3) = {-d/2, 0, 0, h/2.6};
+Point(4) = {-d/2, 1, 0, h/2.6};
+Point(7) = {+d/2, 0, 0, h/2.6};
+Point(8) = {+d/2, 1, 0, h/2.6};
+Point(5) = {+1, 0, 0, h/7};
+Point(6) = {+1, 1, 0, h/7};
 
 Line(7) = {1, 2};
 Line(8) = {2, 4};

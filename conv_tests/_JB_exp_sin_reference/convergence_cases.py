@@ -67,7 +67,8 @@ def run_gmsh(geo_file):
         print 'gmsh:', ConvergenceTestSetting.gmsh_path
         print 'geo: ', geo_file
         assert( os.path.isfile(ConvergenceTestSetting.gmsh_path) )
-        subprocess.call([ConvergenceTestSetting.gmsh_path, geo_file, "-2", "-algo", "front2d", "-o", mesh_file])
+        #subprocess.call([ConvergenceTestSetting.gmsh_path, geo_file, "-2", "-algo", "front2d", "-o", mesh_file])
+        subprocess.call([ConvergenceTestSetting.gmsh_path, geo_file, "-2", "-o", mesh_file])
     return mesh_file
 
 
