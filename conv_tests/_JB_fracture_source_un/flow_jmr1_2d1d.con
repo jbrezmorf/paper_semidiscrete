@@ -1,0 +1,63 @@
+{
+  problem = {
+    TYPE = "SequentialCoupling", 
+    description = "Martin, Jaffre, Roberts: test 1, constant K on fracture.", 
+    mesh = {
+      mesh_file = "mesh_2d1d.msh",
+      sets = [
+          {name = ".top_and_sides",
+           region_labels = [ ".matrix_top",  ".matrix_left", ".matrix_right"]
+          },
+          {name = ".bottom",
+           region_labels = [ ".matrix_bottom",  ".fracture_bottom"]
+          }
+
+      ]
+    }, 
+
+    primary_equation = {
+      TYPE = "Steady_MH", 
+
+      input_fields= [
+        { region = "matrix",
+          conductivity = 1,            
+          cross_section = 1
+        },
+        { region = "fracture",
+          conductivity = 100,
+          cross_section = $rozevreni$
+        },
+        { r_set = ".top_and_sides",
+          bc_type = "dirichlet",
+          bc_pressure = {TYPE = "FieldFormula", 
+                         value = "cosh(y)*cos(x+0.5*$rozevreni$*x/abs(x))"}
+        },
+        { region = ".fracture_top",
+          bc_type = "dirichlet",
+          bc_pressure = {TYPE = "FieldFormula", 
+                         value = "cosh(y)"}
+        }
+      ],
+
+      output = {
+        output_stream = {
+          file = "flow.pvd", 
+            format = {
+            TYPE = "vtk", 
+            variant = "ascii"
+          }
+        },
+        output_fields = [ "pressure_p0", "velocity_p0", "region_id"]
+      },
+      balance = {
+        balance_output="water_balance.out"
+      },
+          
+      solver = {
+        TYPE = "Petsc", 
+        a_tol = 1e-12,
+        r_tol = 1e-12
+      } 
+    }
+  } // problem
+}
