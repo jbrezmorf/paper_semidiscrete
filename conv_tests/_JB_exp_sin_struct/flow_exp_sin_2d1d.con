@@ -1,0 +1,67 @@
+{
+  problem = {
+    TYPE = "SequentialCoupling", 
+    description = "Analytical flow 2d2d.", 
+    mesh = {
+      mesh_file = "mesh_2d1d.msh",
+      sets = [
+          {name = "matrix",
+           region_labels = [ "hornina"]
+          }
+      ]
+    }, 
+
+    primary_equation = {
+      TYPE = "Steady_MH", 
+
+      input_fields= [
+        { r_set = "matrix",
+          conductivity = 1,            
+          cross_section = 1
+        },
+        { region = "puklina",
+          conductivity = 1,           
+          cross_section = $rozevreni$
+        },
+        { region = ".right",
+          bc_type = "dirichlet",
+          bc_pressure = {TYPE = "FieldFormula", value = "exp(x+$rozevreni$/2)*sin(y)"} 
+        },
+        { region = ".left",
+          bc_type = "dirichlet",
+          bc_pressure = {TYPE = "FieldFormula", value = "exp(x-$rozevreni$/2)*sin(y)"}
+        },
+        { region = ".no_flow",
+          bc_type = "dirichlet",
+          bc_pressure = {TYPE = "FieldFormula", value = "exp(x+if(x>0,1,-1)*$rozevreni$/2)*sin(y)"}
+        },
+        { region = ".no_flow_body",
+          bc_type = "dirichlet",
+          // Average over fracture
+          bc_pressure = {TYPE = "FieldFormula", value = "2*sinh($rozevreni$/2)/$rozevreni$*sin(y)"}
+        }
+      ],
+
+      output = {
+        output_stream = {
+          file = "flow_2d1d.pvd", 
+          format = {
+            TYPE = "vtk", 
+            variant = "ascii"
+          }
+        },
+        output_fields = [ "pressure_p0", "velocity_p0", "region_id"]
+      },
+      balance = {
+        balance_output="water_balance_2d1d.out"
+      },
+            
+          
+      solver = {
+        TYPE = "Petsc", 
+        a_tol = 1e-15,
+        r_tol = 1e-15
+      } 
+    }
+  } // problem
+}
