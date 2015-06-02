@@ -5,6 +5,12 @@ clean-resample:
 	find . -path './h*/filter_resample_2d1d.py' -delete
 	
 clean-all: clean-norms clean-resample
+
+pull-norms:
+	test_dir=`pwd`;\
+	echo $${test_dir};\
+	test_case=$${test_dir##*/conv_tests/};\
+	scp jan_brezina@tarkil.cesnet.cz:clanek/conv_tests/$${test_case}/norms_all.json .
 	
 run-all:
 	RUN="1"; \
