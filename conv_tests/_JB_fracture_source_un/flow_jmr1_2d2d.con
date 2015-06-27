@@ -25,9 +25,9 @@
         { region = "fracture",
           conductivity = 100
         },
-        { region=".top_and_sides",
+        { r_set=".top_and_sides",
           bc_type = "dirichlet",
-          bc_pressure = {TYPE = "FieldFormula", value = "cosh(y)*cos(x+0.5*$rozevreni$*x/abs(x))"}
+          bc_pressure = {TYPE = "FieldFormula", value = "cosh(y)*cos(x)"}
         }
       ],
 

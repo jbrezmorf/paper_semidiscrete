@@ -46,9 +46,9 @@ cts.gmsh_path=home + "/local/gmsh-2.8.5-Linux/bin/gmsh"
 
 #cts.d_frac_array = [0.1*pow(0.5, n) for n in range(-2, 5)]
 #cts.h_array = [0.01*pow(0.5, n) for n in range(-1, 4)]
-cts.h1d_array=[0.04, 0.02, 0.01, 0.005, 0.0025]
-cts.h2d_array=[ 0.05, 0.02, 0.01] #, 0.002]
-cts.d_frac_array = [0.05, 0.025, 0.01, 0.005, 0.0025]
+cts.h1d_array=[0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.0025]
+cts.h2d_array=[ 0.05, 0.02, 0.01] #, 0.005] 
+cts.d_frac_array = [0.25, 0.1, 0.05, 0.025, 0.01, 0.005, 0.0025]
 
 cts.pool = pbs_pool({'mpiexec' : cts.mpiexec })
 #cts.pool = local_pool({})

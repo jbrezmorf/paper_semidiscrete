@@ -21,18 +21,18 @@ try:
     def make_table_plot( title, table, n_h, n_d):
         if not HAVE_MATPLOTLIB: return None
         try:
-            case_idx = ['p_1d_H1_over_dxx_Linf', 'p_2d_H1_over_dxx_Linf'].index(title)
+            case_idx = ['dx_dx_p_fracture_Linf', 'dx_dx_p_fracture_L2'].index(title)
         except:
             return None
         
         plot_style=['o-', '^-'][case_idx]
         value_range=mpl_colors.Normalize(0, n_h-1)
         colors=[ cm.ScalarMappable(value_range, cm.autumn), cm.ScalarMappable(value_range, cm.winter)][case_idx]                    
-        legend_label=[ r'$\gamma,\ ', r'$\Omega_m,\ '][case_idx]
-        conv_power = [ 1.0, 3.0/2.0][case_idx]
-        ref_coef = [ 0.1, 0.05][case_idx]
-        ref_style = [ 'r--', 'b--' ][case_idx]
-        ref_legend_label = [ '$\delta$', '$\delta^{3/2}$'  ][case_idx]
+        legend_label=[ r'$L^\infty,\ ', r'$L^2,\ '][case_idx]
+        #conv_power = [ 1.0, 3.0/2.0][case_idx]
+        #ref_coef = [ 3.5, 3.5][case_idx]
+        #ref_style = [ 'r--', 'b--' ][case_idx]
+        #ref_legend_label = [ '$\delta$', '$\delta^{3/2}$'  ][case_idx]
         
         #colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'red', 'blue', 'gray']
         #plt.hold(False)
@@ -53,10 +53,10 @@ try:
             #plt.hold(True)
         
         # reference line        
-        y_vals = [ ref_coef*pow(x,conv_power) for x in x_vals]
-        plot = plt.loglog(x_vals, y_vals, ref_style, linewidth=2)
-        legend_label_list += [ ref_legend_label ]
-        legend_plot_list += [ plot[0] ]        
+        #y_vals = [ ref_coef*pow(x,conv_power) for x in x_vals]
+        #plot = plt.loglog(x_vals, y_vals, ref_style, linewidth=2)
+        #legend_label_list += [ ref_legend_label ]
+        #legend_plot_list += [ plot[0] ]        
         
         #Path = mpath.Path
         #path_data = [
@@ -139,6 +139,9 @@ def make_table(cases_results):
             norms_dict[key].append( (case, value) )
 
     plt.hold(True)
+    fig_size = plt.rcParams["figure.figsize"]
+    print "Current size:", fig_size
+    plt.figure(figsize=(fig_size[0], fig_size[1]*0.7))
     # format tables, ih as inner index
     # compute estimate of order convergence according to d_frac
     for key, norm in norms_dict.iteritems():
@@ -148,13 +151,14 @@ def make_table(cases_results):
             legend_plot_list+=plot[0]
             legend_label_list+=plot[1]
    
-    plt.title(r'Approximation of $||u_m - u_c||_{H^1(\Omega_m)}$ and $||\bar u_f - u_\gamma||_{H^1(\gamma)}$.')
+    plt.title(r'Approximation of $||\partial_x^2 u_f||$ in $L^\infty(\Omega_f)$ and $L^2(\Omega_f)$.')
     plt.xlabel(r'fracture width $\delta$')
-    plt.xlim(5e-4, 0.5)
-    plt.ylabel('$H^1$ norm')    
+    plt.xlim(1e-4, 0.3)
+    plt.ylim(1e-1,1e3)
+    plt.ylabel('norm')    
     plt.legend(legend_plot_list, legend_label_list, 
                loc='upper left',
-               title=r'domain, $h$')
+               title=r'norm, $h$')
     plt.grid(True)
     pp = PdfPages("plot.pdf")
     plt.savefig(pp, format='pdf')

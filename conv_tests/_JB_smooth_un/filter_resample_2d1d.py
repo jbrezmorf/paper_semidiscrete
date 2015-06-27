@@ -16,7 +16,7 @@ X_SHIFT_LEFT = $rozevreni$/2
 X_SHIFT_RIGHT = $rozevreni$/2
 # number of points in every direction used to average values over rectagles corresponding to 1d elements
 AVERAGE_POINTS_X=int($average_points_x$)
-AVERAGE_POINTS_Y=1
+AVERAGE_POINTS_Y=5
 
 
 VTK_LINE=3
