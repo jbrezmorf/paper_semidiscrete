@@ -140,7 +140,7 @@ def pool_cases(cases):
         with Chdir(case.workdir):
             print case.workdir
             file_geo_template = os.path.join("..", "mesh_" + case.prefix + ".geo")
-            h1d=case.h/11
+            h1d=case.h/15
             file_geo = file_substitute(
               file_geo_template, 
               [ ("$d$", case.d_frac), 
@@ -153,12 +153,15 @@ def pool_cases(cases):
             case.file_output = os.path.join(case.workdir, "output_" + case.prefix, "flow.pvd")
             case.file_output_vtk = os.path.join(case.workdir, "output_" + case.prefix, "flow", "flow-000000.vtu")
 
-            file_resample = os.path.join("..", "filter_resample_2d1d.py")
-            file_substitute(
-                file_resample,
-                [ ("$rozevreni$", case.d_frac),
-                  ("$average_points_x$", int(max(6, 2*int(case.d_frac/case.h))) )
-                  ])
+            if hasattr(case, 'reference_case'):
+                file_resample = os.path.join("..", "filter_resample_2d1d.py")
+                n_avg_pt=int(max(9, 3*int(11*case.d_frac/case.reference_case.h)))
+                file_substitute(
+                    file_resample,
+                    [ ("$rozevreni$", case.d_frac),
+                      ("$average_points_x$", n_avg_pt )
+                      ])
+                print "avg pt: ", n_avg_pt, case.workdir   
 
             n_ele = msh_n_elements(case.file_mesh)
             n_proc=max(1, int(round(n_ele / 100000)))
@@ -170,7 +173,7 @@ def pool_cases(cases):
             if n_ele>8e6 : 
                 print "Mesh too big: ", n_ele
                 sys.exit()
-            job_common={ 'wall_time' : '1:50:00',
+            job_common={ 'wall_time' : '0:30:00',
                          'n_proc' : n_proc,
                          'memory' : mem_limit,
                          'case' : case

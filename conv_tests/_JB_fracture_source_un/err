@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "./run_all.py", line 132, in <module>
-    main()
-  File "./run_all.py", line 122, in main
-    if not postprocess_finished(case):
-  File "/auto/praha1/jan_brezina/clanek/conv_tests/_JB_fracture_source_un/convergence_cases.py", line 218, in postprocess_finished
-    'p_1d_H1_over_dxx_Linf' : norms['p_12_diff_1d_H1'] / dxdx_Linf,
-ZeroDivisionError: float division by zero
