@@ -94,8 +94,8 @@
 %\addtolength{\voffset}{-2.5cm}
 \begin{document}
 
-\title{}
-\author{Jan B\v rezina \and Jan Stebel}
+\title{Analysis and numerical verification of model error for a continuum-fracture model of porous media flow}
+\author{Jan B\v rezina \and Jan Stebel\thanks{PODEKOVANI!!!}}
 \institute{Technical University of Liberec, Studentsk\'a 1402/2, 46117 Liberec, Czech Republic\\\email{\{jan.brezina,jan.stebel\}@tul.cz}}
 
 \maketitle
@@ -138,7 +138,7 @@ The fracture interacts with the matrix on the interfaces
 Normal vectors on these interfaces are denoted $\vc n_i$, $i=1,2$ with the orientation out of $\Omega_m$.
 Further, we introduce the reduced geometry (see Figure \ref{fig:omegas}, right)
 where the fracture is represented by the interface $\gamma:=\Omega\cap\big(\{0\}\times\Real^{d-1}\big)$ in its center.
-For any point $\vc x\in\Real^d$ we shall write $\vc x=(x,\yy)^\top$, $\yy\in\Real^{d-1}$.
+For a  point $\vc x\in\Real^d$ we shall write $\vc x=(x,\yy)^\top$, $\yy\in\Real^{d-1}$.
 For functions defined in $\Omega_f$ we define the tangent gradient along the fracture
 \[ \nabla_\yy v:=(0,\partial_{y_1} v,\ldots,\partial_{y_{d-1}} v)^\top, \]
 and the average of $v$ across the fracture:
@@ -387,131 +387,49 @@ from which the estimates \eqref{eq:error_estimates_delta} follow.
 \section{Numerical experiments}
 \label{sc:numerics}
 
-\note{JS}{
-OUR STRATEGY - compare two models using 2nd order approximation in space + meshes refined proportionally to cross section.
-\\
-DESCRIBE FLOW123D - mixed-hybrid method for Darcy flow, DG for transport, input/output interface
-\\
-TEST PROBLEMS - analytical solutions, tests from JMR paper, comments to the results
-}
-
 In this section we present computational results that demonstrate the relevance of the continuum-fracture model in the discrete setting, in particular we study the dependence of the error between the full and the reduced model on the fracture cross section.
-For this reason we choose numerical methods with 2nd order accuracy in space with respect to the $L^2$ norm and a sequence of computational meshes with the norm $h\approx\delta$. Consequently we are able to observe the order $O(\delta)$ and $O(\delta^{3/2})$, respectively, of the respective error norms.
+For the numerical computation we used the mixed-hybrid FEM implemented in the code Flow123d.
+The solution of the continuum-fracture model was compared either to an analytical solution of the full model (if available) or with a reference solution on a sufficiently fine mesh.
+For each cross-section width $\delta$ we performed a sequence of computations on meshes with different norms $h$.
+This approach allows to identify situations with dominating modelling error and estimate its rate.
 
 In all computations we shall use the domain $\Omega:=(-1,1)\times(0,1)$ and the fracture $\Omega_f^\delta:=(-\delta/2,\delta/2)\times(0,1)$.
 
-For the Darcy flow we measure the $L^2$ error in the piezometric head in $\Omega_m^\delta:=\Omega\setminus\Omega_f^\delta$ and $\gamma$:
-\[ e_m^\delta := \norm{p^\delta - p_m^\delta}_{2,\Omega_m^\delta},\quad e_f^\delta := \norm{p^\delta - p_f^\delta}_{2,\gamma}. \]
+% We measured the $L^2$ error in the piezometric head in $\Omega_m^\delta:=\Omega\setminus\Omega_f^\delta$ and $\gamma$:
+% \[ e_m^\delta := \norm{p^\delta - p_m^\delta}_{2,\Omega_m^\delta},\quad e_f^\delta := \norm{p^\delta - p_f^\delta}_{2,\gamma}. \]
 
+\subsection{Test 1 - analytical solution and virtual fracture}
 
-\subsection{Test case 1 - harmonic pressure}
-
-Data: $\tn K=\tn I$, $f_p=0$, left/right - nonhomogeneous Dirichlet b.c., top/bottom - nonhomogeneous Neumann b.c.
-Exact solution:
-\[ p(x,y) = e^x\sin y \]
-According to Theorem \ref{th:error_estimate}, the errors should behave as follows: $e_m^\delta\approx\delta^{3/2}$, $e_f^\delta\approx\delta$.
-
-\begin{tabular}{|l|ll|ll|}
-\hline
-$\delta$ & $(e_m^\delta)^2$ & EOC (matrix) & $(e_f^\delta)^2$ & EOC (fracture)\\
-\hline
-4.00e-01 & 2.4899e-03 &            & 1.9525e-03 & \\
-2.00e-01 & 2.5948e-04 & 1.6312e+00 & 2.7821e-04 & 1.4055e+00\\
-1.00e-01 & 3.1960e-05 & 1.5106e+00 & 5.2709e-05 & 1.2000e+00\\
-5.00e-02 & 3.5416e-06 & 1.5869e+00 & 1.1414e-05 & 1.1036e+00\\
-2.50e-02 & 4.3285e-07 & 1.5162e+00 & 2.6676e-06 & 1.0486e+00\\
-1.25e-02 & 5.3499e-08 & 1.5081e+00 & 6.4513e-07 & 1.0239e+00\\
-6.25e-03 & 6.6789e-09 & 1.5009e+00 & 1.5865e-07 & 1.0119e+00\\
-\hline
-Expected & & 1.5 & & 1\\
-\hline
-\end{tabular}
-
-% % The following results were wrong, in fact we get the same orders as above (1.5, 1)
-% Next, we scale the conductivity tensor $\tn K_f:=\frac1\delta\tn I$ and use the same boundary conditions. The exact solution remains the same.
-% The expected order is now $e_m^\delta\approx\delta$, $e_f^\delta\approx\delta$.
-% 
-% \begin{tabular}{|l|ll|ll|}
-% \hline
-% $\delta$ & $(e_m^\delta)^2$ & EOC (matrix) & $(e_f^\delta)^2$ & EOC (fracture)\\
-% \hline
-% 4.00e-01 & 6.8043e-03 &            & 1.6771e-02 & \\
-% 2.00e-01 & 1.6164e-03 & 1.0368e+00 & 3.9297e-03 & 1.0467e+00\\
-% 1.00e-01 & 4.0703e-04 & 9.9478e-01 & 9.6050e-04 & 1.0163e+00\\
-% 5.00e-02 & 1.0201e-04 & 9.9824e-01 & 2.3074e-04 & 1.0287e+00\\
-% 2.50e-02 & 2.5552e-05 & 9.9859e-01 & 5.7078e-05 & 1.0076e+00\\
-% 1.25e-02 & 6.3936e-06 & 9.9936e-01 & 1.4200e-05 & 1.0035e+00\\
-% 6.25e-03 & 1.5991e-06 & 9.9969e-01 & 3.5465e-06 & 1.0007e+00\\
-% \hline
-% Expected & & 1 & & 1\\
-% \hline
-% \end{tabular}
+We tested a problem with fixed constant conductivity $\tn A=\tn I$ and with the exact solution $p^\delta(x,y)=e^x\cos y$.
+Since the solution is independent of $\delta$, the fracture in this problem only plays a role of a virtual interface.
+\begin{figure}
+\centering
+\input figures/exp_cos/hornina
+\caption{Error in the matrix between the numerical and exact solution for different mesh and cross-section sizes.}
+\label{fig:exp_cos_hor}
+\end{figure}
+\begin{figure}
+\centering
+\input figures/exp_cos/puklina
+\caption{Error in the fracture between the numerical and exact solution for different mesh and cross-section sizes.}
+\label{fig:exp_cos_puk}
+\end{figure}
+In Figure \ref{fig:exp_cos_hor} and \ref{fig:exp_cos_puk} the $L^2$-norm of error between the numerical and exact solution in matrix and fracture, respectively, is shown.
+Each line connects values of the error for meshes with comparable element sizes.
+It can be seen that the error stagnates for small values of $\delta$, which indicates that the modeling error is dominated by the discretization error.
+Here it seems that the modeling error in matrix behaves like $\delta^3$ and in fracture like $\delta^2$.
+The better rates than predicted by Theorem \ref{th:error_estimate} are probably due to the smoothness of the exact solution.
 
 
 
-\subsection{Test case 2 - nonzero source}
-
-Data: $\tn K=\tn I$, $f_p=2y-1$, left/right - nonhomogeneous Dirichlet, top/bottom - homogeneous Neumann b.c.
-Exact solution:
-\[ p(x,y) = -\frac{x}2 - \frac{y^3}3 + \frac{y^2}2 \]
-Expected order: $e_m^\delta\approx\delta^{3/2}$, $e_f^\delta\approx\delta$.
-
-\begin{tabular}{|l|ll|ll|}
-\hline
-$\delta$ & $(e_m^\delta)^2$ & EOC (matrix) & $(e_f^\delta)^2$ & EOC (fracture)\\
-\hline
-4.00e-01 & 2.7352e-03 &            & 3.2885e-05 &           \\
-2.00e-01 & 3.4103e-04 & 1.5018e+00 & 7.8094e-06 & 1.0371e+00\\
-1.00e-01 & 4.5694e-05 & 1.4499e+00 & 1.8929e-06 & 1.0223e+00\\
-5.00e-02 & 5.3165e-06 & 1.5517e+00 & 4.6537e-07 & 1.0121e+00\\
-2.50e-02 & 6.6431e-07 & 1.5003e+00 & 1.1540e-07 & 1.0059e+00\\
-1.25e-02 & 8.3023e-08 & 1.5001e+00 & 2.8731e-08 & 1.0030e+00\\
-6.25e-03 & 1.0419e-08 & 1.4971e+00 & 7.1679e-09 & 1.0015e+00\\
-\hline
-Expected & & 1.5 & & 1\\
-\hline
-\end{tabular}
-
-Transport: zero initial condition, $\theta=0.1$, right: Dirichlet b.c. $1$, time interval $(0,0.45)$
-Zero diffusion:
-
-\begin{tabular}{|l|ll|ll|}
-\hline
-$\delta$ & $(e_m^\delta)^2*0.45$ & EOC (matrix) & $(e_f^\delta)^2*0.45$ & EOC (fracture)\\
-\hline
-4.00e-01 & 3.3746e-01 &            & 2.3598e-03 &           \\ 
-2.00e-01 & 1.9794e-01 & 5.0865e-01 & 1.8645e-02 & 6.6722e-01\\  
-1.00e-01 & 8.3739e-02 & 7.7955e-01 & 1.0253e-02 & 5.8354e-01\\
-5.00e-02 & 2.2839e-02 & 1.0578e+00 & 2.9655e-03 & 8.4844e-01\\
-2.50e-02 & 3.6513e-03 & 1.3804e+00 & 7.3713e-04 & 9.6713e-01\\
-1.25e-02 & 3.9963e-04 & 1.6179e+00 & 1.7860e-04 & 1.0001e+00\\
-6.25e-03 & 3.6526e-05 & 1.7325e+00 & 4.3463e-05 & 1.0062e+00\\
-\hline
-Expected & & ? & & ?\\
-\hline
-\end{tabular}
-
-Diffusion $\tn D=0.1\tn I$:
-
-\begin{tabular}{|l|ll|ll|}
-\hline
-$\delta$ & $(e_m^\delta)^2*0.45$ & EOC (matrix) & $(e_f^\delta)^2*0.45$ & EOC (fracture)\\
-\hline
-4.00e-01 & 7.1668e-02 &            & 2.8439e-02 &            \\
-2.00e-01 & 2.4313e-02 & 1.1239e+00 & 1.9724e-02 & 7.1121e-01 \\
-1.00e-01 & 2.5986e-03 & 1.6569e+00 & 3.7972e-03 & 1.1298e+00 \\
-5.00e-02 & 1.6395e-04 & 2.0134e+00 & 6.5148e-04 & 1.2219e+00 \\
-2.50e-02 & 1.7331e-05 & 1.7132e+00 & 9.9551e-05 & 1.3395e+00 \\
-1.25e-02 & 1.5975e-06 & 1.7456e+00 & 1.2088e-05 & 1.5115e+00 \\
-6.25e-03 & 1.2553e-07 & 1.8268e+00 & 1.1732e-06 & 1.6769e+00 \\
-\hline
-Expected & & ? & & ?\\
-\hline
-\end{tabular}
 
 
-%\input{heat}
 
+
+
+\section*{Acknowledgement}
+
+The access to the MetaCentrum computing facilities and workloads is kindly acknowledged.
 
 
 \bibliographystyle{abbrvnat}
