@@ -1,3 +1,5 @@
+clean-core:
+	find . -name "core" -delete
 clean-norms:
 	find . -name "norms_raw.json" -delete
 	rm -f norms_all.json

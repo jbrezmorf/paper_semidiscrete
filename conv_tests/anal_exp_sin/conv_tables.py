@@ -14,7 +14,7 @@ try:
     HAVE_MATPLOTLIB=True
     def make_table_plot( title, table, n_h, n_d):
         if not HAVE_MATPLOTLIB: return
-      
+        
         colors = plt.cm.Dark2(numpy.linspace(0, 1, 12))
         #colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'red', 'blue', 'gray']
         plt.hold(False)
@@ -77,7 +77,6 @@ def single_table(table_name, values):
     n_rows=n_d + 2   # first line is table name, secodn h values
     table = [[0] * n_cols for i in range(n_rows)]
     table[0][0] = table_name
-    print "rows:", n_cols, "cols:",  n_rows
     for  case, value in values:
         #print case
         i_row = case["id_frac"] + 2
@@ -143,7 +142,12 @@ def colect_norms(all_norms):
         for fname in file_list:
             if (fname == "norms_raw.json"):
                 with open(os.path.join(dir_path, fname), "r") as f:
-                    norms_list.append( json.load(f) )
+                    (case, norms)=json.load(f)
+                    if case['d_frac'] < 0.11:
+                        case['id_frac']+=1
+                        if 'reference_case' in case:
+                            case['reference_case']['id_frac']+=1
+                    norms_list.append( (case, norms) )
     with open(all_norms, "w") as f:
         json.dump(norms_list, f)
 
