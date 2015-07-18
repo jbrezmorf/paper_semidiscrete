@@ -2,35 +2,42 @@ DefineConstant[ d = { $d$ , Name "Gmsh/Parameters/d"}];
 DefineConstant[ h = { $h$ , Name "Gmsh/Parameters/h"}];
 DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
 
-xtop = 0.1*(1-d/2);
-ytop = 0.1*(1-d/2);
-hxtop = 0.001;  //Exp( Log(h*h1d)/2 ); 
+x_l=0;
+x_f=1;
+x_r=2;
 
+
+y_top=0.5;
+y_bot=0;
+
+x_ref = 0.1*(1-d/2);
+y_ref = 0.1*(1-d/2);
+hx_ref = Exp( (0.7*Log(h)+1.3*Log(h1d))/2 ); 
  
-Point(1) = {-1, 0, 0, h};
-Point(2) = {-1, 1, 0, h};
-Point(3) = {+1, 0, 0, h};
-Point(4) = {+1, 1, 0, h};
+Point(1) = {x_l,  y_bot,  0, h};
+Point(2) = {x_l,  y_top,  0, h};
+Point(3) = {x_r,  y_bot,  0, h};
+Point(4) = {x_r,  y_top,  0, h};
 
-Point(11) = {-d/2, 0, 0, h1d};
-Point(12) = {-d/2, 1, 0, h1d};
-Point(13) = {+d/2, 0, 0, h1d};
-Point(14) = {+d/2, 1, 0, h1d};
+Point(11) = {x_f-d/2,  y_bot,  0, h1d};
+Point(12) = {x_f-d/2,  y_top,  0, h1d};
+Point(13) = {x_f+d/2,  y_bot,  0, h1d};
+Point(14) = {x_f+d/2,  y_top,  0, h1d};
 
-Point(21) = {-xtop, 0, 0, hxtop};
-Point(22) = {-xtop, 1, 0, hxtop};
-Point(23) = {+xtop, 0, 0, hxtop};
-Point(24) = {+xtop, 1, 0, hxtop};
+Point(21) = {x_f-x_ref,  y_bot,  0, hx_ref};
+Point(22) = {x_f-x_ref,  y_top,  0, hx_ref};
+Point(23) = {x_f+x_ref,  y_bot,  0, hx_ref};
+Point(24) = {x_f+x_ref,  y_top,  0, hx_ref};
 
-Point(31) = {-xtop, 0+ytop, 0, hxtop};
-Point(32) = {-xtop, 1-ytop, 0, hxtop};
-Point(33) = {+xtop, 0+ytop, 0, hxtop};
-Point(34) = {+xtop, 1-ytop, 0, hxtop};
+Point(31) = {x_f-x_ref,  y_bot+y_ref,  0, hx_ref};
+Point(32) = {x_f-x_ref,  y_top-y_ref,  0, hx_ref};
+Point(33) = {x_f+x_ref,  y_bot+y_ref,  0, hx_ref};
+Point(34) = {x_f+x_ref,  y_top-y_ref,  0, hx_ref};
 
-Point(41) = {-d/2, 0+ytop, 0, hxtop};
-Point(42) = {-d/2, 1-ytop, 0, hxtop};
-Point(43) = {+d/2, 0+ytop, 0, hxtop};
-Point(44) = {+d/2, 1-ytop, 0, hxtop};
+Point(41) = {x_f-d/2,  y_bot+y_ref,  0, hx_ref};
+Point(42) = {x_f-d/2,  y_top-y_ref,  0, hx_ref};
+Point(43) = {x_f+d/2,  y_bot+y_ref,  0, hx_ref};
+Point(44) = {x_f+d/2,  y_top-y_ref,  0, hx_ref};
 
 
 

@@ -12,6 +12,7 @@ import paraview.numpy_support as ns
 import vtk
 
 # shift of 2d elements in 2d-1d mesh so that 2d part match corresponding part in simply 2d mesh
+X_FR=1.0
 X_SHIFT_LEFT = $rozevreni$/2
 X_SHIFT_RIGHT = $rozevreni$/2
 # number of points in every direction used to average values over rectagles corresponding to 1d elements
@@ -58,7 +59,7 @@ def resample_to_2d_1d(pdi, pdi_frac, pdo, geom):
     barycenters_2d=barycenters[geom_2d_id]
     #print barycenters_2d
     # shift right half of points
-    barycenters_2d[:,0]=np.where(barycenters_2d[:,0]<0, barycenters_2d[:,0]-X_SHIFT_LEFT, barycenters_2d[:,0]+X_SHIFT_RIGHT)
+    barycenters_2d[:,0]=np.where(barycenters_2d[:,0]<X_FR, barycenters_2d[:,0]-X_SHIFT_LEFT, barycenters_2d[:,0]+X_SHIFT_RIGHT)
     
     
     # compute 1d avarage points
@@ -92,7 +93,7 @@ def resample_to_2d_1d(pdi, pdi_frac, pdo, geom):
     # reference grid
     N=float(AVERAGE_POINTS_X)
     dx=(X_SHIFT_RIGHT + X_SHIFT_LEFT)/N
-    x=np.linspace(-X_SHIFT_LEFT+dx/2, X_SHIFT_RIGHT-dx/2,N)
+    x=np.linspace(X_FR-X_SHIFT_LEFT+dx/2, X_FR+X_SHIFT_RIGHT-dx/2,N)
     N=float(AVERAGE_POINTS_Y)
     y=np.linspace(1/(2*N),1-1/(2*N),N)
     #print "weights: ", average_weights

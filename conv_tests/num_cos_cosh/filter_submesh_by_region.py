@@ -19,6 +19,7 @@ pdo = self.GetOutput()
 
 region_id = filter_parameters["region_id_to_extract"]
 region_id_array = ns.vtk_to_numpy( pdi.GetCellData().GetArray("region_id") )
-cell_list=np.where(abs(region_id_array - region_id) < 0.5)[0]
+int_array=np.round(region_id_array).astype(np.int)
+cell_list=np.where(int_array == region_id)[0]
 
 submesh.submesh(pdi, pdo, cell_list)
