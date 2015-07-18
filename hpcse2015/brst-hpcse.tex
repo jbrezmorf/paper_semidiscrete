@@ -82,6 +82,8 @@
 \def\ol{\overline}
 
 \renewcommand{\note}[2]{{\color{blue} \textbf{ #1:} \textit{#2}}}
+\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+\noindent\keywordname\enspace\ignorespaces#1}
 %% ini_table members
 %%%%%%%%%%%%%%%%%%%% specific math macros
 
@@ -95,12 +97,17 @@
 \begin{document}
 
 \title{Analysis and numerical verification of model error for a continuum-fracture model of porous media flow}
-\author{Jan B\v rezina \and Jan Stebel\thanks{PODEKOVANI!!!}}
+\author{Jan B\v rezina \and Jan Stebel}
 \institute{Technical University of Liberec, Studentsk\'a 1402/2, 46117 Liberec, Czech Republic\\\email{\{jan.brezina,jan.stebel\}@tul.cz}}
 
 \maketitle
 
 \begin{abstract}
+The Darcy flow problem in a fractured porous media is considered. The fractures are treated as
+lower dimensional objects coupled to the surrounding continuum. Error estimates for the weak solution 
+to such continuum-fracture model in comparison to the weak solution of the full model are derived.
+Validity of the estimates is inspected on one simple and one quasi-realistic case numerically.
+\keywords{Darcy flow, fractured media, reduced model, error estimate}
 \end{abstract}
 
 \section{Introduction}
@@ -116,6 +123,8 @@ A model for saturated flow in the system matrix-fracture was formally derived in
 It was justified by an error estimate $O(\max\{h,\delta\})$, $h$ being the mesh size and $\delta$ the fracture width, which holds inside the fracture for the solution of a particular mixed finite element approximation.
 The approach was then generalized by others e.g. to the case of curved fractures with variable width \cite{angot_asymptotic_2009}, non-matching grids \cite{frih_modeling_2012} or to other equations or systems \cite{lesinigo_multiscale_2011,fumagalli_reduced_2013,ganis_modeling_2014}.
 While most papers aim at the analysis or numerical solution of the continuum-fracture model, the precise statement declaring the relation of the original and reduced problem on the continuous level is, to our knowledge, missing.
+The presented estimates hold for the pressure gradient, which in turn controls the error in the velocity field which is required for the  
+practical solute transport problems.
 
 In this paper we shall study the Darcy flow model, namely
 \begin{equation}
@@ -138,7 +147,7 @@ The fracture interacts with the matrix on the interfaces
 Normal vectors on these interfaces are denoted $\vc n_i$, $i=1,2$ with the orientation out of $\Omega_m$.
 Further, we introduce the reduced geometry (see Figure \ref{fig:omegas}, right)
 where the fracture is represented by the interface $\gamma:=\Omega\cap\big(\{0\}\times\Real^{d-1}\big)$ in its center.
-For a  point $\vc x\in\Real^d$ we shall write $\vc x=(x,\yy)^\top$, $\yy\in\Real^{d-1}$.
+For a  point $\vc x\in\Real^d$, we shall write $\vc x=(x,\yy)^\top$, $\yy\in\Real^{d-1}$.
 For functions defined in $\Omega_f$ we define the tangent gradient along the fracture
 \[ \nabla_\yy v:=(0,\partial_{y_1} v,\ldots,\partial_{y_{d-1}} v)^\top, \]
 and the average of $v$ across the fracture:
@@ -387,40 +396,67 @@ from which the estimates \eqref{eq:error_estimates_delta} follow.
 \section{Numerical experiments}
 \label{sc:numerics}
 
-In this section we present computational results that demonstrate the relevance of the continuum-fracture model in the discrete setting, in particular we study the dependence of the error between the full and the reduced model on the fracture cross section.
-For the numerical computation we used the mixed-hybrid FEM implemented in the code Flow123d.
-The solution of the continuum-fracture model was compared either to an analytical solution of the full model (if available) or with a reference solution on a sufficiently fine mesh.
-For each cross-section width $\delta$ we performed a sequence of computations on meshes with different norms $h$.
-This approach allows to identify situations with dominating modelling error and estimate its rate.
+In this section we present computational results that demonstrate the relevance of the continuum-fracture model
+in the discrete setting, in particular we study the dependence of the error between the full and the reduced model on the fracture cross section.
+For the numerical computation we used the mixed-hybrid FEM implemented in the code Flow123d \cite{flow123d}.
+The solution of the continuum-fracture model was compared either to an analytical solution of the full model (if available) or to a 
 
-In all computations we shall use the domain $\Omega:=(-1,1)\times(0,1)$ and the fracture $\Omega_f^\delta:=(-\delta/2,\delta/2)\times(0,1)$.
+For each cross-section width $\delta$, the solution to the continuum-fracture model computed on a sequence
+of meshes with different step $h$ was compared either against an analytical solution of the full model 
+or against the reference solution of the full model on a sufficiently fine mesh. 
+This approach allows to distinguish numerical error and the error of the reduced model.
+
+%In all computations we shall use the domain $\Omega:=(-1,1)\times(0,1)$ and the fracture $\Omega_f^\delta:=(-\delta/2,\delta/2)\times(0,1)$.
 
 % We measured the $L^2$ error in the piezometric head in $\Omega_m^\delta:=\Omega\setminus\Omega_f^\delta$ and $\gamma$:
 % \[ e_m^\delta := \norm{p^\delta - p_m^\delta}_{2,\Omega_m^\delta},\quad e_f^\delta := \norm{p^\delta - p_f^\delta}_{2,\gamma}. \]
 
 \subsection{Test 1 - analytical solution and virtual fracture}
 
-We tested a problem with fixed constant conductivity $\tn A=\tn I$ and with the exact solution $p^\delta(x,y)=e^x\cos y$.
-Since the solution is independent of $\delta$, the fracture in this problem only plays a role of a virtual interface.
+We tested a problem with fixed constant conductivity $\tn A=\tn I$ and with the exact solution $p^\delta(x,y)=e^x\cos y$ on the domain $\Omega:=(-1,1)\times(0,1)$
+with a virtual fracture $\Omega_f^\delta:=(-\delta/2,\delta/2)\times(0,1)$.
 \begin{figure}
 \centering
-\input figures/exp_cos/hornina
-\caption{Error in the matrix between the numerical and exact solution for different mesh and cross-section sizes.}
-\label{fig:exp_cos_hor}
+\includegraphics[scale=0.6]{figures/plot_anal_exp_sin_color.pdf}
+\caption{Test 1 - virtual fracture $K_m=K_f=1$, $L^2$ norm of the error in the pressure ($p$) and in the velocity ($v$), comparison against analytical solution.}
+\label{fig:exp_sin}
 \end{figure}
+In Figure \ref{fig:exp_sin}, we display the $L^2$ norm of the error in the pressure and in the velocity separately for the matrix and for the fracture domain. 
+Numerical solution to the reduced model using $h\in \{0.04, 0.02, 0.01, 0.005, 0.0025\}$ is compared to the analytical solution. Estimated orders of convergence 
+are consistent with the estimate \eqref{eq:error_estimates_delta}, namely the convergence in the matrix domain is faster then in the fracture domain. All numerically 
+estimated orders of convergence are higher then predicted by Theorem \ref{th:error_estimate} since in this case the solution is perfectly regular. Note also that 
+$\norm{\prtl^2_x p}_{L^\infty(\Omega_f)}$, which stands on the right hand side of \eqref{eq:error_estimates_delta}, is close to $1$ in this case.
+Unfortunately, the numerical error of the velocity on the matrix domain is only of the first order which leads to worse numerical estimate of the order of convergence with 
+respect to the $\delta$.
+
+
+\subsection{Test 2 - highly permeable fracture}
+
 \begin{figure}
 \centering
-\input figures/exp_cos/puklina
-\caption{Error in the fracture between the numerical and exact solution for different mesh and cross-section sizes.}
-\label{fig:exp_cos_puk}
+\includegraphics[scale=0.6]{figures/plot_num_cos_cosh_color.pdf}
+\caption{Test 2 - permeable fracture, $K_m=1,\ K_f=100$, $L^2$ norm of the error in the pressure ($p$) and in the velocity ($v$), 
+         comparison against solution to the full model on refined mesh.}
+\label{fig:cos_cosh}
 \end{figure}
-In Figure \ref{fig:exp_cos_hor} and \ref{fig:exp_cos_puk} the $L^2$-norm of error between the numerical and exact solution in matrix and fracture, respectively, is shown.
-Each line connects values of the error for meshes with comparable element sizes.
-It can be seen that the error stagnates for small values of $\delta$, which indicates that the modeling error is dominated by the discretization error.
-Here it seems that the modeling error in matrix behaves like $\delta^3$ and in fracture like $\delta^2$.
-The better rates than predicted by Theorem \ref{th:error_estimate} are probably due to the smoothness of the exact solution.
 
 
+In the second test investigated more realistic case, with $K_m=1$ and $K_f=100$. We prescribe harmonic Dirichlet boundary condition 
+$p = {\mathrm cos}(x){\mathrm cosh}(y)$ on the boundary of the domain $\Omega:=(0,2)\times(-0.5,0.5)$ with the fracture along the line $x=1$.
+Actually, we exploit symmetry of the problem, computing only on the top half and prescribing the homogeneous 
+Neumann condition on the bottom boundary. In this case, no analytical solution is available, so we solve the full model on a mesh locally refined 
+around fracture and especially around its endpoint $[1, 0.5]$, where the solution exhibits singularities. The continuum-fracture model is solved 
+on a sequence of meshes for $h\in\{0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.0025\}$.
+
+As in the previous case, Figure \ref{fig:cos_cosh} displays the $L^2$ norm of the error in the pressure and in the velocity separately for 
+the matrix and for the fracture domain. However, unlike in the previous case, the error is not consistent with the theoretical estimate. 
+The error on the matrix domain converge with order $1$ only and the error on the fracture domain stagnates. Moreover 
+the error of the velocity is quite large. The main reason of this situation is high and possibly unbounded norm $\norm{\prtl^2_x p}_{L^\infty(\Omega_f)}$,
+which has been numerically estimated as $10^3$ and uniformly growing with decreasing $h$. Unfortunately, this scenario is common in applications. 
+On the other hand even if the norm of second derivative is not bounded, we observe relatively good approximation of the pressure on both domains
+and good approximation of the velocity on the matrix domain. The conclusion is that the solution of the full model usually contains singularities at their
+intersection of the fracture boundary with the domain boundary which may lead to the inaccuracy in the continuum-fracture model. Refinement or dedicated model 
+may be necessary in order to obtain descent flux error at the fracture boundary. 
 
 
 
@@ -428,9 +464,13 @@ The better rates than predicted by Theorem \ref{th:error_estimate} are probably 
 
 
 \section*{Acknowledgement}
+This work was supported by the Technology Agency of the Czech Republic under the
+project no. TA04020506.\\
+Computational resources were provided by the MetaCentrum under the program LM2010005
+and the CERIT-SC under the program Centre CERIT Scientific Cloud,
+part of the Operational Program Research and Development for Innovations, Reg. no. CZ.1.05/3.2.00/08.0144.
 
-The access to the MetaCentrum computing facilities and workloads is kindly acknowledged.
-
+%\note{Podekovani TACR PResage, }
 
 \bibliographystyle{abbrvnat}
 \bibliography{flow123d_doc.bib}
