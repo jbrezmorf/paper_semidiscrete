@@ -3,39 +3,39 @@
     TYPE = "SequentialCoupling", 
     description = "Martin, Jaffre, Roberts: test 1, constant K on fracture.", 
     mesh = {
-      mesh_file = "mesh_2d2d.msh",
-      sets = [
-          {name = "matrix",
-           region_labels = [ "hornina"]
-          }
-      ]
+      mesh_file = "mesh_2d2d.msh"
     }, 
 
     primary_equation = {
       TYPE = "Steady_MH", 
 
       input_fields= [
-        { r_set = "matrix",
+        { region = "matrix",
           conductivity = 1,            
           cross_section = 1
         },
-        { region = "puklina",
+        { region = "fracture",
           conductivity = 100,
-          cross_section = $rozevreni$
+          cross_section = 1
         },
-        { region = ".right",
+        { region = ".matrix_right",
           bc_type = "dirichlet",
           bc_piezo_head = 1
         },
-        { region = ".left",
+        { region = ".matrix_left",
           bc_type = "dirichlet",
           bc_piezo_head = 0
         },
-        { region = ".no_flow_body",
+        { region = ".fracture_top",
           bc_type = "dirichlet",
-          bc_piezo_head = {TYPE = "FieldFormula", value = "y"}
+          bc_piezo_head = 1
+        },
+        { region = ".fracture_bottom",
+          bc_type = "dirichlet",
+          bc_piezo_head = 0
         }
       ],
+        
 
       output = {
         output_stream = {

@@ -92,9 +92,17 @@ def _error_2d1d(output_2d1d, reference_2d2d):
     data_reader_1d = servermanager.sources.PVDReader(FileName=output_2d1d)
     data_reader_2d = servermanager.sources.PVDReader(FileName=reference_2d2d)
 
-    #iv=paraview.simple.IntegrateVariables(data_reader_2d)
+    data_2d_2d=programmable_filter( [data_reader_2d], "../filter_submesh_by_region.py",
+                             Parameters={"region_id_to_extract" : 1})
+    point_data_2d_2d=servermanager.filters.CellDatatoPointData(Input=data_2d_2d)
+    data_2d_1d=programmable_filter( [data_reader_2d], "../filter_submesh_by_region.py",
+                             Parameters={"region_id_to_extract" : 2})
+    point_data_2d_1d=servermanager.filters.CellDatatoPointData(Input=data_2d_1d)
+    writer=servermanager.writers.DataSetWriter(FileName="./point_data_2d_1d.vtk", Input=point_data_2d_1d)
+    writer.UpdatePipeline()
+    
 
-    resampled_2d_data=programmable_filter([data_reader_1d, data_reader_2d], "./filter_resample_2d1d.py")
+    resampled_2d_data=programmable_filter([data_reader_1d, point_data_2d_2d, point_data_2d_1d], "./filter_resample_2d1d.py")
     writer=servermanager.writers.DataSetWriter(FileName="./resampled_data.vtk", Input=resampled_2d_data)
     writer.UpdatePipeline()
 
@@ -138,10 +146,19 @@ def dxdx_2d2d(output_2d2d):
 
 def _dxdx_2d2d(output_2d2d):
     data_reader_2d = servermanager.sources.PVDReader(FileName=output_2d2d)
+
     #########################################################################
     # Estimate norms of second X derivative of the pressure on the fracture
-    dx_p_data=servermanager.filters.PythonCalculator(Input=data_reader_2d,
-                            Expression="(-1)*inputs[0].CellData['velocity_p0'][:,0]",
+    p_squared=servermanager.filters.PythonCalculator(Input=data_reader_2d,
+                            Expression="inputs[0].CellData['pressure_p0']*inputs[0].CellData['pressure_p0']",
+                            ArrayAssociation='Cell Data',
+                            ArrayName="p_squared")
+
+    ddxx_p_on_2d_fracture = programmable_filter([data_reader_2d], "../filter_submesh_by_region.py",
+                             Parameters={"region_id_to_extract" : 2})
+
+    dx_p_data=servermanager.filters.PythonCalculator(Input=ddxx_p_on_2d_fracture,
+                            Expression="(-1)*inputs[0].CellData['velocity_p0'][:,0]/100",
                             ArrayAssociation='Cell Data',
                             ArrayName="dx_p")
     grad_dx_p_data=servermanager.filters.GradientOfUnstructuredDataSet(Input=dx_p_data,
@@ -155,21 +172,15 @@ def _dxdx_2d2d(output_2d2d):
                             Expression="inputs[0].CellData['ddxx_p']*inputs[0].CellData['ddxx_p']",
                             ArrayAssociation='Cell Data',
                             ArrayName="ddxx_p_2")
-    ddxx_p_on_2d_fracture = programmable_filter([ddxx_p_data], "../filter_submesh_by_region.py",
-                             Parameters={"region_id_to_extract" : 2})
-    p_squared=servermanager.filters.PythonCalculator(Input=ddxx_p_data,
-                            Expression="inputs[0].CellData['pressure_p0']*inputs[0].CellData['pressure_p0']",
-                            ArrayAssociation='Cell Data',
-                            ArrayName="p_squared")
-    iv_ddxx, iv_ddxx_arrays = fetch_integrate_variables(ddxx_p_on_2d_fracture)
+    iv_ddxx, iv_ddxx_arrays = fetch_integrate_variables(ddxx_p_data)
     iv_p_L2, iv_p_L2_arrays = fetch_integrate_variables(p_squared)
 
-    writer=servermanager.writers.DataSetWriter(FileName="./ddxx_p.vtk", Input=p_squared)
+    writer=servermanager.writers.DataSetWriter(FileName="./ddxx_p.vtk", Input=ddxx_p_data)
     writer.UpdatePipeline()
 
     norms={}
     norms["dx_dx_p_fracture_L2"] = math.sqrt(integrate(iv_ddxx_arrays, "ddxx_p_2"))
-    norms["dx_dx_p_fracture_Linf"] = inf_norm(ddxx_p_on_2d_fracture, "ddxx_p")
+    norms["dx_dx_p_fracture_Linf"] = inf_norm(ddxx_p_data, "ddxx_p")
     norms["p_L2"] = math.sqrt(integrate(iv_p_L2_arrays, "p_squared"))
     return norms
 

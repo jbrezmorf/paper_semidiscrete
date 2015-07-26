@@ -93,9 +93,10 @@ class pbs_pool:
                 f.write( self.__make_pbs_script(job) )
 
             n_proc = min( 16, int(job['n_proc']) )
+            mem_limit = min( 16000, int(job['memory'])) 
             infiniband=""
             if n_proc>1: infiniband=":infiniband"
-            call_list=["qsub", "-q", "short", "-l", "nodes="+str(n_proc)+":x86_64:mem=5300mb"+infiniband, qsub_script]
+            call_list=["qsub", "-q", "short", "-l", "nodes="+str(n_proc)+":x86_64:mem=" + str(mem_limit) + "mb"+infiniband, qsub_script]
             print call_list
             #result=subprocess.check_output(["qsub", "-l nodes=1:x86_64:walltime=" + job['wall_time'], qsub_script])
             result=subprocess.check_output(call_list)
@@ -111,7 +112,7 @@ class pbs_pool:
         job_id = job['pbs_id']
         out=subprocess.check_output(["qstat", job_id])
         status = out.split("\n")[2].split()
-        print "job status: ", status
+        print "job status: ", status, job['n_proc'], job['memory'], job['case'].workdir
         # return time_use, status Q/R/C/E, queue
         return (status[3], status[4], status[5])
 
