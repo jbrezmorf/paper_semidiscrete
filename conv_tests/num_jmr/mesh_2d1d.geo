@@ -1,15 +1,36 @@
 DefineConstant[ d = { $d$ , Name "Gmsh/Parameters/d"}];
 DefineConstant[ h = { $h$ , Name "Gmsh/Parameters/h"}];
-Point(1) = {-1+d/2, 0, 0, h};
-Point(2) = {-1+d/2, 1, 0, h};
-Line(1) = {1, 2};
+DefineConstant[ h1d = { $h1d$ , Name "Gmsh/Parameters/h1d"}];
 
-Extrude{ 1-d/2, 0, 0 }{ Line{1}; Layers{(2-d)/2/h}; }
-Extrude{ 1-d/2, 0, 0 }{ Line{2}; Layers{(2-d)/2/h}; }
+y_top=1;
+y_bot=0;
 
-Physical Surface("hornina") = { 5, 9};
-Physical Line("puklina") = { 2 };
-Physical Line(".right") = { 6 };
-Physical Line(".left") = { 1 };
-Physical Line(".no_flow") = { 3, 4, 7, 8 };
-Physical Point(".no_flow_body") = { 3, 4 };
+Point(1) = {-1+d/2, y_bot, 0, h};
+Point(2) = {-1+d/2, y_top, 0, h};
+Point(3) = {0, y_bot, 0, h};
+Point(4) = {0, y_top, 0, h};
+Point(5) = {+1-d/2, y_bot, 0, h};
+Point(6) = {+1-d/2, y_top, 0, h};
+
+Line(7) = {1, 2};
+Line(8) = {2, 4};
+Line(9) = {4, 3};
+Line(10) = {3, 1};
+Line Loop(11) = {8, 9, 10, 7};
+Plane Surface(12) = {11};
+Line(13) = {4, 6};
+Line(14) = {6, 5};
+Line(15) = {5, 3};
+Line Loop(16) = {13, 14, 15, -9};
+Plane Surface(17) = {16};
+
+
+Physical Surface("matrix") = { 12, 17};
+Physical Line("fracture") = { 9 };
+Physical Line(".matrix_right") = { 14 };
+Physical Line(".matrix_left") = { 7 };
+Physical Line(".matrix_top") = { 8, 13 };
+Physical Line(".matrix_bottom") = { 10, 15 };
+Physical Point(".fracture_top") = { 4 };
+Physical Point(".fracture_bottom") = { 3 };
+

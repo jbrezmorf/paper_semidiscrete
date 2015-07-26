@@ -35,7 +35,7 @@
         { region = ".fracture_top",
           bc_type = "dirichlet",
           bc_pressure = {TYPE = "FieldFormula", 
-                         value = "cosh(y)"}
+                         value = "cosh(y)*2*sin(0.5*$rozevreni$)*cos(1)/$rozevreni$"}
         }
       ],
 
