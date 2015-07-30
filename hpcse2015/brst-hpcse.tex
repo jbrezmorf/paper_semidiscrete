@@ -454,10 +454,11 @@ on a sequence of meshes for $h\in\{0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.0025\}$.
 As in the previous case, Figure \ref{fig:cos_cosh} displays the $L^2$ norm of the error in the pressure and in the velocity separately for 
 the matrix and for the fracture domain. However, unlike in the previous case, the error is not consistent with the theoretical estimate. 
 The error in the matrix domain is only of the order 1 with respect to $\delta$ and the error in the fracture domain stagnates. Moreover 
-the error of the velocity is quite large. The main reason of this situation is the high and possibly unbounded value of the norm $\norm{\prtl^2_x p^\delta}_{\infty,\Omega_f}$,
+the error of the velocity is quite large. The main reason for this situation is the high and possibly unbounded value of the norm $\norm{\prtl^2_x p^\delta}_{\infty,\Omega_f}$
+as well as the norm $\norm{\prtl^2_x p^\delta}_{2,\Omega_f}$,
 % which has been numerically estimated as $10^3$ and uniformly growing with decreasing $h$.
-whose numerical estimate uniformly grows with decreasing $h$.
-On the other hand even if the norm of second derivative is not bounded, we observe relatively good approximation of the pressure in both domains
+whose numerical estimates uniformly grows with decreasing $h$.
+On the other hand even if the norm of the second derivative is not bounded, we observe relatively good approximation of the pressure in both domains
 and good approximation of the velocity in the matrix domain.
 
 
